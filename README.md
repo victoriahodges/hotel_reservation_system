@@ -47,3 +47,5 @@ pipenv install [OPTIONS] [PACKAGES]...
 ```
 $ pipenv install Flask
 ```
+
+The application builds upon steps from tutorial https://flask.palletsprojects.com/en/3.0.x/tutorial/
