@@ -7,6 +7,10 @@ name = "pypi"
 flask = "*"
 
 [dev-packages]
+black = "*"
+isort = "*"
+mypy = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.11"
