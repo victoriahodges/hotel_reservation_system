@@ -1,0 +1,26 @@
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS guests;
+
+CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL
+);
+
+CREATE TABLE guests (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  telephone TEXT NOT NULL,
+  address_1 TEXT NOT NULL,
+  address_2 TEXT,
+  city TEXT NOT NULL,
+  county TEXT NOT NULL,
+  postcode TEXT NOT NULL,
+  notes TEXT NOT NULL,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_by_id INTEGER NOT NULL,
+  modified_by_id INTEGER NOT NULL,
+  FOREIGN KEY (created_by_id) REFERENCES users (id),
+  FOREIGN KEY (modified_by_id) REFERENCES users (id)
+);
