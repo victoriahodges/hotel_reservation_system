@@ -51,5 +51,10 @@ $ pipenv install Flask
 ```
 
 ### Developing a hotel reservation application
- 
+
 The application builds upon steps from tutorial https://flask.palletsprojects.com/en/3.0.x/tutorial/
+
+### Initialise database
+```
+$ flask --app reservation_system init-db
+```
