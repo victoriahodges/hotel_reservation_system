@@ -1,6 +1,8 @@
 import os
 
-from flask import Flask
+from flask import Flask, render_template
+
+from . import auth, db, guests
 
 
 def create_app(test_config=None):
@@ -24,22 +26,15 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    # a simple page that says hello
-    @app.route("/hello")
-    def hello():
-        return "Hello, World!"
-
-    from . import db
+    # load the homepage
+    @app.route("/")
+    def index():
+        return render_template("homepage/index.html")
 
     db.init_app(app)
 
-    from . import auth
-
     app.register_blueprint(auth.bp)
-
-    from . import guests
-
     app.register_blueprint(guests.bp)
-    app.add_url_rule("/", endpoint="index")
+    app.add_url_rule("/guests", endpoint="guests.index")
 
     return app

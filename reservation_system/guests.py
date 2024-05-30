@@ -5,10 +5,10 @@ from reservation_system.auth import login_required
 from reservation_system.db import get_db
 from werkzeug.exceptions import abort
 
-bp = Blueprint("guests", __name__)
+bp = Blueprint("guests", __name__, url_prefix="/guests")
 
 
-@bp.route("/")
+@bp.route("/guests")
 def index():
     db = get_db()
     guests = db.execute(
