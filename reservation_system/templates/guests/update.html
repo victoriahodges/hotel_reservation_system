@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Edit Guest{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    <label for="name">Name</label>
+    <input name="name" id="name" value="{{ request.form['name'] or guest['name']  }}" required>
+    <label for="email">Email</label>
+    <input name="email" id="email" value="{{ request.form['email'] or guest['email'] }}" required>
+    <label for="telephone">Telephone</label>
+    <input name="telephone" id="telephone" value="{{ request.form['telephone'] or guest['telephone'] }}" required>
+    <label for="address_1">Address Line 1</label>
+    <input name="address_1" id="address_1" value="{{ request.form['address_1'] or guest['address_1'] }}" required>
+    <label for="address_2">Address Line 2</label>
+    <input name="address_2" id="address_2" value="{{ request.form['address_2'] or guest['address_2'] }}" required>
+    <label for="city">Town/City</label>
+    <input name="city" id="city" value="{{ request.form['city'] or guest['city'] }}" required>
+    <label for="county">County</label>
+    <input name="county" id="county" value="{{ request.form['county'] or guest['county'] }}" required>
+    <label for="postcode">Postcode</label>
+    <input name="postcode" id="postcode" value="{{ request.form['postcode'] or guest['postcode'] }}" required>
+    <label for="notes">Notes</label>
+    <textarea name="notes" id="notes">{{ request.form['notes'] or guest['notes'] }}</textarea>    
+
+    <input type="submit" value="Save">
+    <a class="action" href="{{ url_for('guests.index') }}">Cancel</a>
+</form>
+<hr>
+<form action="{{ url_for('guests.delete', id=guest['id']) }}" method="post">
+  <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+</form>
+{% endblock %}

@@ -6,14 +6,14 @@ Python application using Flask framework, REST API and SQLAlchemy.
 
 ## Setup environment
 
-Check dependencies:
+#### Check dependencies:
 
 ```
 $ python --version
 Python 3.11.6
 ```
 
-### Install pip 
+#### Install pip 
 https://packaging.python.org/en/latest/guides/installing-using-linux-tools/
 
 ```
@@ -23,7 +23,7 @@ $ pip --version
 pip 22.2.2
 ```
 
-### Install pipenv 
+#### Install pipenv 
 https://pipenv.pypa.io/en/latest/index.html
 
 ```
@@ -54,7 +54,12 @@ $ pipenv install Flask
 
 The application builds upon steps from tutorial https://flask.palletsprojects.com/en/3.0.x/tutorial/
 
-### Initialise database
+#### Initialise database
 ```
 $ flask --app reservation_system init-db
+```
+
+#### Run app with debugger
+```
+$ flask --app reservation_system run --debug
 ```

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Guests{% endblock %}</h1>
+  {% if g.user %}
+    <a class="action" href="{{ url_for('guests.create') }}">New</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Telephone</th>
+        <th>Notes</th>
+        <th>Last modified</th>
+        <th>Action</th>
+    </tr>
+  {% for guest in guests %}
+    <tr>
+        <th>{{ guest['name'] }}</th>
+        <td>{{ guest['email'] }}</td>
+        <td>{{ guest['telephone'] }}</td>
+        <td>{{ guest['notes'] }}</td>
+        <td>{{ guest['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ guest['username'] }}</td>
+        <td><a class="action" href="{{ url_for('guests.update', id=guest['id']) }}">Edit</a></td>
+    </tr>
+  {% endfor %}
+</table>  
+{% endblock %}
