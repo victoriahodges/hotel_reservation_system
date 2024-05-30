@@ -26,6 +26,13 @@ def init_db():
         db.executescript(f.read().decode("utf8"))
 
 
+def dummy_db():
+    db = get_db()
+
+    with current_app.open_resource("dummy_data.sql") as f:
+        db.executescript(f.read().decode("utf8"))
+
+
 @click.command("init-db")
 def init_db_command():
     """Clear the existing data and create new tables."""
@@ -33,6 +40,14 @@ def init_db_command():
     click.echo("Initialized the database.")
 
 
+@click.command("dummy-data")
+def populate_db_command():
+    """Add dummy data to the database tables."""
+    dummy_db()
+    click.echo("Populated the database.")
+
+
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+    app.cli.add_command(populate_db_command)
