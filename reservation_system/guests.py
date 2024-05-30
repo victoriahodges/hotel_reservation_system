@@ -8,12 +8,32 @@ from werkzeug.exceptions import abort
 bp = Blueprint("guests", __name__, url_prefix="/guests")
 
 
+def get_fields():
+    return [
+        "name",
+        "email",
+        "telephone",
+        "address_1",
+        "address_2",
+        "city",
+        "county",
+        "postcode",
+        "notes",
+    ]
+
+
+sql_fields = ", ".join(get_fields())
+sql_update_fields = " = ?,".join(get_fields())
+table = "guests"
+
+
 @bp.route("/guests")
 def index():
     db = get_db()
     guests = db.execute(
-        "SELECT g.id, name, email, telephone, notes, modified, modified_by_id, username"
-        " FROM guests g JOIN users u ON g.modified_by_id = u.id"
+        f"SELECT {table}.id, {sql_fields},"
+        " modified, modified_by_id, username"
+        f" FROM {table} JOIN users u ON {table}.modified_by_id = u.id"
         " ORDER BY name"
     ).fetchall()
     return render_template("guests/index.html", guests=guests)
@@ -23,29 +43,22 @@ def index():
 @login_required
 def create():
     if request.method == "POST":
-        name = request.form["name"]
-        email = request.form["email"]
-        telephone = request.form["telephone"]
-        address_1 = request.form["address_1"]
-        address_2 = request.form["address_2"]
-        city = request.form["city"]
-        county = request.form["county"]
-        postcode = request.form["postcode"]
-        notes = request.form["notes"]
+        fields = [request.form[f] for f in get_fields()] + [g.user["id"]]
         error = None
 
-        if not name:
-            error = "Name is required."
+        # TODO: handle error
+        # if not name:
+        #     error = "Name is required."
 
         if error is not None:
             flash(error)
         else:
             db = get_db()
             db.execute(
-                "INSERT INTO guests (name, email, telephone, address_1,"
-                " address_2, city, county, postcode, notes, modified_by_id)"
-                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                (name, email, telephone, address_1, address_2, city, county, postcode, notes, g.user["id"]),
+                f"INSERT INTO {table} ({sql_fields},"
+                " modified_by_id)"
+                " VALUES (" + ("?, " * len(fields)).rstrip(", ") + ")",
+                fields,
             )
             db.commit()
             return redirect(url_for("guests.index"))
@@ -57,11 +70,10 @@ def get_guest(id):
     guest = (
         get_db()
         .execute(
-            "SELECT g.id, name, email, telephone, address_1,"
-            " address_2, city, county, postcode, notes,"
+            f"SELECT {table}.id, {sql_fields},"
             " created, modified_by_id, username"
-            " FROM guests g JOIN users u ON g.modified_by_id = u.id"
-            " WHERE g.id = ?",
+            f" FROM {table} JOIN users u ON {table}.modified_by_id = u.id"
+            f" WHERE {table}.id = ?",
             (id,),
         )
         .fetchone()
@@ -82,44 +94,20 @@ def update(id):
     guest = get_guest(id)
 
     if request.method == "POST":
-        name = request.form["name"]
-        email = request.form["email"]
-        telephone = request.form["telephone"]
-        address_1 = request.form["address_1"]
-        address_2 = request.form["address_2"]
-        city = request.form["city"]
-        county = request.form["county"]
-        postcode = request.form["postcode"]
-        notes = request.form["notes"]
         modified = datetime.now()
+        fields = [request.form[f] for f in get_fields()] + [modified, g.user["id"], id]
         error = None
 
-        if not name:
-            error = "Name is required."
+        # if not name:
+        #     error = "Name is required."
 
         if error is not None:
             flash(error)
         else:
             db = get_db()
             db.execute(
-                "UPDATE guests SET name = ?, email = ?, telephone = ?, address_1 = ?,"
-                "address_2 = ?, city = ?, county = ?, postcode = ?, notes = ?,"
-                "modified = ?, modified_by_id = ?"
-                " WHERE id = ?",
-                (
-                    name,
-                    email,
-                    telephone,
-                    address_1,
-                    address_2,
-                    city,
-                    county,
-                    postcode,
-                    notes,
-                    modified,
-                    g.user["id"],
-                    id,
-                ),
+                f"UPDATE {table} SET {sql_update_fields} = ?," " modified = ?, modified_by_id = ?" " WHERE id = ?",
+                fields,
             )
             db.commit()
             return redirect(url_for("guests.index"))
@@ -132,6 +120,6 @@ def update(id):
 def delete(id):
     get_guest(id)
     db = get_db()
-    db.execute("DELETE FROM guests WHERE id = ?", (id,))
+    db.execute(f"DELETE FROM {table} WHERE id = ?", (id,))
     db.commit()
     return redirect(url_for("guests.index"))
