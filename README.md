@@ -64,3 +64,21 @@ $ flask --app reservation_system dummy-data
 ```
 $ flask --app reservation_system run --debug
 ```
+
+
+### Run the tests
+
+#### Coverage with Pytest
+```
+$ coverage run -m pytest
+```
+#### View report in terminal
+```
+$ coverage report
+```
+#### Generate reports
+
+This then works with Coverage Gutters VS Code extension to view coverage in module's python files.
+```
+$ coverage xml
+```

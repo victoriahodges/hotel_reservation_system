@@ -26,3 +26,16 @@ def test_init_db_command(runner, monkeypatch):
     result = runner.invoke(args=["init-db"])
     assert "Initialized" in result.output
     assert Recorder.called
+
+
+def test_dummy_db_command(runner, monkeypatch):
+    class Recorder(object):
+        called = False
+
+    def fake_dummy_db():
+        Recorder.called = True
+
+    monkeypatch.setattr("reservation_system.db.dummy_db", fake_dummy_db)
+    result = runner.invoke(args=["dummy-data"])
+    assert "Populated" in result.output
+    assert Recorder.called

@@ -41,7 +41,7 @@ def init_db_command():
 
 
 @click.command("dummy-data")
-def populate_db_command():
+def dummy_db_command():
     """Add dummy data to the database tables."""
     dummy_db()
     click.echo("Populated the database.")
@@ -50,4 +50,4 @@ def populate_db_command():
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
-    app.cli.add_command(populate_db_command)
+    app.cli.add_command(dummy_db_command)
