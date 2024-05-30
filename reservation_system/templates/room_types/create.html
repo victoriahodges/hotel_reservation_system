@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Add New Room Type{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    <label for="type_name">Type Name</label>
+    <input name="type_name" id="type_name" value="{{ request.form['type_name'] }}" required>
+    <label for="base_price_per_night">Base price per night</label>
+    <input name="base_price_per_night" id="base_price_per_night" value="{{ request.form['base_price_per_night'] }}" required>
+    <label for="amenities">Amenities</label>
+    <input name="amenities" id="amenities" value="{{ request.form['amenities'] }}" required>
+    <label for="photo">Photo</label>
+    <input name="photo" id="photo" value="{{ request.form['photo'] }}" required>
+    <label for="max_occupants">Max. occupants</label>
+    <input name="max_occupants" id="max_occupants" value="{{ request.form['max_occupants'] }}" required>  
+
+    <input type="submit" value="Save">
+    <a class="action" href="{{ url_for('room_types.index') }}">Cancel</a>
+</form>
+{% endblock %}
