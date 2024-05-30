@@ -1,0 +1,19 @@
+[project]
+name = "reservation_system"
+version = "1.0.0"
+description = "Basic hotel reservation system app built with Flask."
+readme = "README.md"
+dependencies = [
+    "flask",
+]
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["reservation_system"]

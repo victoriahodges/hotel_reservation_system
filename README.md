@@ -57,6 +57,7 @@ The application builds upon steps from tutorial https://flask.palletsprojects.co
 #### Initialise database
 ```
 $ flask --app reservation_system init-db
+$ flask --app reservation_system dummy-data
 ```
 
 #### Run app with debugger
