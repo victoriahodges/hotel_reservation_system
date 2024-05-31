@@ -23,7 +23,7 @@ sql_update_fields = " = ?,".join(get_fields())
 table = "room_types"
 
 
-@bp.route("/room_types")
+@bp.route("/")
 def index():
     db = get_db()
     room_types = db.execute(
