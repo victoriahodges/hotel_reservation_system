@@ -14,7 +14,7 @@ def get_fields():
         "start_date",
         "end_date",
         "reservation_notes",
-        "status",
+        "status_id",
     ]
 
 
@@ -27,11 +27,12 @@ table = "reservations"
 def index():
     db = get_db()
     reservations = db.execute(
-        f"SELECT {table}.id, {sql_fields}, g.name, "
+        f"SELECT {table}.id, {sql_fields}, g.name, rs.status, rs.bg_color,"
         f" {table}.modified, {table}.modified_by_id, username"
         f" FROM {table} JOIN users u ON {table}.modified_by_id = u.id"
         f" JOIN join_guests_reservations gr ON {table}.id = gr.reservation_id"
         f" JOIN guests g ON gr.guest_id = g.id"
+        f" JOIN reservation_status rs ON {table}.status_id = rs.id"
         " ORDER BY start_date"
     ).fetchall()
     return render_template("reservations/index.html", reservations=reservations)
@@ -55,11 +56,21 @@ def get_guests():
     return guests
 
 
+def get_res_status():
+    status = get_db().execute("SELECT * FROM reservation_status").fetchall()
+
+    if status is None:
+        abort(404, "No Guests found.")
+
+    return status
+
+
 @bp.route("/create", methods=("GET", "POST"))
 @login_required
 def create():
     # room_types = get_room_type_names()
     guests = get_guests()
+    res_status = get_res_status()
 
     if request.method == "POST":
         res_fields = [request.form[f] for f in get_fields()] + [g.user["id"]]
@@ -93,7 +104,7 @@ def create():
             db.commit()
             return redirect(url_for("reservations.index"))
 
-    return render_template("reservations/create.html", guests=guests)
+    return render_template("reservations/create.html", guests=guests, res_status=res_status)
 
 
 def get_reservation(id):
@@ -121,6 +132,7 @@ def get_reservation(id):
 def update(id):
     reservation = get_reservation(id)
     guests = get_guests()
+    res_status = get_res_status()
 
     if request.method == "POST":
         modified = datetime.now()
@@ -146,7 +158,7 @@ def update(id):
             db.commit()
             return redirect(url_for("reservations.index"))
 
-    return render_template("reservations/update.html", reservation=reservation, guests=guests)
+    return render_template("reservations/update.html", reservation=reservation, guests=guests, res_status=res_status)
 
 
 @bp.route("/<int:id>/delete", methods=("POST",))

@@ -10,6 +10,7 @@ def get_fields():
     return [
         "status",
         "description",
+        "bg_color",
     ]
 
 

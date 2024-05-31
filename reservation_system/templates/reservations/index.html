@@ -10,7 +10,8 @@
 {% block content %}
 <table>
     <tr>
-        <th>ID Number</th>
+        <th>ID</th>
+        <th>Status</th>
         <th>Guest</th>
         <th>Check-in</th>
         <th>Check-out</th>
@@ -20,9 +21,10 @@
     </tr>
   {% for res in reservations %}
     <tr>
-        <th>
-          {{ res['id'] }}
-        </th>
+        <th>{{ res['id'] }}</th>
+        <th style="background-color: {{ res['bg_color'] }};">
+        {{ res['status'] }}
+      </th>
         <td>{{ res['name'] }}</td>
         <td>{{ res['start_date'] }}</td>
         <td>{{ res['end_date'] }}</td>

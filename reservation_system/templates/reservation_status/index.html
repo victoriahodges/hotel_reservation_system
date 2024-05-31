@@ -16,7 +16,7 @@
     </tr>
   {% for status in res_status %}
     <tr>
-        <th>
+        <th style="background-color: {{ status['bg_color'] }};">
           {{ status['status'] }}
         </th>
         <td>{{ status['description'] }}</td>

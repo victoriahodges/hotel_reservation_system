@@ -10,6 +10,8 @@
     <input name="status" id="status" value="{{ request.form['status'] }}" required>
     <label for="description">Description</label>
     <input name="description" id="description" value="{{ request.form['description'] }}">
+    <label for="bg_color">Colour</label>
+    <input type="color" name="bg_color" id="bg_color" value="{{ request.form['bg_color'] }}">
 
     <input type="submit" value="Save">
     <a class="action" href="{{ url_for('reservation_status.index') }}">Cancel</a>

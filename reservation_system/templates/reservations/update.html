@@ -23,7 +23,15 @@
     <label for="number_of_guests">Number of Guests</label>
     <input type="number" name="number_of_guests" id="number_of_guests" value="{{ request.form['number_of_guests'] or reservation['number_of_guests'] }}" required>
     <label for="status">Status</label>
-    <input type="number" name="status" id="status" value="{{ request.form['status'] or reservation['status'] }}" required>
+    <select name="status_id" id="status_id" required>
+      {% for status in res_status %}
+        {% if status['id'] == reservation['status_id'] %}
+      <option selected value="{{ status['id'] }}">{{ status['status'] }}</option>
+        {% else %}
+      <option value="{{ status['id'] }}">{{ status['status'] }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
     <label for="notes">Notes</label>
     <textarea name="reservation_notes" id="notes">{{ request.form['reservation_notes'] or reservation['reservation_notes'] }}</textarea>
     

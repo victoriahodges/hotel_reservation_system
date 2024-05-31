@@ -59,18 +59,19 @@ CREATE TABLE reservations (
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
   reservation_notes TEXT DEFAULT "None",
-  status INTEGER NOT NULL,
+  status_id INTEGER NOT NULL,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   modified_by_id INTEGER NOT NULL,
   FOREIGN KEY (modified_by_id) REFERENCES users (id),
-  FOREIGN KEY (status) REFERENCES reservation_status (id)
+  FOREIGN KEY (status_id) REFERENCES reservation_status (id)
 );
 
 CREATE TABLE reservation_status (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   status TEXT NOT NULL,
-  description TEXT
+  description TEXT,
+  bg_color TEXT
 );
 
 CREATE TABLE join_guests_reservations (
