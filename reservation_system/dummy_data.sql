@@ -66,4 +66,12 @@ VALUES
   (2, 3)
 ;
 
+INSERT INTO join_rooms_reservations
+  (room_id, reservation_id)
+VALUES
+  (1, 1),
+  (2, 2),
+  (3, 3)
+;
+
 

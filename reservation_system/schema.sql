@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS reservations;
 DROP TABLE IF EXISTS reservation_status;
 DROP TABLE IF EXISTS reservation_status;
 DROP TABLE IF EXISTS join_guests_reservations;
+DROP TABLE IF EXISTS join_rooms_reservations;
 
 
 CREATE TABLE users (
@@ -79,5 +80,13 @@ CREATE TABLE join_guests_reservations (
   guest_id INTEGER NOT NULL,
   reservation_id INTEGER NOT NULL,
   FOREIGN KEY (guest_id) REFERENCES guests (id),
+  FOREIGN KEY (reservation_id) REFERENCES reservations (id)
+);
+
+CREATE TABLE join_rooms_reservations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  room_id INTEGER NOT NULL,
+  reservation_id INTEGER NOT NULL,
+  FOREIGN KEY (room_id) REFERENCES rooms (id),
   FOREIGN KEY (reservation_id) REFERENCES reservations (id)
 );

@@ -27,19 +27,25 @@ table = "reservations"
 def index():
     db = get_db()
     reservations = db.execute(
-        f"SELECT {table}.id, {sql_fields}, g.name, rs.status, rs.bg_color,"
+        f"SELECT {table}.id, {sql_fields}, g.name, r.room_number, rs.status, rs.bg_color,"
         f" {table}.modified, {table}.modified_by_id, username"
         f" FROM {table} JOIN users u ON {table}.modified_by_id = u.id"
+        f" JOIN reservation_status rs ON {table}.status_id = rs.id"
         f" JOIN join_guests_reservations gr ON {table}.id = gr.reservation_id"
         f" JOIN guests g ON gr.guest_id = g.id"
-        f" JOIN reservation_status rs ON {table}.status_id = rs.id"
+        f" JOIN join_rooms_reservations rr ON {table}.id = rr.reservation_id"
+        f" JOIN rooms r ON rr.room_id = r.id"
         " ORDER BY start_date"
     ).fetchall()
     return render_template("reservations/index.html", reservations=reservations)
 
 
-def get_room_type_names():
-    type_names = get_db().execute("SELECT id, type_name FROM room_types").fetchall()
+def get_rooms():
+    type_names = get_db().execute(
+        "SELECT r.id, room_number, type_name"
+        " FROM rooms r"
+        " JOIN room_types rt ON r.room_type = rt.id"
+        ).fetchall()
 
     if type_names is None:
         abort(404, "No Room types found.")
@@ -68,13 +74,14 @@ def get_res_status():
 @bp.route("/create", methods=("GET", "POST"))
 @login_required
 def create():
-    # room_types = get_room_type_names()
+    rooms = get_rooms()
     guests = get_guests()
     res_status = get_res_status()
 
     if request.method == "POST":
         res_fields = [request.form[f] for f in get_fields()] + [g.user["id"]]
         guest_id = request.form["guest_id"]
+        room_id = request.form["room_id"]
         error = None
 
         # TODO: handle error
@@ -101,20 +108,26 @@ def create():
                 "INSERT INTO join_guests_reservations (guest_id, reservation_id) VALUES (?, ?)",
                 (guest_id, reservation_id),
             )
+            # insert room and reservation in joining table
+            db.execute(
+                "INSERT INTO join_rooms_reservations (room_id, reservation_id) VALUES (?, ?)",
+                (room_id, reservation_id),
+            )
             db.commit()
             return redirect(url_for("reservations.index"))
 
-    return render_template("reservations/create.html", guests=guests, res_status=res_status)
+    return render_template("reservations/create.html", guests=guests, res_status=res_status, rooms=rooms)
 
 
 def get_reservation(id):
     reservation = (
         get_db()
         .execute(
-            f"SELECT {table}.id, {sql_fields}, guest_id,"
+            f"SELECT {table}.id, {sql_fields}, guest_id, room_id,"
             " modified_by_id, username"
             f" FROM {table} JOIN users u ON {table}.modified_by_id = u.id"
             f" JOIN join_guests_reservations gr ON {table}.id = gr.reservation_id"
+            f" JOIN join_rooms_reservations rr ON {table}.id = rr.reservation_id"
             f" WHERE {table}.id = ?",
             (id,),
         )
@@ -131,6 +144,7 @@ def get_reservation(id):
 @login_required
 def update(id):
     reservation = get_reservation(id)
+    rooms = get_rooms()
     guests = get_guests()
     res_status = get_res_status()
 
@@ -138,6 +152,7 @@ def update(id):
         modified = datetime.now()
         fields = [request.form[f] for f in get_fields()] + [modified, g.user["id"], id]
         guest_id = request.form["guest_id"]
+        room_id = request.form["room_id"]
         error = None
 
         # if not name:
@@ -155,10 +170,14 @@ def update(id):
                 "UPDATE join_guests_reservations SET guest_id = ? WHERE reservation_id = ?",
                 (guest_id, id),
             )
+            db.execute(
+                "UPDATE join_rooms_reservations SET room_id = ? WHERE reservation_id = ?",
+                (room_id, id),
+            )
             db.commit()
             return redirect(url_for("reservations.index"))
 
-    return render_template("reservations/update.html", reservation=reservation, guests=guests, res_status=res_status)
+    return render_template("reservations/update.html", reservation=reservation, guests=guests, res_status=res_status, rooms=rooms)
 
 
 @bp.route("/<int:id>/delete", methods=("POST",))
@@ -168,5 +187,6 @@ def delete(id):
     db = get_db()
     db.execute(f"DELETE FROM {table} WHERE id = ?", (id,))
     db.execute("DELETE FROM join_guests_reservations WHERE reservation_id = ?", (id,))
+    db.execute("DELETE FROM join_rooms_reservations WHERE reservation_id = ?", (id,))
     db.commit()
     return redirect(url_for("reservations.index"))
