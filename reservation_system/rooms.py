@@ -25,16 +25,34 @@ def index():
     db = get_db()
     rooms = db.execute(
         f"SELECT {table}.id, {sql_fields},"
-        " modified, modified_by_id, username"
+        f" {table}.modified, {table}.modified_by_id, username, type_name"
         f" FROM {table} JOIN users u ON {table}.modified_by_id = u.id"
-        " ORDER BY room_number DESC"
+        f" JOIN room_types rt ON {table}.room_type = rt.id"
+        " ORDER BY room_number"
     ).fetchall()
     return render_template("rooms/index.html", rooms=rooms)
+
+
+def get_room_type_names():
+    type_names = (
+        get_db()
+        .execute(
+            "SELECT id, type_name FROM room_types"
+        )
+        .fetchall()
+    )
+
+    if type_names is None:
+        abort(404, "No Room types found.")
+
+    return type_names
 
 
 @bp.route("/create", methods=("GET", "POST"))
 @login_required
 def create():
+    room_types = get_room_type_names()
+    
     if request.method == "POST":
         fields = [request.form[f] for f in get_fields()] + [g.user["id"]]
         error = None
@@ -56,11 +74,11 @@ def create():
             db.commit()
             return redirect(url_for("rooms.index"))
 
-    return render_template("rooms/create.html")
+    return render_template("rooms/create.html", room_types=room_types)
 
 
-def get_room_type(id):
-    room_type = (
+def get_room(id):
+    room = (
         get_db()
         .execute(
             f"SELECT {table}.id, {sql_fields},"
@@ -72,19 +90,17 @@ def get_room_type(id):
         .fetchone()
     )
 
-    if room_type is None:
+    if room is None:
         abort(404, f"Room id {id} doesn't exist.")
 
-    # if check_guest and post['author_id'] != g.user['id']:
-    #     abort(403)
-
-    return room_type
+    return room
 
 
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
 @login_required
 def update(id):
-    room_type = get_room_type(id)
+    room = get_room(id)
+    room_types = get_room_type_names()
 
     if request.method == "POST":
         modified = datetime.now()
@@ -105,13 +121,13 @@ def update(id):
             db.commit()
             return redirect(url_for("rooms.index"))
 
-    return render_template("rooms/update.html", room_type=room_type)
+    return render_template("rooms/update.html", room=room, room_types=room_types)
 
 
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required
 def delete(id):
-    get_room_type(id)
+    get_room(id)
     db = get_db()
     db.execute(f"DELETE FROM {table} WHERE id = ?", (id,))
     db.commit()

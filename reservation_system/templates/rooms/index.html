@@ -20,7 +20,7 @@
         <th>
           {{ room['room_number'] }}
         </th>
-        <td>{{ room['room_type'] }}</td>
+        <td>{{ room['type_name'] }}</td>
         <td>{{ room['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ room['username'] }}</td>
         <td><a class="action" href="{{ url_for('rooms.update', id=room['id']) }}">Edit</a></td>
     </tr>

@@ -8,9 +8,17 @@
   <form method="post">
     <label for="room_number">Room Number</label>
     <input name="room_number" id="room_number" value="{{ request.form['room_number'] or room['room_number']  }}" required>
-    <label for="room_type">Base price per night</label>
-    <input name="room_type" id="room_type" value="{{ request.form['room_type'] or room['room_type'] }}" required>
-
+    <label for="room_type">Room type</label>
+    <select name="room_type" id="room_type" required>
+      {% for type in room_types %}
+        {% if type['id'] == room['room_type'] %}
+      <option selected value="{{ type['id'] }}">{{ type['type_name'] }}</option>
+        {% else %}
+      <option value="{{ type['id'] }}">{{ type['type_name'] }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+    
     <input type="submit" value="Save">
     <a class="action" href="{{ url_for('rooms.index') }}">Cancel</a>
 </form>
