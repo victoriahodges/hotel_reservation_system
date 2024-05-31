@@ -7,9 +7,32 @@ INSERT INTO users (username, password)
 INSERT INTO room_types
   (type_name, base_price_per_night, amenities, photo, max_occupants, modified_by_id)
 VALUES
-  ("Four Poster Nest", 145.00, "King-size bed, shower, bath", "four_poster.jpg", 2, 1),
-  ("Superior Double", 130.00, "King-size bed, shower, bath", "four_poster.jpg", 2, 1),
-  ("Classic Double", 115.00, "King-size bed, shower, bath", "four_poster.jpg", 2, 1)
+  ("Four Poster Nest", 145.00, "King-size bed, shower, bath", "four_poster_nest.jpg", 2, 1),
+  ("Superior Double", 130.00, "King-size bed, shower, bath", "superior_room.jpg", 2, 1),
+  ("Classic Double", 115.00, "King-size bed, shower, bath", "classic_double_room.jpg", 2, 1)
+;
+
+-- Insert rooms
+INSERT INTO rooms
+  (room_number, room_type, modified_by_id)
+VALUES
+  (1, 2, 1),
+  (2, 1, 1),
+  (3, 2, 1),
+  (6, 3, 1),
+  (7, 2, 1),
+  (8, 3, 1),
+  (9, 2, 1)
+;
+
+-- Insert reservation status
+INSERT INTO reservation_status
+  (status, description)
+VALUES
+  ("Confirmed","Reservation has been confirmed by email."),
+  ("Checked-in","Guest has checked into their room."),
+  ("Paid in Full","Reservation invoice has been paid."),
+  ("Cancelled","Reservation has been cancelled.")
 ;
 
 -- Insert dummy guest data
@@ -25,4 +48,22 @@ VALUES
   ("Robert Miller", "robert.miller@example.com", "+44 20 7123 4573", "404 Willow St", "Bldg 8", "Cardiff", "South Glamorgan", "CF1 7AA", 1),
   ("Sarah Taylor", "sarah.taylor@example.com", "+44 20 7123 4574", "505 Redwood Way", "Fl 3", "Belfast", "County Antrim", "BT1 8AA", 1)
 ;
+
+-- Insert dummy reservations
+INSERT INTO reservations
+  (start_date, end_date, number_of_guests, status_id, modified_by_id)
+VALUES
+  ("2024-05-17","2024-05-20",2,1,1),
+  ("2024-05-20","2024-05-25",2,1,1),
+  ("2024-05-08","2024-05-12",2,1,1)
+;
+
+INSERT INTO join_guests_reservations
+  (guest_id, reservation_id)
+VALUES
+  (5, 1),
+  (4, 2),
+  (2, 3)
+;
+
 
