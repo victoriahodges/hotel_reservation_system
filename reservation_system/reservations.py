@@ -13,7 +13,7 @@ def get_fields():
         "number_of_guests",
         "start_date",
         "end_date",
-        "notes",
+        "reservation_notes",
         "status",
     ]
 
@@ -27,9 +27,11 @@ table = "reservations"
 def index():
     db = get_db()
     reservations = db.execute(
-        f"SELECT {table}.id, {sql_fields},"
+        f"SELECT {table}.id, {sql_fields}, g.name, "
         f" {table}.modified, {table}.modified_by_id, username"
         f" FROM {table} JOIN users u ON {table}.modified_by_id = u.id"
+        f" JOIN join_guests_reservations gr ON {table}.id = gr.reservation_id"
+        f" JOIN guests g ON gr.guest_id = g.id"
         " ORDER BY start_date"
     ).fetchall()
     return render_template("reservations/index.html", reservations=reservations)
@@ -60,7 +62,8 @@ def create():
     guests = get_guests()
 
     if request.method == "POST":
-        fields = [request.form[f] for f in get_fields()] + [g.user["id"]]
+        res_fields = [request.form[f] for f in get_fields()] + [g.user["id"]]
+        guest_id = request.form['guest_id']
         error = None
 
         # TODO: handle error
@@ -71,11 +74,22 @@ def create():
             flash(error)
         else:
             db = get_db()
-            db.execute(
+            # insert row in reservation table
+            cur = db.execute(
                 f"INSERT INTO {table} ({sql_fields},"
                 " modified_by_id)"
-                " VALUES (" + ("?, " * len(fields)).rstrip(", ") + ")",
-                fields,
+                " VALUES (" + ("?, " * len(res_fields)).rstrip(", ") + ")",
+                res_fields,
+            )
+
+            # get reservation id
+            reservation_id = cur.lastrowid
+
+            # insert guest and reservation in joining table
+            db.execute(
+                "INSERT INTO join_guests_reservations (guest_id, reservation_id)"
+                " VALUES (?, ?)",
+                (guest_id, reservation_id),
             )
             db.commit()
             return redirect(url_for("reservations.index"))
@@ -87,9 +101,10 @@ def get_reservation(id):
     reservation = (
         get_db()
         .execute(
-            f"SELECT {table}.id, {sql_fields},"
+            f"SELECT {table}.id, {sql_fields}, guest_id,"
             " modified_by_id, username"
             f" FROM {table} JOIN users u ON {table}.modified_by_id = u.id"
+            f" JOIN join_guests_reservations gr ON {table}.id = gr.reservation_id"
             f" WHERE {table}.id = ?",
             (id,),
         )
@@ -111,6 +126,7 @@ def update(id):
     if request.method == "POST":
         modified = datetime.now()
         fields = [request.form[f] for f in get_fields()] + [modified, g.user["id"], id]
+        guest_id = request.form['guest_id']
         error = None
 
         # if not name:
@@ -121,8 +137,12 @@ def update(id):
         else:
             db = get_db()
             db.execute(
-                f"UPDATE {table} SET {sql_update_fields} = ?," " modified = ?, modified_by_id = ?" " WHERE id = ?",
+                f"UPDATE {table} SET {sql_update_fields} = ?, modified = ?, modified_by_id = ? WHERE id = ?",
                 fields,
+            )
+            db.execute(
+                "UPDATE join_guests_reservations SET guest_id = ? WHERE reservation_id = ?",
+                (guest_id, id),
             )
             db.commit()
             return redirect(url_for("reservations.index"))
@@ -136,5 +156,6 @@ def delete(id):
     get_reservation(id)
     db = get_db()
     db.execute(f"DELETE FROM {table} WHERE id = ?", (id,))
+    db.execute("DELETE FROM join_guests_reservations WHERE reservation_id = ?", (id,))
     db.commit()
     return redirect(url_for("reservations.index"))
