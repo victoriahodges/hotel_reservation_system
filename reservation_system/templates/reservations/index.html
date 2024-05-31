@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Reservations{% endblock %}</h1>
+  {% if g.user %}
+    <a class="action" href="{{ url_for('reservations.create') }}">New</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<table>
+    <tr>
+        <th>ID Number</th>
+        <th>Guest</th>
+        <th>Check-in</th>
+        <th>Check-out</th>
+        <th>Notes</th>
+        <th>Last modified</th>
+        <th>Action</th>
+    </tr>
+  {% for res in reservations %}
+    <tr>
+        <th>
+          {{ res['id'] }}
+        </th>
+        <td>{{ res['guest_name'] }}</td>
+        <td>{{ res['start_date'] }}</td>
+        <td>{{ res['end_date'] }}</td>
+        <td>{{ res['notes'] }}</td>
+        <td>{{ res['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ res['username'] }}</td>
+        <td><a class="action" href="{{ url_for('reservations.update', id=res['id']) }}">Edit</a></td>
+    </tr>
+  {% endfor %}
+</table>  
+{% endblock %}

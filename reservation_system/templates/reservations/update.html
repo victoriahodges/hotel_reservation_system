@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Edit Reservation{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    <label for="start_date">Check-In</label>
+    <input type="date" name="start_date" id="start_date" value="{{ request.form['start_date'] or reservation['start_date'] }}" required>
+    <label for="end_date">Check-Out</label>
+    <input type="date" name="end_date" id="end_date" value="{{ request.form['end_date'] or reservation['end_date'] }}" required>
+    <label for="guest">Select Guest</label>
+    <select name="guest" id="guest" required>
+      {% for guest in guests %}
+        {% if guest['id'] == reservation['guest_id'] %}
+      <option selected value="{{ guest['id'] }}">{{ guest['name'] }}: {{ guest['address_1'] }}</option>
+        {% else %}
+      <option value="{{ guest['id'] }}">{{ guest['name'] }}: {{ guest['address_1'] }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+    <label for="number_of_guests">Number of Guests</label>
+    <input type="number" name="number_of_guests" id="number_of_guests" value="{{ request.form['number_of_guests'] or reservation['number_of_guests'] }}" required>
+    <label for="status">Status</label>
+    <input type="number" name="status" id="status" value="{{ request.form['status'] or reservation['status'] }}" required>
+    <label for="notes">Notes</label>
+    <textarea name="notes" id="notes">{{ request.form['notes'] or reservation['notes'] }}</textarea>
+    
+    <input type="submit" value="Save">
+    <a class="action" href="{{ url_for('reservations.index') }}">Cancel</a>
+</form>
+<hr>
+<form action="{{ url_for('reservations.delete', id=reservation['id']) }}" method="post">
+  <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+</form>
+{% endblock %}

@@ -17,8 +17,8 @@
     <li><a href="{{ url_for('rooms.index') }}">View Rooms</a></li>
     <ul><li><a href="{{ url_for('rooms.create') }}">Create New Room</a></li></ul>
 
-    <li><a href="">View Reservations</a></li>
-    <ul><li><a href="">Create New Reservation</a></li></ul>
+    <li><a href="{{ url_for('reservations.index') }}">View Reservations</a></li>
+    <ul><li><a href="{{ url_for('reservations.create') }}">Create New Reservation</a></li></ul>
     
     {% else %}
     <li><a href="{{ url_for('auth.login') }}">Log In</a>
