@@ -63,7 +63,7 @@ def create():
 
     if request.method == "POST":
         res_fields = [request.form[f] for f in get_fields()] + [g.user["id"]]
-        guest_id = request.form['guest_id']
+        guest_id = request.form["guest_id"]
         error = None
 
         # TODO: handle error
@@ -87,8 +87,7 @@ def create():
 
             # insert guest and reservation in joining table
             db.execute(
-                "INSERT INTO join_guests_reservations (guest_id, reservation_id)"
-                " VALUES (?, ?)",
+                "INSERT INTO join_guests_reservations (guest_id, reservation_id) VALUES (?, ?)",
                 (guest_id, reservation_id),
             )
             db.commit()
@@ -126,7 +125,7 @@ def update(id):
     if request.method == "POST":
         modified = datetime.now()
         fields = [request.form[f] for f in get_fields()] + [modified, g.user["id"], id]
-        guest_id = request.form['guest_id']
+        guest_id = request.form["guest_id"]
         error = None
 
         # if not name:

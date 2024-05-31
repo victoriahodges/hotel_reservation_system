@@ -102,7 +102,7 @@ def update(id):
         else:
             db = get_db()
             db.execute(
-                f"UPDATE {table} SET {sql_update_fields} = ?," " modified = ?, modified_by_id = ?" " WHERE id = ?",
+                f"UPDATE {table} SET {sql_update_fields} = ?, modified = ?, modified_by_id = ? WHERE id = ?",
                 fields,
             )
             db.commit()

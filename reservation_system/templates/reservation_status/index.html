@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Reservation Statuses{% endblock %}</h1>
+  {% if g.user %}
+    <a class="action" href="{{ url_for('reservation_status.create') }}">New</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<table>
+    <tr>
+        <th>Status</th>
+        <th>Description</th>
+        <th>Action</th>
+    </tr>
+  {% for status in res_status %}
+    <tr>
+        <th>
+          {{ status['status'] }}
+        </th>
+        <td>{{ status['description'] }}</td>
+        <td><a class="action" href="{{ url_for('reservation_status.update', id=status['id']) }}">Edit</a></td>
+    </tr>
+  {% endfor %}
+</table>  
+{% endblock %}

@@ -19,6 +19,9 @@
 
     <li><a href="{{ url_for('reservations.index') }}">View Reservations</a></li>
     <ul><li><a href="{{ url_for('reservations.create') }}">Create New Reservation</a></li></ul>
+
+    <li><a href="{{ url_for('reservation_status.index') }}">View Reservation Statuses</a></li>
+    <ul><li><a href="{{ url_for('reservation_status.create') }}">Create New Reservation Status</a></li></ul>
     
     {% else %}
     <li><a href="{{ url_for('auth.login') }}">Log In</a>
