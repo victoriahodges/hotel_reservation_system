@@ -3,12 +3,19 @@ from datetime import datetime
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 from reservation_system.auth import login_required
 from reservation_system.db import get_db
-from werkzeug.exceptions import abort
+from reservation_system.db_queries import (
+    format_sql_query_columns,
+    format_sql_update_columns,
+    get_all_rows,
+    get_row_by_id,
+    sql_insert_placeholders,
+)
 
 bp = Blueprint("reservations", __name__, url_prefix="/reservations")
+table = "reservations"
 
 
-def get_fields():
+def get_table_fields():
     return [
         "number_of_guests",
         "start_date",
@@ -18,71 +25,54 @@ def get_fields():
     ]
 
 
-sql_fields = ", ".join(get_fields())
-sql_update_fields = " = ?,".join(get_fields())
-table = "reservations"
-
-
 @bp.route("/")
 def index():
-    db = get_db()
-    reservations = db.execute(
-        f"SELECT {table}.id, {sql_fields}, g.name, r.room_number, rt.base_price_per_night, rs.status, rs.bg_color,"
-        f" {table}.modified, {table}.modified_by_id, username"
-        f" FROM {table} JOIN users u ON {table}.modified_by_id = u.id"
-        f" JOIN reservation_status rs ON {table}.status_id = rs.id"
-        f" JOIN join_guests_reservations gr ON {table}.id = gr.reservation_id"
-        " JOIN guests g ON gr.guest_id = g.id"
-        f" JOIN join_rooms_reservations rr ON {table}.id = rr.reservation_id"
-        " JOIN rooms r ON rr.room_id = r.id"
-        " JOIN room_types rt ON r.room_type = rt.id"
-        " ORDER BY start_date"
-    ).fetchall()
+    fields = format_sql_query_columns(
+        get_table_fields()
+        + [
+            "g.name",
+            "r.room_number",
+            "rt.base_price_per_night",
+            "rs.status",
+            "rs.bg_color",
+            f"{table}.modified",
+            f"{table}.modified_by_id",
+            "username",
+        ]
+    )
+    join = f"""
+        JOIN users u ON {table}.modified_by_id = u.id
+        JOIN reservation_status rs ON {table}.status_id = rs.id
+        JOIN join_guests_reservations gr ON {table}.id = gr.reservation_id
+        JOIN guests g ON gr.guest_id = g.id
+        JOIN join_rooms_reservations rr ON {table}.id = rr.reservation_id
+        JOIN rooms r ON rr.room_id = r.id
+        JOIN room_types rt ON r.room_type = rt.id
+    """
+
+    reservations = get_all_rows(table, fields, join, order_by="start_date")
+
     return render_template("reservations/index.html", reservations=reservations)
 
 
-def get_rooms():
-    type_names = (
-        get_db()
-        .execute("SELECT r.id, room_number, type_name" " FROM rooms r" " JOIN room_types rt ON r.room_type = rt.id")
-        .fetchall()
-    )
-
-    if type_names is None:
-        abort(404, "No Room types found.")
-
-    return type_names
-
-
-def get_guests():
-    guests = get_db().execute("SELECT id, name, address_1 FROM guests").fetchall()
-
-    if guests is None:
-        abort(404, "No Guests found.")
-
-    return guests
-
-
-def get_res_status():
-    status = get_db().execute("SELECT * FROM reservation_status").fetchall()
-
-    if status is None:
-        abort(404, "No Guests found.")
-
-    return status
+def get_other_table_rows():
+    rooms = get_all_rows("rooms", "room_number, type_name", " JOIN room_types rt ON rooms.room_type = rt.id")
+    guests = get_all_rows("guests", "id, name, address_1")
+    res_status = get_all_rows("reservation_status", "*")
+    return rooms, guests, res_status
 
 
 @bp.route("/create", methods=("GET", "POST"))
 @login_required
 def create():
-    rooms = get_rooms()
-    guests = get_guests()
-    res_status = get_res_status()
+    rooms, guests, res_status = get_other_table_rows()
 
     if request.method == "POST":
-        res_fields = [request.form[f] for f in get_fields()] + [g.user["id"]]
+        data = [request.form[f] for f in get_table_fields()] + [g.user["id"]]
         guest_id = request.form["guest_id"]
         room_id = request.form["room_id"]
+        columns = format_sql_query_columns(get_table_fields() + ["modified_by_id"])
+        placeholders = sql_insert_placeholders(len(data))
         error = None
 
         # TODO: handle error
@@ -94,15 +84,13 @@ def create():
         else:
             db = get_db()
             # insert row in reservation table
-            cur = db.execute(
-                f"INSERT INTO {table} ({sql_fields},"
-                " modified_by_id)"
-                " VALUES (" + ("?, " * len(res_fields)).rstrip(", ") + ")",
-                res_fields,
+            cursor = db.execute(
+                f"INSERT INTO {table} ({columns}) VALUES ({placeholders})",
+                data,
             )
 
             # get reservation id
-            reservation_id = cur.lastrowid
+            reservation_id = cursor.lastrowid
 
             # insert guest and reservation in joining table
             db.execute(
@@ -120,40 +108,27 @@ def create():
     return render_template("reservations/create.html", guests=guests, res_status=res_status, rooms=rooms)
 
 
-def get_reservation(id):
-    reservation = (
-        get_db()
-        .execute(
-            f"SELECT {table}.id, {sql_fields}, guest_id, room_id,"
-            " modified_by_id, username"
-            f" FROM {table} JOIN users u ON {table}.modified_by_id = u.id"
-            f" JOIN join_guests_reservations gr ON {table}.id = gr.reservation_id"
-            f" JOIN join_rooms_reservations rr ON {table}.id = rr.reservation_id"
-            f" WHERE {table}.id = ?",
-            (id,),
-        )
-        .fetchone()
-    )
-
-    if reservation is None:
-        abort(404, f"Reservation id {id} doesn't exist.")
-
-    return reservation
-
-
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
 @login_required
 def update(id):
-    reservation = get_reservation(id)
-    rooms = get_rooms()
-    guests = get_guests()
-    res_status = get_res_status()
+    reservation = get_row_by_id(
+        id,
+        table,
+        format_sql_query_columns(get_table_fields() + ["guest_id", "room_id", "modified_by_id", "username"]),
+        f"""
+          JOIN users u ON {table}.modified_by_id = u.id
+          JOIN join_guests_reservations gr ON {table}.id = gr.reservation_id
+          JOIN join_rooms_reservations rr ON {table}.id = rr.reservation_id
+        """,
+    )
+    rooms, guests, res_status = get_other_table_rows()
 
     if request.method == "POST":
         modified = datetime.now()
-        fields = [request.form[f] for f in get_fields()] + [modified, g.user["id"], id]
+        data = [request.form[f] for f in get_table_fields()] + [modified, g.user["id"], id]
         guest_id = request.form["guest_id"]
         room_id = request.form["room_id"]
+        columns = format_sql_update_columns(get_table_fields() + ["modified", "modified_by_id"])
         error = None
 
         # if not name:
@@ -164,13 +139,15 @@ def update(id):
         else:
             db = get_db()
             db.execute(
-                f"UPDATE {table} SET {sql_update_fields} = ?, modified = ?, modified_by_id = ? WHERE id = ?",
-                fields,
+                f"UPDATE {table} SET {columns} WHERE id = ?",
+                data,
             )
+            # update guest in joining table
             db.execute(
                 "UPDATE join_guests_reservations SET guest_id = ? WHERE reservation_id = ?",
                 (guest_id, id),
             )
+            # update room in joining table
             db.execute(
                 "UPDATE join_rooms_reservations SET room_id = ? WHERE reservation_id = ?",
                 (room_id, id),
@@ -186,7 +163,6 @@ def update(id):
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required
 def delete(id):
-    get_reservation(id)
     db = get_db()
     db.execute(f"DELETE FROM {table} WHERE id = ?", (id,))
     db.execute("DELETE FROM join_guests_reservations WHERE reservation_id = ?", (id,))

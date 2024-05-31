@@ -3,12 +3,19 @@ from datetime import datetime
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 from reservation_system.auth import login_required
 from reservation_system.db import get_db
-from werkzeug.exceptions import abort
+from reservation_system.db_queries import (
+    format_sql_query_columns,
+    format_sql_update_columns,
+    get_all_rows,
+    get_row_by_id,
+    sql_insert_placeholders,
+)
 
 bp = Blueprint("room_types", __name__, url_prefix="/room_types")
+table = "room_types"
 
 
-def get_fields():
+def get_table_fields():
     return [
         "type_name",
         "base_price_per_night",
@@ -18,20 +25,13 @@ def get_fields():
     ]
 
 
-sql_fields = ", ".join(get_fields())
-sql_update_fields = " = ?,".join(get_fields())
-table = "room_types"
-
-
 @bp.route("/")
 def index():
-    db = get_db()
-    room_types = db.execute(
-        f"SELECT {table}.id, {sql_fields},"
-        " modified, modified_by_id, username"
-        f" FROM {table} JOIN users u ON {table}.modified_by_id = u.id"
-        " ORDER BY base_price_per_night DESC"
-    ).fetchall()
+    fields = format_sql_query_columns(get_table_fields() + ["modified", "modified_by_id", "username"])
+    join = f" JOIN users u ON {table}.modified_by_id = u.id"
+
+    room_types = get_all_rows(table, fields, join, order_by="base_price_per_night DESC")
+
     return render_template("room_types/index.html", room_types=room_types)
 
 
@@ -39,7 +39,10 @@ def index():
 @login_required
 def create():
     if request.method == "POST":
-        fields = [request.form[f] for f in get_fields()] + [g.user["id"]]
+        data = [request.form[f] for f in get_table_fields()] + [g.user["id"]]
+        columns = format_sql_query_columns(get_table_fields() + ["modified_by_id"])
+        placeholders = sql_insert_placeholders(len(data))
+
         error = None
 
         # TODO: handle error
@@ -51,10 +54,8 @@ def create():
         else:
             db = get_db()
             db.execute(
-                f"INSERT INTO {table} ({sql_fields},"
-                " modified_by_id)"
-                " VALUES (" + ("?, " * len(fields)).rstrip(", ") + ")",
-                fields,
+                f"INSERT INTO {table} ({columns}) VALUES ({placeholders})",
+                data,
             )
             db.commit()
             return redirect(url_for("room_types.index"))
@@ -62,36 +63,20 @@ def create():
     return render_template("room_types/create.html")
 
 
-def get_room_type(id):
-    room_type = (
-        get_db()
-        .execute(
-            f"SELECT {table}.id, {sql_fields},"
-            " modified_by_id, username"
-            f" FROM {table} JOIN users u ON {table}.modified_by_id = u.id"
-            f" WHERE {table}.id = ?",
-            (id,),
-        )
-        .fetchone()
-    )
-
-    if room_type is None:
-        abort(404, f"Room type id {id} doesn't exist.")
-
-    # if check_guest and post['author_id'] != g.user['id']:
-    #     abort(403)
-
-    return room_type
-
-
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
 @login_required
 def update(id):
-    room_type = get_room_type(id)
+    room_type = get_row_by_id(
+        id,
+        table,
+        format_sql_query_columns(get_table_fields() + ["modified_by_id", "username"]),
+        f" JOIN users u ON {table}.modified_by_id = u.id",
+    )
 
     if request.method == "POST":
         modified = datetime.now()
-        fields = [request.form[f] for f in get_fields()] + [modified, g.user["id"], id]
+        data = [request.form[f] for f in get_table_fields()] + [modified, g.user["id"], id]
+        columns = format_sql_update_columns(get_table_fields() + ["modified", "modified_by_id"])
         error = None
 
         # if not name:
@@ -102,8 +87,8 @@ def update(id):
         else:
             db = get_db()
             db.execute(
-                f"UPDATE {table} SET {sql_update_fields} = ?, modified = ?, modified_by_id = ? WHERE id = ?",
-                fields,
+                f"UPDATE {table} SET {columns} WHERE id = ?",
+                data,
             )
             db.commit()
             return redirect(url_for("room_types.index"))
@@ -114,7 +99,6 @@ def update(id):
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required
 def delete(id):
-    get_room_type(id)
     db = get_db()
     db.execute(f"DELETE FROM {table} WHERE id = ?", (id,))
     db.commit()
