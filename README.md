@@ -82,3 +82,28 @@ This then works with Coverage Gutters VS Code extension to view coverage in modu
 ```
 $ coverage xml
 ```
+
+## TODO
+
+### Calendar
+
+- [ ] Create calendar view on homepage
+- [ ] Only allow future bookings
+- [ ] Prevent bookings overlapping dates or "double bookings" for same dates
+
+### Rooms / Room Types
+
+- [ ] Add special offers/discount rates
+- [ ] Photo uploads
+- [ ] Amenities list
+
+### Invoicing
+
+- [ ] Calulate full booking price
+- [ ] Print invoice
+- [ ] Print revenue report
+
+### Code
+
+- [ ] Refactor row query functions
+- [ ] Write tests
