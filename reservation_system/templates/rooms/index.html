@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Rooms{% endblock %}</h1>
+  {% if g.user %}
+    <a class="action" href="{{ url_for('rooms.create') }}">New</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<table>
+    <tr>
+        <th>Number</th>
+        <th>Room Type</th>
+        <th>Last modified</th>
+        <th>Action</th>
+    </tr>
+  {% for room in rooms %}
+    <tr>
+        <th>
+          {{ room['room_number'] }}
+        </th>
+        <td>{{ room['room_type'] }}</td>
+        <td>{{ room['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ room['username'] }}</td>
+        <td><a class="action" href="{{ url_for('rooms.update', id=room['id']) }}">Edit</a></td>
+    </tr>
+  {% endfor %}
+</table>  
+{% endblock %}
