@@ -23,10 +23,10 @@
         <th>
           {{ res['id'] }}
         </th>
-        <td>{{ res['guest_name'] }}</td>
+        <td>{{ res['name'] }}</td>
         <td>{{ res['start_date'] }}</td>
         <td>{{ res['end_date'] }}</td>
-        <td>{{ res['notes'] }}</td>
+        <td>{{ res['reservation_notes'] }}</td>
         <td>{{ res['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ res['username'] }}</td>
         <td><a class="action" href="{{ url_for('reservations.update', id=res['id']) }}">Edit</a></td>
     </tr>

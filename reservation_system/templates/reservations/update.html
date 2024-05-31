@@ -10,8 +10,8 @@
     <input type="date" name="start_date" id="start_date" value="{{ request.form['start_date'] or reservation['start_date'] }}" required>
     <label for="end_date">Check-Out</label>
     <input type="date" name="end_date" id="end_date" value="{{ request.form['end_date'] or reservation['end_date'] }}" required>
-    <label for="guest">Select Guest</label>
-    <select name="guest" id="guest" required>
+    <label for="guest_id">Select Guest</label>
+    <select name="guest_id" id="guest_id" required>
       {% for guest in guests %}
         {% if guest['id'] == reservation['guest_id'] %}
       <option selected value="{{ guest['id'] }}">{{ guest['name'] }}: {{ guest['address_1'] }}</option>
@@ -25,7 +25,7 @@
     <label for="status">Status</label>
     <input type="number" name="status" id="status" value="{{ request.form['status'] or reservation['status'] }}" required>
     <label for="notes">Notes</label>
-    <textarea name="notes" id="notes">{{ request.form['notes'] or reservation['notes'] }}</textarea>
+    <textarea name="reservation_notes" id="notes">{{ request.form['reservation_notes'] or reservation['reservation_notes'] }}</textarea>
     
     <input type="submit" value="Save">
     <a class="action" href="{{ url_for('reservations.index') }}">Cancel</a>

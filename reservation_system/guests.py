@@ -18,7 +18,7 @@ def get_fields():
         "city",
         "county",
         "postcode",
-        "notes",
+        "guest_notes",
     ]
 
 
@@ -66,6 +66,7 @@ def create():
     return render_template("guests/create.html")
 
 
+# TODO: refactor into row query function and import
 def get_guest(id):
     guest = (
         get_db()

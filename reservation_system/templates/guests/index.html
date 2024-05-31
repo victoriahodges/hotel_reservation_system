@@ -22,7 +22,7 @@
         <th>{{ guest['name'] }}</th>
         <td>{{ guest['email'] }}</td>
         <td>{{ guest['telephone'] }}</td>
-        <td>{{ guest['notes'] }}</td>
+        <td>{{ guest['guest_notes'] }}</td>
         <td>{{ guest['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ guest['username'] }}</td>
         <td><a class="action" href="{{ url_for('guests.update', id=guest['id']) }}">Edit</a></td>
     </tr>

@@ -23,7 +23,7 @@
     <label for="postcode">Postcode</label>
     <input name="postcode" id="postcode" value="{{ request.form['postcode'] or guest['postcode'] }}" required>
     <label for="notes">Notes</label>
-    <textarea name="notes" id="notes">{{ request.form['notes'] or guest['notes'] }}</textarea>    
+    <textarea name="guest_notes" id="notes">{{ request.form['guest_notes'] or guest['guest_notes'] }}</textarea>    
 
     <input type="submit" value="Save">
     <a class="action" href="{{ url_for('guests.index') }}">Cancel</a>
