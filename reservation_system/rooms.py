@@ -34,13 +34,7 @@ def index():
 
 
 def get_room_type_names():
-    type_names = (
-        get_db()
-        .execute(
-            "SELECT id, type_name FROM room_types"
-        )
-        .fetchall()
-    )
+    type_names = get_db().execute("SELECT id, type_name FROM room_types").fetchall()
 
     if type_names is None:
         abort(404, "No Room types found.")
@@ -52,7 +46,7 @@ def get_room_type_names():
 @login_required
 def create():
     room_types = get_room_type_names()
-    
+
     if request.method == "POST":
         fields = [request.form[f] for f in get_fields()] + [g.user["id"]]
         error = None
