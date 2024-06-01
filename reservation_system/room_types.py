@@ -4,6 +4,7 @@ from flask import Blueprint, flash, g, redirect, render_template, request, url_f
 from reservation_system.auth import login_required
 from reservation_system.db import get_db
 from reservation_system.db_queries import (
+    delete_by_id,
     format_sql_query_columns,
     format_sql_update_columns,
     get_all_rows,
@@ -37,6 +38,7 @@ def get_required_fields():
 
 
 @bp.route("/")
+@login_required
 def index():
     fields = format_sql_query_columns(get_table_fields() + ["modified", "modified_by_id", "username"])
     join = f" JOIN users u ON {table}.modified_by_id = u.id"
@@ -112,7 +114,5 @@ def update(id):
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required
 def delete(id):
-    db = get_db()
-    db.execute(f"DELETE FROM {table} WHERE id = ?", (id,))
-    db.commit()
+    delete_by_id(id, table)
     return redirect(url_for("room_types.index"))

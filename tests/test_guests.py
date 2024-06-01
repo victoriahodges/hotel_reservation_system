@@ -7,6 +7,7 @@ def test_index(client, auth):
     assert b'href="/auth/login"' in response.data
     assert b"Alice Johnson" not in response.data
     assert b"Edit" not in response.data
+    assert response.headers["Location"] == "/auth/login"
 
     auth.login()
     response = client.get("/guests/")
