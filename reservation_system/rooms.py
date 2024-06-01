@@ -32,6 +32,7 @@ def get_required_fields():
 
 
 @bp.route("/")
+@login_required
 def index():
     fields = format_sql_query_columns(
         get_table_fields() + ["type_name", f"{table}.modified", f"{table}.modified_by_id", "username"]

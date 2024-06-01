@@ -15,6 +15,12 @@ VALUES
   ("Superior Double", 130.00, "King-size bed, bath, sea views", "superior_room.jpg", 2, 1),
   ("Classic Double", 115.00, "King-size bed, shower, tea and coffee", "classic_double_room.jpg", 1, 1);
 
+INSERT INTO rooms
+  (room_number, room_type, modified_by_id)
+VALUES
+  (1, 2, 1),
+  (101, 1, 1);
+
 INSERT INTO reservation_status
   (status, description, bg_color)
 VALUES
