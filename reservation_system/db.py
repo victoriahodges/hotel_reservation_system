@@ -26,10 +26,10 @@ def init_db():
         db.executescript(f.read().decode("utf8"))
 
 
-def dummy_db():
+def dummy_db(data="dummy_data.sql"):
     db = get_db()
 
-    with current_app.open_resource("dummy_data.sql") as f:
+    with current_app.open_resource(data) as f:
         db.executescript(f.read().decode("utf8"))
 
 

@@ -3,10 +3,7 @@ import tempfile
 
 import pytest
 from reservation_system import create_app
-from reservation_system.db import get_db, init_db
-
-with open(os.path.join(os.path.dirname(__file__), "data.sql"), "rb") as f:
-    _data_sql = f.read().decode("utf8")
+from reservation_system.db import dummy_db, init_db
 
 
 @pytest.fixture
@@ -22,7 +19,7 @@ def app():
 
     with app.app_context():
         init_db()
-        get_db().executescript(_data_sql)
+        dummy_db(os.path.join(os.path.dirname(__file__), "test_data.sql"))
 
     yield app
 
