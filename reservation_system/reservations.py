@@ -38,6 +38,58 @@ def get_required_fields():
     ]
 
 
+# RESERVATION RULES
+reservation_collision_message = "BOOKING COLLISION: Please choose alternative dates."
+end_date_before_start_date_message = "DATE ERROR: Check-out date cannot be before or same as check-in date."
+dates_in_the_past_message = "DATE ERROR: Check-in or check-out dates cannot be in the past."
+
+
+def find_existing_reservation_collisions(id=None):
+    # Purpose: Prevent double bookings
+
+    not_include_this_res_id = ""
+    if id:
+        # to enable updating a booking dates and does not collide with itself
+        not_include_this_res_id = f"AND {table}.id IS NOT {id} "
+
+    reservations = get_all_rows(
+        table,
+        f"{table}.id, start_date, end_date, r.id",
+        f"""
+            JOIN join_rooms_reservations rr ON {table}.id = rr.reservation_id
+            JOIN rooms r ON rr.room_id = r.id
+            WHERE {request.form["room_id"]} = r.id {not_include_this_res_id}AND (
+            -- outside booking
+            ("{request.form['start_date']}" <= start_date AND "{request.form['end_date']}" >= end_date)
+            -- inside booking
+            OR ("{request.form['start_date']}" >= start_date AND "{request.form['end_date']}" <= end_date)
+            -- overlap start_date
+            OR ("{request.form['start_date']}" <= start_date AND "{request.form['end_date']}" > start_date)
+            -- overlap end_date
+            OR ("{request.form['start_date']}" < end_date AND "{request.form['end_date']}" >= end_date)
+            )
+            """,
+    )
+    return reservations
+
+
+def end_date_before_start_date():
+    # Purpose: Prevent choosing check-out before check-in
+    if request.form["end_date"] <= request.form["start_date"]:
+        return True
+    return False
+
+
+def reservation_dates_in_the_past():
+    # Purpose: Prevent choosing check-in or check-out dates in the past
+    if (
+        datetime.strptime(request.form["end_date"], "%Y-%m-%d") <= datetime.now()
+        or datetime.strptime(request.form["start_date"], "%Y-%m-%d") <= datetime.now()
+    ):
+        return True
+    return False
+
+
 @bp.route("/")
 @login_required
 def index():
@@ -94,7 +146,13 @@ def create():
             if not request.form[required]:
                 error_fields.append(required)
 
-        if error_fields:
+        if end_date_before_start_date():
+            flash(end_date_before_start_date_message)
+        elif find_existing_reservation_collisions():
+            flash(reservation_collision_message)
+        elif reservation_dates_in_the_past():
+            flash(dates_in_the_past_message)
+        elif error_fields:
             flash(format_required_field_error(error_fields))
         else:
             db = get_db()
@@ -151,7 +209,13 @@ def update(id):
             if not request.form[required]:
                 error_fields.append(required)
 
-        if error_fields:
+        if end_date_before_start_date():
+            flash(end_date_before_start_date_message)
+        elif find_existing_reservation_collisions(id):
+            flash(reservation_collision_message)
+        elif reservation_dates_in_the_past():
+            flash(dates_in_the_past_message)
+        elif error_fields:
             flash(format_required_field_error(error_fields))
         else:
             db = get_db()

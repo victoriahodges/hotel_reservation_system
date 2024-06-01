@@ -88,8 +88,8 @@ $ coverage xml
 ### Calendar
 
 - [x] Create calendar view
-- [ ] Only allow future bookings
-- [ ] Prevent bookings overlapping dates or "double bookings" for same dates
+- [x] Only allow future bookings
+- [x] Prevent bookings overlapping dates or "double bookings" for same dates
 
 ### Rooms / Room Types
 
