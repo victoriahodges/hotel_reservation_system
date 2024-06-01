@@ -4,8 +4,9 @@ from reservation_system.db import get_db
 
 def test_index(client, auth):
     response = client.get("/guests/")
-    assert b"Log In" in response.data
-    assert b"Register" in response.data
+    assert b'href="/auth/login"' in response.data
+    assert b"Alice Johnson" not in response.data
+    assert b"Edit" not in response.data
 
     auth.login()
     response = client.get("/guests/")
@@ -36,7 +37,7 @@ def test_login_required(client, path):
         "/guests/3/delete",
     ),
 )
-def test_exists_required(client, auth, path):
+def test_record_exists(client, auth, path):
     # test data only has 2 records, expects record 3 not found
     auth.login()
     assert client.post(path).status_code == 404
@@ -52,7 +53,7 @@ def test_create(client, auth, app):
         "city": "Anytown",
         "county": "Someshire",
         "postcode": "AB12 3CD",
-        "notes": "",
+        "guest_notes": "",
     }
 
     auth.login()
@@ -62,7 +63,7 @@ def test_create(client, auth, app):
     with app.app_context():
         db = get_db()
         count = db.execute("SELECT COUNT(id) FROM guests").fetchone()[0]
-        assert count == 2
+        assert count == 3
 
 
 def test_update(client, auth, app):
@@ -104,7 +105,7 @@ def test_create_update_validate(client, auth, path):
         "telephone": "+44 123456789",
         "address_1": "123 Any Street",
         "address_2": "Anywhere",
-        "city": "Anytown",
+        "city": "",
         "county": "Someshire",
         "postcode": "AB12 3CD",
         "guest_notes": "",
@@ -112,6 +113,7 @@ def test_create_update_validate(client, auth, path):
     auth.login()
     response = client.post(path, data=data)
     assert b"Name is required." in response.data
+    assert b"City is required." in response.data
 
 
 def test_delete(client, auth, app):

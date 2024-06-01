@@ -25,7 +25,7 @@ CREATE TABLE guests (
   city TEXT NOT NULL,
   county TEXT NOT NULL,
   postcode TEXT NOT NULL,
-  guest_notes TEXT DEFAULT "None",
+  guest_notes TEXT,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   modified_by_id INTEGER NOT NULL,

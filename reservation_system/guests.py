@@ -44,6 +44,7 @@ def get_required_fields():
 
 
 @bp.route("/")
+@login_required
 def index():
     fields = format_sql_query_columns(get_table_fields() + ["created", "modified", "modified_by_id", "username"])
     join = f" JOIN users u ON {table}.modified_by_id = u.id"
