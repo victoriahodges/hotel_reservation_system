@@ -78,9 +78,9 @@ def test_update(client, auth, app):
 
     with app.app_context():
         db = get_db()
-        guest = db.execute("SELECT * FROM room_types WHERE id = 1").fetchone()
-        assert guest["type_name"] == "Single"
-        assert guest["max_occupants"] == 1
+        res = db.execute("SELECT * FROM room_types WHERE id = 1").fetchone()
+        assert res["type_name"] == "Single"
+        assert res["max_occupants"] == 1
 
 
 @pytest.mark.parametrize(

@@ -74,9 +74,9 @@ def test_update(client, auth, app):
 
     with app.app_context():
         db = get_db()
-        guest = db.execute("SELECT * FROM reservation_status WHERE id = 1").fetchone()
-        assert guest["status"] == "Cancelled"
-        assert guest["bg_color"] == "#f66151"
+        res = db.execute("SELECT * FROM reservation_status WHERE id = 1").fetchone()
+        assert res["status"] == "Cancelled"
+        assert res["bg_color"] == "#f66151"
 
 
 @pytest.mark.parametrize(

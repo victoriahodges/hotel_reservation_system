@@ -87,9 +87,9 @@ def test_update(client, auth, app):
 
     with app.app_context():
         db = get_db()
-        guest = db.execute("SELECT * FROM guests WHERE id = 1").fetchone()
-        assert guest["email"] == "updated@example.com"
-        assert guest["guest_notes"] == "Some notes"
+        res = db.execute("SELECT * FROM guests WHERE id = 1").fetchone()
+        assert res["email"] == "updated@example.com"
+        assert res["guest_notes"] == "Some notes"
 
 
 @pytest.mark.parametrize(
