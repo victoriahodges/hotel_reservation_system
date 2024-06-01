@@ -54,9 +54,9 @@ VALUES
 INSERT INTO reservations
   (start_date, end_date, number_of_guests, status_id, modified_by_id)
 VALUES
-  ("2024-05-17","2024-05-20",2,2,1),
-  ("2024-05-20","2024-05-25",2,1,1),
-  ("2024-05-08","2024-05-12",2,3,1)
+  ("2024-06-17","2024-06-20",2,2,1),
+  ("2024-06-20","2024-06-25",2,1,1),
+  ("2024-06-08","2024-06-12",2,3,1)
 ;
 
 INSERT INTO join_guests_reservations

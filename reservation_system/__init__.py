@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, render_template
 
-from . import auth, db, guests, reservation_status, reservations, room_types, rooms
+from . import auth, calendar, db, guests, reservation_status, reservations, room_types, rooms
 
 
 def create_app(test_config=None):
@@ -34,6 +34,8 @@ def create_app(test_config=None):
     db.init_app(app)
 
     app.register_blueprint(auth.bp)
+    app.register_blueprint(calendar.bp)
+    app.add_url_rule("/", endpoint="calendar.index")
     app.register_blueprint(guests.bp)
     app.add_url_rule("/", endpoint="guests.index")
     app.register_blueprint(room_types.bp)

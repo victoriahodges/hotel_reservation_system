@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Calendar{% endblock %}</h1>
+
+{% endblock %}
+
+{% block content %}
+  {% if g.user %}
+
+  <h2>
+    {{ title }} 
+  </h2>
+  <p>
+    <a href="{{ url_for('calendar.calendar', year=prev_year, month=prev_month )}}"><button>&laquo; Prev</button></a>
+    <a href="{{ url_for('calendar.calendar', year=next_year, month=next_month )}}"><button>Next &raquo;</button></a>
+    <a href="{{ url_for('calendar.calendar', year=today_year, month=today_month )}}"><button>Today</button></a>
+  </p>
+
+
+  <table class="calendar">
+    <tr>
+    <th>Rm</th>
+    {% for day, date in dates.items() %}
+      <th>{{ day }}</th>
+    {%endfor%}
+    </tr>
+    {% for room in rooms %}
+    <tr>
+      <th>{{ room['room_number']}}</th>
+      {% for day, date in dates.items() %}
+        <td>
+        {% for res in reservations %}
+          {% if res['room_number'] == room['room_number']
+          and (date >= res['start_date'].strftime('%Y-%m-%d') and date < res['end_date'].strftime('%Y-%m-%d')) %}
+          <a class="booking" href="{{ url_for('reservations.update', id=res['id']) }}"
+          title="{{ res['name'] }}"
+          >
+          {% if date == res['start_date'].strftime('%Y-%m-%d') %}
+          <span style="position: absolute; color: black; font-size: 12px; padding: 5px 2px;">{{ res['name'] }}</span>
+          {% endif %}
+          </a>
+          {% endif %}
+          {%endfor%}
+        </td>
+      {%endfor%}
+    </tr>
+    {%endfor%}
+  </table>
+
+  {% else %}
+  <a href="{{ url_for('auth.login') }}">Log In</a>
+  {% endif %}
+{% endblock %}

@@ -87,7 +87,7 @@ $ coverage xml
 
 ### Calendar
 
-- [ ] Create calendar view on homepage
+- [x] Create calendar view
 - [ ] Only allow future bookings
 - [ ] Prevent bookings overlapping dates or "double bookings" for same dates
 
