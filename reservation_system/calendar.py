@@ -27,41 +27,13 @@ def index():
 @bp.route("/<int:year>/<int:month>/")
 @login_required
 def calendar(year, month):
-    fields = format_sql_query_columns(
-        get_table_fields()
-        + [
-            "g.name",
-            "r.room_number",
-            "rt.base_price_per_night",
-            "rs.status",
-            "rs.bg_color",
-            f"{table}.modified",
-            f"{table}.modified_by_id",
-            "username",
-        ]
-    )
-    join = f"""
-        JOIN users u ON {table}.modified_by_id = u.id
-        JOIN reservation_status rs ON {table}.status_id = rs.id
-        JOIN join_guests_reservations gr ON {table}.id = gr.reservation_id
-        JOIN guests g ON gr.guest_id = g.id
-        JOIN join_rooms_reservations rr ON {table}.id = rr.reservation_id
-        JOIN rooms r ON rr.room_id = r.id
-        JOIN room_types rt ON r.room_type = rt.id
-    """
 
-    reservations = get_all_rows(table, fields, join, order_by="start_date")
-
-    room_joins = """
-    JOIN users u ON rooms.modified_by_id = u.id
-    JOIN room_types rt ON rooms.room_type = rt.id
-    """
-    rooms = get_all_rows("rooms", "*", room_joins, order_by="room_number")
-
+    # NOTE: datetime queries and calculations
     # calculate number of days in month
     calendar_start = datetime(year, month, 1)
     next_month_start = datetime(year, month + 1, 1) if month + 1 <= 12 else datetime(year + 1, 1, 1)
     no_days_in_month = (next_month_start - calendar_start).days
+    calendar_end = datetime(year, month, no_days_in_month)
 
     # generate title for calendar
     title = calendar_start.strftime("%B") + calendar_start.strftime("%Y")
@@ -84,6 +56,41 @@ def calendar(year, month):
     # today link
     today_year = datetime.now().year
     today_month = datetime.now().month
+
+    # NOTE: Database queries
+    fields = format_sql_query_columns(
+        get_table_fields()
+        + [
+            "g.name",
+            "r.room_number",
+            "rt.base_price_per_night",
+            "rs.status",
+            "rs.bg_color",
+            f"{table}.modified",
+            f"{table}.modified_by_id",
+            "username",
+        ]
+    )
+    # We only want reservations for this month view, not all time
+    where = f""" WHERE end_date > "{calendar_start}" AND start_date < "{calendar_end}" """
+    join = f"""
+        JOIN users u ON {table}.modified_by_id = u.id
+        JOIN reservation_status rs ON {table}.status_id = rs.id
+        JOIN join_guests_reservations gr ON {table}.id = gr.reservation_id
+        JOIN guests g ON gr.guest_id = g.id
+        JOIN join_rooms_reservations rr ON {table}.id = rr.reservation_id
+        JOIN rooms r ON rr.room_id = r.id
+        JOIN room_types rt ON r.room_type = rt.id
+        {where}
+    """
+
+    reservations = get_all_rows(table, fields, join, order_by="start_date")
+
+    room_joins = """
+    JOIN users u ON rooms.modified_by_id = u.id
+    JOIN room_types rt ON rooms.room_type = rt.id
+    """
+    rooms = get_all_rows("rooms", "*", room_joins, order_by="room_number")
 
     return render_template(
         "calendar/index.html",
