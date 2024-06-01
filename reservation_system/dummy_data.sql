@@ -27,12 +27,13 @@ VALUES
 
 -- Insert reservation status
 INSERT INTO reservation_status
-  (status, description)
+  (status, description, bg_color)
 VALUES
-  ("Confirmed","Reservation has been confirmed by email."),
-  ("Checked-in","Guest has checked into their room."),
-  ("Paid in Full","Reservation invoice has been paid."),
-  ("Cancelled","Reservation has been cancelled.")
+  ("Pending", "Reservation is not confirmed", "#dadada"),
+  ("Confirmed","Reservation has been confirmed by email.", "#c3f457"),
+  ("Checked-in","Guest has checked into their room.", "#f8e45c"),
+  ("Paid in Full","Reservation invoice has been paid.", "#34c4d9"),
+  ("Cancelled","Reservation has been cancelled.", "#f66151")
 ;
 
 -- Insert dummy guest data
@@ -53,9 +54,9 @@ VALUES
 INSERT INTO reservations
   (start_date, end_date, number_of_guests, status_id, modified_by_id)
 VALUES
-  ("2024-05-17","2024-05-20",2,1,1),
+  ("2024-05-17","2024-05-20",2,2,1),
   ("2024-05-20","2024-05-25",2,1,1),
-  ("2024-05-08","2024-05-12",2,1,1)
+  ("2024-05-08","2024-05-12",2,3,1)
 ;
 
 INSERT INTO join_guests_reservations
