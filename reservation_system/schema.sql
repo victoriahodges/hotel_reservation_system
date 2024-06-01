@@ -59,7 +59,7 @@ CREATE TABLE reservations (
   number_of_guests INTEGER NOT NULL,
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
-  reservation_notes TEXT DEFAULT "None",
+  reservation_notes TEXT,
   status_id INTEGER NOT NULL,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

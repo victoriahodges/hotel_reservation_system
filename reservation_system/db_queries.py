@@ -37,3 +37,12 @@ def get_row_by_id(id, table, columns, joins=None):
         abort(404, f"Not found: id {id} in {table} doesn't exist.")
 
     return row
+
+
+def delete_by_id(id, table):
+    db = get_db()
+    deleted_row = db.execute(f"DELETE FROM {table} WHERE id = ?", (id,))
+    if deleted_row.rowcount == 0:
+        abort(404, f"Not found: id {id} in {table} doesn't exist.")
+
+    db.commit()

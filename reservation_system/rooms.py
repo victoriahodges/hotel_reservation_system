@@ -10,12 +10,20 @@ from reservation_system.db_queries import (
     get_row_by_id,
     sql_insert_placeholders,
 )
+from reservation_system.helpers import format_required_field_error
 
 bp = Blueprint("rooms", __name__, url_prefix="/rooms")
 table = "rooms"
 
 
 def get_table_fields():
+    return [
+        "room_number",
+        "room_type",
+    ]
+
+
+def get_required_fields():
     return [
         "room_number",
         "room_type",
@@ -53,14 +61,14 @@ def create():
         columns = format_sql_query_columns(get_table_fields() + ["modified_by_id"])
         placeholders = sql_insert_placeholders(len(data))
 
-        error = None
+        # handle required field errors
+        error_fields = []
+        for required in get_required_fields():
+            if not request.form[required]:
+                error_fields.append(required)
 
-        # TODO: handle error
-        # if not name:
-        #     error = "Name is required."
-
-        if error is not None:
-            flash(error)
+        if error_fields:
+            flash(format_required_field_error(error_fields))
         else:
             db = get_db()
             db.execute(
@@ -88,13 +96,15 @@ def update(id):
         modified = datetime.now()
         data = [request.form[f] for f in get_table_fields()] + [modified, g.user["id"], id]
         columns = format_sql_update_columns(get_table_fields() + ["modified", "modified_by_id"])
-        error = None
 
-        # if not name:
-        #     error = "Name is required."
+        # handle required field errors
+        error_fields = []
+        for required in get_required_fields():
+            if not request.form[required]:
+                error_fields.append(required)
 
-        if error is not None:
-            flash(error)
+        if error_fields:
+            flash(format_required_field_error(error_fields))
         else:
             db = get_db()
             db.execute(

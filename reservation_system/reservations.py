@@ -10,6 +10,7 @@ from reservation_system.db_queries import (
     get_row_by_id,
     sql_insert_placeholders,
 )
+from reservation_system.helpers import format_required_field_error
 
 bp = Blueprint("reservations", __name__, url_prefix="/reservations")
 table = "reservations"
@@ -22,6 +23,17 @@ def get_table_fields():
         "end_date",
         "reservation_notes",
         "status_id",
+    ]
+
+
+def get_required_fields():
+    return [
+        "number_of_guests",
+        "start_date",
+        "end_date",
+        "status_id",
+        "room_id",
+        "guest_id",
     ]
 
 
@@ -73,14 +85,15 @@ def create():
         room_id = request.form["room_id"]
         columns = format_sql_query_columns(get_table_fields() + ["modified_by_id"])
         placeholders = sql_insert_placeholders(len(data))
-        error = None
 
-        # TODO: handle error
-        # if not name:
-        #     error = "Name is required."
+        # handle required field errors
+        error_fields = []
+        for required in get_required_fields():
+            if not request.form[required]:
+                error_fields.append(required)
 
-        if error is not None:
-            flash(error)
+        if error_fields:
+            flash(format_required_field_error(error_fields))
         else:
             db = get_db()
             # insert row in reservation table
@@ -129,13 +142,15 @@ def update(id):
         guest_id = request.form["guest_id"]
         room_id = request.form["room_id"]
         columns = format_sql_update_columns(get_table_fields() + ["modified", "modified_by_id"])
-        error = None
 
-        # if not name:
-        #     error = "Name is required."
+        # handle required field errors
+        error_fields = []
+        for required in get_required_fields():
+            if not request.form[required]:
+                error_fields.append(required)
 
-        if error is not None:
-            flash(error)
+        if error_fields:
+            flash(format_required_field_error(error_fields))
         else:
             db = get_db()
             db.execute(

@@ -105,5 +105,5 @@ $ coverage xml
 
 ### Code
 
-- [ ] Refactor row query functions
+- [x] Refactor row query functions
 - [ ] Write tests

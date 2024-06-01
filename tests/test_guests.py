@@ -3,25 +3,25 @@ from reservation_system.db import get_db
 
 
 def test_index(client, auth):
-    response = client.get("/")
+    response = client.get("/guests/")
     assert b"Log In" in response.data
     assert b"Register" in response.data
 
     auth.login()
-    response = client.get("/")
+    response = client.get("/guests/")
     assert b"Log Out" in response.data
     assert b"Alice Johnson" in response.data
     assert b"alice.johnson@example.com" in response.data
     assert b"2024-05-30 12:59 by test" in response.data
-    assert b'href="/1/update"' in response.data
+    assert b'href="/guests/1/update"' in response.data
 
 
 @pytest.mark.parametrize(
     "path",
     (
-        "/create",
-        "/1/update",
-        "/1/delete",
+        "/guests/create",
+        "/guests/1/update",
+        "/guests/1/delete",
     ),
 )
 def test_login_required(client, path):
@@ -32,11 +32,12 @@ def test_login_required(client, path):
 @pytest.mark.parametrize(
     "path",
     (
-        "/2/update",
-        "/2/delete",
+        "/guests/3/update",
+        "/guests/3/delete",
     ),
 )
 def test_exists_required(client, auth, path):
+    # test data only has 2 records, expects record 3 not found
     auth.login()
     assert client.post(path).status_code == 404
 
@@ -55,8 +56,8 @@ def test_create(client, auth, app):
     }
 
     auth.login()
-    assert client.get("/create").status_code == 200
-    client.post("/create", data=data)
+    assert client.get("/guests/create").status_code == 200
+    client.post("/guests/create", data=data)
 
     with app.app_context():
         db = get_db()
@@ -74,26 +75,26 @@ def test_update(client, auth, app):
         "city": "Anytown",
         "county": "Someshire",
         "postcode": "AB12 3CD",
-        "notes": "Some notes",
+        "guest_notes": "Some notes",
     }
 
     auth.login()
-    assert client.get("/1/update").status_code == 200
-    res = client.post("/1/update", data=data)
+    assert client.get("/guests/1/update").status_code == 200
+    res = client.post("/guests/1/update", data=data)
     assert res.status_code == 302
 
     with app.app_context():
         db = get_db()
         guest = db.execute("SELECT * FROM guests WHERE id = 1").fetchone()
         assert guest["email"] == "updated@example.com"
-        assert guest["notes"] == "Some notes"
+        assert guest["guest_notes"] == "Some notes"
 
 
 @pytest.mark.parametrize(
     "path",
     (
-        "/create",
-        "/1/update",
+        "/guests/create",
+        "/guests/1/update",
     ),
 )
 def test_create_update_validate(client, auth, path):
@@ -106,7 +107,7 @@ def test_create_update_validate(client, auth, path):
         "city": "Anytown",
         "county": "Someshire",
         "postcode": "AB12 3CD",
-        "notes": "",
+        "guest_notes": "",
     }
     auth.login()
     response = client.post(path, data=data)
@@ -115,8 +116,8 @@ def test_create_update_validate(client, auth, path):
 
 def test_delete(client, auth, app):
     auth.login()
-    response = client.post("/1/delete")
-    assert response.headers["Location"] == "/"
+    response = client.post("/guests/1/delete")
+    assert response.headers["Location"] == "/guests/"
 
     with app.app_context():
         db = get_db()
