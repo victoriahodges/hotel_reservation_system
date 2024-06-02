@@ -79,9 +79,9 @@ def create():
             guest_id = cursor.lastrowid
             db.commit()
 
-        if location := request.args.get("redirect"):
-            return redirect(url_for(location, guest_id=guest_id))
-        return redirect(url_for("guests.index"))
+            if location := request.args.get("redirect"):
+                return redirect(url_for(location, guest_id=guest_id))
+            return redirect(url_for("guests.index"))
 
     return render_template("guests/create.html")
 
