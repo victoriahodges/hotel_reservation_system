@@ -5,7 +5,22 @@
 {% endblock %}
 
 {% block content %}
+
+  <p>
+    <a href="{{ url_for('guests.create', redirect='reservations.create') }}"><button>Add New Guest</button></a>
+  </p>
   <form method="post">
+    <label for="guest_id">Select Guest</label>
+    <select name="guest_id" id="guest_id" required>
+      {% for guest in guests %}
+        {% if request.args.get('guest_id')|int == guest['id'] %}
+      <option selected value="{{ guest['id'] }}">{{ guest['name'] }}: {{ guest['address_1'] }}</option>
+        {% else %}
+      <option value="{{ guest['id'] }}">{{ guest['name'] }}: {{ guest['address_1'] }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+
     <label for="start_date">Check-In</label>
     <input type="date" name="start_date" id="start_date" value="{{ request.form['start_date'] }}" required>
     <label for="end_date">Check-Out</label>
@@ -16,14 +31,13 @@
       <option value="{{ room['id'] }}">Room {{ room['room_number'] }} - {{ room['type_name'] }}</option>
       {% endfor %}
     </select>
-    <label for="guest_id">Select Guest</label>
-    <select name="guest_id" id="guest_id" required>
-      {% for guest in guests %}
-      <option value="{{ guest['id'] }}">{{ guest['name'] }}: {{ guest['address_1'] }}</option>
-      {% endfor %}
-    </select>
     <label for="number_of_guests">Number of Guests</label>
-    <input type="number" name="number_of_guests" id="number_of_guests" value="{{ request.form['number_of_guests'] }}" required>
+    {% for num in range(1, number_of_guests+1) %}
+    <div class="radio-wrapper">
+      <input type="radio" name="number_of_guests" {% if num == 1 %}id="number_of_guests"{% endif %} value="{{ num }}" required>
+      <label class="radio" for="number_of_guests">{{ num }}</label>
+    </div>
+    {% endfor %}
     <label for="status">Status</label>
     <select name="status_id" id="status_id" required>
       {% for status in res_status %}
@@ -37,4 +51,7 @@
     <input type="submit" value="Save">
     <a class="action" href="{{ url_for('reservations.index') }}">Cancel</a>
 </form>
+
+
+
 {% endblock %}

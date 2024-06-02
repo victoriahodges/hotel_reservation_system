@@ -72,12 +72,16 @@ def create():
             flash(format_required_field_error(error_fields))
         else:
             db = get_db()
-            db.execute(
+            cursor = db.execute(
                 f"INSERT INTO {table} ({columns}) VALUES ({placeholders})",
                 data,
             )
+            guest_id = cursor.lastrowid
             db.commit()
-            return redirect(url_for("guests.index"))
+
+        if location := request.args.get("redirect"):
+            return redirect(url_for(location, guest_id=guest_id))
+        return redirect(url_for("guests.index"))
 
     return render_template("guests/create.html")
 

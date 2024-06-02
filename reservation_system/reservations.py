@@ -122,8 +122,13 @@ def index():
 
 
 def get_other_table_rows():
-    rooms = get_all_rows("rooms", "room_number, type_name", " JOIN room_types rt ON rooms.room_type = rt.id")
-    guests = get_all_rows("guests", "id, name, address_1")
+    rooms = get_all_rows(
+        "rooms",
+        "room_number, type_name, max_occupants",
+        " JOIN room_types rt ON rooms.room_type = rt.id",
+        order_by="room_number",
+    )
+    guests = get_all_rows("guests", "id, name, address_1", order_by="name")
     res_status = get_all_rows("reservation_status", "*")
     return rooms, guests, res_status
 
@@ -132,6 +137,8 @@ def get_other_table_rows():
 @login_required
 def create():
     rooms, guests, res_status = get_other_table_rows()
+
+    max_occupants = max([r["max_occupants"] for r in rooms])
 
     if request.method == "POST":
         data = [request.form[f] for f in get_table_fields()] + [g.user["id"]]
@@ -178,7 +185,9 @@ def create():
             db.commit()
             return redirect(url_for("reservations.index"))
 
-    return render_template("reservations/create.html", guests=guests, res_status=res_status, rooms=rooms)
+    return render_template(
+        "reservations/create.html", guests=guests, res_status=res_status, rooms=rooms, number_of_guests=max_occupants
+    )
 
 
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
@@ -195,6 +204,8 @@ def update(id):
         """,
     )
     rooms, guests, res_status = get_other_table_rows()
+
+    max_occupants = max([r["max_occupants"] for r in rooms])
 
     if request.method == "POST":
         modified = datetime.now()
@@ -237,7 +248,12 @@ def update(id):
             return redirect(url_for("reservations.index"))
 
     return render_template(
-        "reservations/update.html", reservation=reservation, guests=guests, res_status=res_status, rooms=rooms
+        "reservations/update.html",
+        reservation=reservation,
+        guests=guests,
+        res_status=res_status,
+        rooms=rooms,
+        number_of_guests=max_occupants,
     )
 
 
