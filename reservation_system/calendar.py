@@ -38,7 +38,7 @@ def calendar(year, month):
     month_end = calendar_end.date()
 
     # generate title for calendar
-    title = calendar_start.strftime("%B") + calendar_start.strftime("%Y")
+    title = calendar_start.strftime("%B") + " " + calendar_start.strftime("%Y")
 
     # dictionary of days and dates
     dates = {d: datetime(year, month, d).strftime("%Y-%m-%d") for d in range(1, no_days_in_month + 1)}
