@@ -53,11 +53,11 @@
           {% if res['room_number'] == room['room_number'] %}
             {%if date == res['start_date'] %}
           <a class="booking" onclick="show_booking_details({{ res['id'] }})">
-            <span style="position: absolute; font-size: 12px; padding: 5px 2px;">{{ res['name'] }}</span>
+            <span>{{ res['name'] }}</span>
           </a>
             {% elif  date == month_start and res['start_date'] < month_start  %}
           <a class="booking" onclick="show_booking_details({{ res['id'] }})">
-            <span style="position: absolute; font-size: 12px; padding: 5px 2px;">{{ res['name'] }}</span>
+            <span>{{ res['name'] }}</span>
           </a>
             {% endif %}
           {% endif %}
