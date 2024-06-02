@@ -16,9 +16,13 @@ header h1 { font-size: 1.5em; margin-bottom: 0; }
 .content ul {margin: 15px;}
 .content table {width: 100%; border: 1px solid slategray;}
 .content table th {background-color: lightgray;}
+.content table.booking-details {table-layout: fixed; display: none;}
 .content table.calendar {table-layout: fixed;}
 .content table.calendar td {background-color: #eee; height: 25px;}
-.content table.calendar a.booking {display:block; background-color: orange; width: 100%; height: 100%;}
+.content table.calendar td.booking-cell {background-color: orange; height: 25px;}
+.content table.calendar td.booking-cell-none {display: none;}
+.content table.calendar a.booking {display:block; cursor: pointer; width: 100%; height: 100%;}
+.content table.calendar a.booking:hover {background-color: #dd9000; cursor: pointer; width: 100%; height: 100%;}
 .content:last-child { margin-bottom: 0; }
 .content form { margin: 1em 0; display: flex; flex-direction: column; }
 .content label { font-weight: bold; margin-bottom: 0.5em; }

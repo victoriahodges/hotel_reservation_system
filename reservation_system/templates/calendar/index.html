@@ -29,24 +29,110 @@
     <tr>
       <th>{{ room['room_number']}}</th>
       {% for day, date in dates.items() %}
-        <td>
+        <td
         {% for res in reservations %}
-          {% if res['room_number'] == room['room_number']
-          and (date >= res['start_date'].strftime('%Y-%m-%d') and date < res['end_date'].strftime('%Y-%m-%d')) %}
-          <a class="booking" href="{{ url_for('reservations.update', id=res['id']) }}"
-          title="{{ res['name'] }}"
-          >
-          {% if date == res['start_date'].strftime('%Y-%m-%d') %}
-          <span style="position: absolute; color: black; font-size: 12px; padding: 5px 2px;">{{ res['name'] }}</span>
+          {% if res['room_number'] == room['room_number'] %}
+            {% if date == res['start_date'].strftime('%Y-%m-%d') and res['end_date'] > month_end %}
+            class="booking-cell" colspan="{{ (month_end - res['start_date']).days +1 }}"
+            {% elif date == month_start.strftime('%Y-%m-%d') and res['start_date'] < month_start %}
+            class="booking-cell" colspan="{{ (res['end_date'] - month_start).days }}"
+            {% elif date == res['start_date'].strftime('%Y-%m-%d') %}
+            class="booking-cell" colspan="{{ (res['end_date'] - res['start_date']).days }}"
+            {% endif %}
+            {% if (date > res['start_date'].strftime('%Y-%m-%d') and date < res['end_date'].strftime('%Y-%m-%d'))%}
+            class="booking-cell-none"
+            {% endif %}
           {% endif %}
+          
+        {% endfor %}
+        >
+        {% for res in reservations %}
+          {% if res['room_number'] == room['room_number'] %}
+            {%if date == res['start_date'].strftime('%Y-%m-%d') %}
+          <a class="booking" onclick="show_booking_details({{ res['id'] }})">
+            <span style="position: absolute; color: black; font-size: 12px; padding: 5px 2px;">{{ res['name'] }}</span>
           </a>
+            {% elif  date == month_start.strftime('%Y-%m-%d') and res['start_date'] < month_start  %}
+          <a class="booking" onclick="show_booking_details({{ res['id'] }})">
+            <span style="position: absolute; color: black; font-size: 12px; padding: 5px 2px;">{{ res['name'] }}</span>
+          </a>
+            {% endif %}
           {% endif %}
-          {%endfor%}
-        </td>
-      {%endfor%}
+        {% endfor %}    
+    
+      </td>
+      {% endfor %}
     </tr>
-    {%endfor%}
+    {% endfor %}
+  </table><!-- end of calendar-->
+
+  <h3>Booking Details</h3>
+  <p id="booking_details_close" style="display: none;"><a  onclick="hide_booking_details()"><button>Close &times;</button></a></p>
+  <p id="booking_details_help">Click on a booking in the the calendar to show details.</p>
+
+  {% for res in reservations %}
+  <table class="booking-details" id="booking_{{ res['id']}}">
+    <tr>
+      <th>{{ res['name'] }}</th>
+      <th>Room {{ res['room_number'] }} - {{ res['type_name'] }}</th>
+      <th><a href="{{ url_for('reservations.update', id=res['id']) }}">Edit</a></th>
+    </tr>
+    <tr>
+      <td>Check-in: {{ res['start_date'] }}</td>
+      <td>Check-out: {{ res['end_date'] }}</td>
+      <td>{{ (res['end_date'] - res['start_date']).days }} nights</td>
+    </tr>
+
+    <tr>
+      <th>No of Guests</th>
+      <th>Status</th>
+      <th>Reservation Notes</th>
+    </tr>
+    <tr>
+      <td>{{ res['number_of_guests'] }} </td>
+      <td style="background-color: {{ res['bg_color'] }};">{{ res['status'] }} </td>
+      <td>{{ res['reservation_notes'] }}</td>
+    </tr>
+
+    <tr>
+      <th>Address</th>
+      <th>Contact</th>
+      <th>Guest Notes</th>
+    </tr>
+    <tr>
+      <td>{{ res['address_1'] }}, {{ res['address_2'] if res['address_2'] else '' }}<br>
+      {{ res['city'] }}<br>
+      {{ res['county'] }}, {{ res['postcode'] }} </td>
+      <td>{{ res['email'] }}<br>{{ res['telephone'] }}</td>
+      <td>{{ res['guest_notes'] }}</td>
+    </tr>
   </table>
+
+
+  {% endfor %}
+  <script>
+  function show_booking_details(id) {
+    // hide all
+    document.querySelectorAll('.booking-details').forEach(function(el) {
+      el.style.display = 'none';
+    });
+    document.getElementById('booking_details_help').style.display = 'none';
+    document.getElementById('booking_details_close').style.display = 'block';
+    
+    // show clicked
+    var x = document.getElementById('booking_'+id);
+    x.style.display = 'table';
+  } 
+  function hide_booking_details(id) {
+    // hide all
+    document.querySelectorAll('.booking-details').forEach(function(el) {
+      el.style.display = 'none';
+    });
+    document.getElementById('booking_details_help').style.display = 'block';
+    document.getElementById('booking_details_close').style.display = 'none';
+  } 
+
+  </script>
 
   {% else %}
   <a href="{{ url_for('auth.login') }}">Log In</a>

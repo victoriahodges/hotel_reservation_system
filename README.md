@@ -97,6 +97,11 @@ $ coverage xml
 - [ ] Photo uploads
 - [ ] Amenities list
 
+### Customers
+
+- [ ] Add guest details at booking time (currently a guest must be created before creating a reservation)
+- [ ] Allow multiple rooms per booking
+
 ### Invoicing
 
 - [ ] Calulate full booking price

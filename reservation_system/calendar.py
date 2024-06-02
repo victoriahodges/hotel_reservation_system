@@ -31,9 +31,11 @@ def calendar(year, month):
     # NOTE: datetime queries and calculations
     # calculate number of days in month
     calendar_start = datetime(year, month, 1)
+    month_start = calendar_start.date()
     next_month_start = datetime(year, month + 1, 1) if month + 1 <= 12 else datetime(year + 1, 1, 1)
     no_days_in_month = (next_month_start - calendar_start).days
     calendar_end = datetime(year, month, no_days_in_month)
+    month_end = calendar_end.date()
 
     # generate title for calendar
     title = calendar_start.strftime("%B") + calendar_start.strftime("%Y")
@@ -61,8 +63,9 @@ def calendar(year, month):
     fields = format_sql_query_columns(
         get_table_fields()
         + [
-            "g.name",
+            "g.*",
             "r.room_number",
+            "rt.type_name",
             "rt.base_price_per_night",
             "rs.status",
             "rs.bg_color",
@@ -106,4 +109,6 @@ def calendar(year, month):
         next_month=next_month,
         today_month=today_month,
         today_year=today_year,
+        month_start=month_start,
+        month_end=month_end
     )
