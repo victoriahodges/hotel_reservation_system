@@ -41,7 +41,7 @@ def calendar(year, month):
     title = calendar_start.strftime("%B") + " " + calendar_start.strftime("%Y")
 
     # dictionary of days and dates
-    dates = {d: datetime(year, month, d).strftime("%Y-%m-%d") for d in range(1, no_days_in_month + 1)}
+    dates = {d: datetime(year, month, d).date() for d in range(1, no_days_in_month + 1)}
 
     # previous year link
     prev_year = year - 1 if month == 1 else year
@@ -54,6 +54,13 @@ def calendar(year, month):
 
     # next month link
     next_month = month + 1 if month < 12 else 1
+
+    # weekends
+    weekends = [
+        datetime(year, month, d).date()
+        for d in range(1, no_days_in_month + 1)
+        if datetime(year, month, d).weekday() in (0, 6)
+    ]
 
     # today link
     today_year = datetime.now().year
@@ -111,4 +118,5 @@ def calendar(year, month):
         today_year=today_year,
         month_start=month_start,
         month_end=month_end,
+        weekends=weekends,
     )

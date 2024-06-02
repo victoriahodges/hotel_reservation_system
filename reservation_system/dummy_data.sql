@@ -29,7 +29,7 @@ VALUES
 INSERT INTO reservation_status
   (status, description, bg_color)
 VALUES
-  ("Pending", "Reservation is not confirmed", "#dadada"),
+  ("Pending", "Reservation is not confirmed", "#cae6f6"),
   ("Confirmed","Reservation has been confirmed by email.", "#c3f457"),
   ("Checked-in","Guest has checked into their room.", "#f8e45c"),
   ("Paid in Full","Reservation invoice has been paid.", "#34c4d9"),
