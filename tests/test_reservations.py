@@ -49,8 +49,8 @@ def test_record_exists(client, auth, path):
 def test_create(client, auth, app):
     data = {
         "number_of_guests": "2",
-        "start_date": "2024-05-17",
-        "end_date": "2024-05-20",
+        "start_date": (datetime.datetime.now() + datetime.timedelta(days=10)).date(),
+        "end_date": (datetime.datetime.now() + datetime.timedelta(days=15)).date(),
         "reservation_notes": "Early breakfast.",
         "status_id": "2",
         "room_id": "1",
@@ -70,8 +70,8 @@ def test_create(client, auth, app):
 def test_update(client, auth, app):
     data = {
         "number_of_guests": "1",
-        "start_date": "2024-05-18",
-        "end_date": "2024-06-28",
+        "start_date": (datetime.datetime.now() + datetime.timedelta(days=10)).date(),
+        "end_date": (datetime.datetime.now() + datetime.timedelta(days=15)).date(),
         "reservation_notes": "Early breakfast.",
         "status_id": "2",
         "guest_id": "1",
@@ -86,8 +86,8 @@ def test_update(client, auth, app):
     with app.app_context():
         db = get_db()
         res = db.execute("SELECT * FROM reservations WHERE id = 1").fetchone()
-        assert res["start_date"] == datetime.date(2024, 5, 18)
-        assert res["end_date"] == datetime.date(2024, 6, 28)
+        assert res["start_date"] == (datetime.datetime.now() + datetime.timedelta(days=10)).date()
+        assert res["end_date"] == (datetime.datetime.now() + datetime.timedelta(days=15)).date()
         assert res["reservation_notes"] == "Early breakfast."
         assert res["number_of_guests"] == 1
 
@@ -105,7 +105,7 @@ def test_update(client, auth, app):
         "/reservations/1/update",
     ),
 )
-def test_create_update_validate(client, auth, path):
+def test_create_update_validate_form_fields(client, auth, path):
     data = {
         "number_of_guests": "",
         "start_date": "",
@@ -121,6 +121,114 @@ def test_create_update_validate(client, auth, path):
     assert b"Start Date is required." in response.data
     assert b"End Date is required." in response.data
     assert b"Guest Id is required." in response.data
+
+
+@pytest.mark.parametrize(
+    "start_date, end_date, room_id",
+    [
+        ("2024-05-15", "2024-05-24", "1"),  # outside
+        ("2024-05-18", "2024-05-20", "1"),  # inside
+        ("2024-05-15", "2024-05-19", "1"),  # start_date overlap
+        ("2024-05-19", "2024-05-24", "1"),  # end_date overlap
+        ("2024-05-18", "2024-05-27", "2"),  # outside
+        ("2024-05-21", "2024-05-23", "2"),  # inside
+        ("2024-05-18", "2024-05-23", "2"),  # start_date overl
+        ("2024-05-23", "2024-05-27", "2"),  # end_date overlap
+    ],
+)
+def test_create_validate_collisions(client, auth, start_date, end_date, room_id):
+    data = {
+        "number_of_guests": "2",
+        "start_date": start_date,
+        "end_date": end_date,
+        "reservation_notes": "",
+        "status_id": "2",
+        "guest_id": "2",
+        "room_id": room_id,
+    }
+    auth.login()
+    response = client.post("/reservations/create", data=data)
+    assert b"BOOKING COLLISION" in response.data
+
+
+@pytest.mark.parametrize(
+    "start_date, end_date",
+    [
+        (8, 16),  # outside
+        (10, 14),  # inside
+        (8, 11),  # start_date overlap
+        (13, 16),  # end_date overlap
+    ],
+)
+def test_update_validate_collisions(client, auth, start_date, end_date):
+    create_data = {
+        "number_of_guests": "2",
+        "start_date": (datetime.datetime.now() + datetime.timedelta(days=10)).date(),
+        "end_date": (datetime.datetime.now() + datetime.timedelta(days=15)).date(),
+        "reservation_notes": "",
+        "status_id": "2",
+        "guest_id": "2",
+        "room_id": "1",
+    }
+    update_data = {
+        "number_of_guests": "2",
+        "start_date": (datetime.datetime.now() + datetime.timedelta(days=start_date)).date(),
+        "end_date": (datetime.datetime.now() + datetime.timedelta(days=end_date)).date(),
+        "reservation_notes": "Moved booking",
+        "status_id": "2",
+        "guest_id": "2",
+        "room_id": "1",
+    }
+    auth.login()
+    response = client.post("/reservations/create", data=create_data)
+    response = client.post("/reservations/1/update", data=update_data)
+    assert b"BOOKING COLLISION" in response.data
+
+
+@pytest.mark.parametrize(
+    "path, start_date, end_date",
+    [
+        ("/reservations/create", 15, 10),
+        ("/reservations/create", 10, 10),
+        ("/reservations/1/update", 15, 10),
+        ("/reservations/1/update", 10, 10),
+    ],
+)
+def test_create_validate_end_date_before_start_date(client, auth, path, start_date, end_date):
+    data = {
+        "number_of_guests": "2",
+        "start_date": (datetime.datetime.now() + datetime.timedelta(days=start_date)).date(),
+        "end_date": (datetime.datetime.now() + datetime.timedelta(days=end_date)).date(),
+        "reservation_notes": "",
+        "status_id": "2",
+        "guest_id": "1",
+        "room_id": "1",
+    }
+    auth.login()
+    response = client.post(path, data=data)
+    assert b"DATE ERROR: Check-out date cannot be before or same as check-in date." in response.data
+
+
+@pytest.mark.parametrize(
+    "path, start_date, end_date",
+    [
+        ("/reservations/create", "2023-05-17", "2023-05-20"),
+        ("/reservations/1/update", "2023-05-17", "2023-05-20"),
+    ],
+)
+def test_create_validate_booking_in_the_past(client, auth, path, start_date, end_date):
+    data = {
+        "number_of_guests": "2",
+        "start_date": start_date,
+        "end_date": end_date,
+        "reservation_notes": "",
+        "status_id": "2",
+        "guest_id": "1",
+        "room_id": "1",
+    }
+    auth.login()
+    response = client.post(path, data=data)
+    assert b"DATE ERROR: Check-in or check-out dates cannot be in the past." in response.data
 
 
 def test_delete(client, auth, app):

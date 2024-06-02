@@ -146,14 +146,14 @@ def create():
             if not request.form[required]:
                 error_fields.append(required)
 
-        if end_date_before_start_date():
+        if error_fields:
+            flash(format_required_field_error(error_fields))
+        elif end_date_before_start_date():
             flash(end_date_before_start_date_message)
         elif find_existing_reservation_collisions():
             flash(reservation_collision_message)
         elif reservation_dates_in_the_past():
             flash(dates_in_the_past_message)
-        elif error_fields:
-            flash(format_required_field_error(error_fields))
         else:
             db = get_db()
             # insert row in reservation table
@@ -209,14 +209,14 @@ def update(id):
             if not request.form[required]:
                 error_fields.append(required)
 
-        if end_date_before_start_date():
+        if error_fields:
+            flash(format_required_field_error(error_fields))
+        elif end_date_before_start_date():
             flash(end_date_before_start_date_message)
         elif find_existing_reservation_collisions(id):
             flash(reservation_collision_message)
         elif reservation_dates_in_the_past():
             flash(dates_in_the_past_message)
-        elif error_fields:
-            flash(format_required_field_error(error_fields))
         else:
             db = get_db()
             db.execute(

@@ -110,5 +110,5 @@ def calendar(year, month):
         today_month=today_month,
         today_year=today_year,
         month_start=month_start,
-        month_end=month_end
+        month_end=month_end,
     )
