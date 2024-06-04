@@ -74,6 +74,7 @@ def calendar(year, month):
             "r.room_number",
             "rt.type_name",
             "rt.base_price_per_night",
+            "rt.photo",
             "rs.status",
             "rs.bg_color",
             f"{table}.modified",
