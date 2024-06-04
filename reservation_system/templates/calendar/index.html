@@ -1,7 +1,8 @@
 {% extends 'admin_base.html' %}
 
+
 {% block header %}
-  <h1 class="m-0">{% block title %}Calendar{% endblock %}</h1>
+  <h1 class="m-0">{% block page_title %}Calendar{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
@@ -54,40 +55,31 @@
             <tr>
               <th class="room bg-lightblue">{{ room['room_number']}}</th>
               {% for day, date in dates.items() %}
-                <td 
-                {% for res in reservations %}
-                  {% if res['room_number'] == room['room_number'] %}
-                    {% if date == res['start_date'] and res['end_date'] > month_end %}
-                    style="background-color: {{ res['bg_color']}}" colspan="{{ (month_end - res['start_date']).days +1}}"
-                    {% elif date == month_start and res['start_date'] < month_start %}
-                    style="background-color: {{ res['bg_color']}}" colspan="{{ (res['end_date'] - month_start).days }}"
-                    {% elif date == res['start_date'] %}
-                    style="background-color: {{ res['bg_color']}}" colspan="{{ (res['end_date'] - res['start_date']).days }}"
-                    {% endif %}
-                    {% if (date > res['start_date'] and date < res['end_date'])%}
-                    class="booking-cell-none"
-                    {% endif %}
-                  {% endif %}
-                  
-                {% endfor %}
-                {% if date in weekends %}
-                class="weekend" {{ date }}
-                {% endif %}
-                >
-                {% for res in reservations %}
-                  {% if res['room_number'] == room['room_number'] %}
-                    {%if date == res['start_date'] %}
+              <td {%- set classes = [] -%} 
+                {%- for res in reservations %}
+                  {%- if res['room_number'] == room['room_number'] -%}
+                    {%- if date == res['start_date'] and res['end_date'] > month_end %} style="background-color: {{ res['bg_color'] }}" colspan="{{ (month_end - res['start_date']).days +1 }}"
+                    {%- elif date == month_start and res['start_date'] < month_start %} style="background-color: {{ res['bg_color'] }}" colspan="{{ (res['end_date'] - month_start).days }}"
+                    {%- elif date == res['start_date'] %} style="background-color: {{ res['bg_color'] }}" colspan="{{ (res['end_date'] - res['start_date']).days }}"
+                    {%- endif -%}
+                    {%- if (date > res['start_date'] and date < res['end_date']) -%}{{ classes.append('booking-cell-none')|default("", True) }}{%- endif -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- if date in weekends %}{{ classes.append('weekend')|default("", True)  }}{% endif -%}                
+                {%- if classes %} class="{{ classes|join(' ') }}"{%- endif -%}>
+                {%- for res in reservations -%}
+                  {%- if res['room_number'] == room['room_number'] %}
+                    {%- if date == res['start_date'] %}
                   <a class="booking" onclick="show_booking_details({{ res['id'] }})">
                     <span>{{ res['name'] }}</span>
                   </a>
-                    {% elif  date == month_start and res['start_date'] < month_start  %}
+                    {%- elif  date == month_start and res['start_date'] < month_start %}
                   <a class="booking" onclick="show_booking_details({{ res['id'] }})">
                     <span>{{ res['name'] }}</span>
                   </a>
-                    {% endif %}
-                  {% endif %}
-                {% endfor %}    
-            
+                    {%- endif -%}
+                  {%- endif -%}
+                {%- endfor -%}    
               </td>
               {% endfor %}
             </tr>
@@ -280,4 +272,31 @@
     <!-- /.card-body -->
 </div>
 
+{% endblock %}
+
+{% block calendar_js%}
+<!-- Calendar View -->
+<script>
+
+  function show_booking_details(id) {
+    $(".booking-details").hide();
+    // $("#booking_details").show();
+    $("#booking_details .card-tools").removeClass("invisible")
+    $("#booking_details .card-tools button")
+    .attr('onclick', 'toggle_booking_details('+id+')');
+    $("#booking_details .card-tools button").html('<i class="fas fa-minus"></i>');
+    $("#booking_"+id).show();
+  }
+
+  function toggle_booking_details(id){
+    var x = $("#booking_"+id).toggle();
+    if ($("#booking_details .card-tools button i").hasClass('fa-minus')){
+      $("#booking_details .card-tools button").html('<i class="fas fa-plus"></i>');
+    }
+    else {
+      $("#booking_details .card-tools button").html('<i class="fas fa-minus"></i>');
+    }
+  }
+
+</script>
 {% endblock %}

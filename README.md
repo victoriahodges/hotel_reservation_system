@@ -1,6 +1,6 @@
 # Hotel Reservation System
 
-Part of TM470 Final IT Project
+Part of Open University TM470 Final IT Project
 
 Python application using Flask framework, REST API and SQLAlchemy.
 
@@ -65,6 +65,9 @@ $ flask --app reservation_system dummy-data
 $ flask --app reservation_system run --debug
 ```
 
+#### Styles
+
+Admin views are styled with AdminLTE (https://adminlte.io/)
 
 ### Run the tests
 
