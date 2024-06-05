@@ -11,7 +11,7 @@ def test_index(client, auth):
 
     auth.login()
     response = client.get("/room_types/")
-    assert b"Log Out" in response.data
+    assert b"Log out" in response.data
     assert b"Superior Double" in response.data
     assert b"King-size bed, bath, sea views" in response.data
     assert b'href="/room_types/1/update"' in response.data

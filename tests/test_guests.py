@@ -11,7 +11,7 @@ def test_index(client, auth):
 
     auth.login()
     response = client.get("/guests/")
-    assert b"Log Out" in response.data
+    assert b"Log out" in response.data
     assert b"Alice Johnson" in response.data
     assert b"alice.johnson@example.com" in response.data
     assert b"2024-05-30 12:59 by test" in response.data

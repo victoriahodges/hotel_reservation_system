@@ -124,5 +124,7 @@ def update(id):
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required
 def delete(id):
+    # TODO: Warn if there are active bookings connected to guest
+    # Delete booking ?
     delete_by_id(id, table)
     return redirect(url_for("guests.index"))
