@@ -67,13 +67,22 @@
           <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
         </div>
       </li> -->
-      <!-- Fullscreen -->
+      
+      
       <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('auth.logout') }}" role="button">
-          <i class="fas fa-sign-out-alt"></i> Log out
+        <a class="nav-link" href="#" role="button">
+          <i class="fas fa-user mr-1"></i> {{ g.user['username'] }}
         </a>
       </li>
-
+      
+      <!-- Log out -->
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('auth.logout') }}" role="button">
+          <i class="fas fa-sign-out-alt mr-1"></i> Log out
+        </a>
+      </li>
+      
+      <!-- Fullscreen -->
       <li class="nav-item">
         <a class="nav-link" data-widget="fullscreen" href="#" role="button">
           <i class="fas fa-expand-arrows-alt"></i>
