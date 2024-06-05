@@ -196,11 +196,14 @@ def update(id):
     reservation = get_row_by_id(
         id,
         table,
-        format_sql_query_columns(get_table_fields() + ["guest_id", "room_id", "modified_by_id", "username"]),
+        format_sql_query_columns(
+            get_table_fields() + ["guest_id", "room_id", "status", "bg_color", "modified_by_id", "username"]
+        ),
         f"""
           JOIN users u ON {table}.modified_by_id = u.id
           JOIN join_guests_reservations gr ON {table}.id = gr.reservation_id
           JOIN join_rooms_reservations rr ON {table}.id = rr.reservation_id
+          JOIN reservation_status rs ON {table}.status_id = rs.id
         """,
     )
     rooms, guests, res_status = get_other_table_rows()

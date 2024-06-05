@@ -28,7 +28,7 @@ def index():
 @login_required
 def calendar(year, month):
 
-    # NOTE: datetime queries and calculations
+    # datetime queries and calculations
     # calculate number of days in month
     calendar_start = datetime(year, month, 1)
     month_start = calendar_start.date()
@@ -66,10 +66,11 @@ def calendar(year, month):
     today_year = datetime.now().year
     today_month = datetime.now().month
 
-    # NOTE: Database queries
+    # Database queries
     fields = format_sql_query_columns(
         get_table_fields()
         + [
+            "g.id as guest_id",
             "g.*",
             "r.room_number",
             "rt.type_name",
