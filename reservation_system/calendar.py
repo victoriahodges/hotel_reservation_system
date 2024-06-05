@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import Blueprint, redirect, render_template, url_for
 from reservation_system.auth import login_required
 from reservation_system.db_queries import format_sql_query_columns, get_all_rows
+from reservation_system.helpers import room_image_location
 
 bp = Blueprint("calendar", __name__, url_prefix="/calendar")
 table = "reservations"
@@ -108,6 +109,7 @@ def calendar(year, month):
         "calendar/index.html",
         reservations=reservations,
         rooms=rooms,
+        image_location=room_image_location(),
         dates=dates,
         title=title,
         year=year,

@@ -36,22 +36,22 @@
               <th>Last modified</th>
               <th>Action</th>
             </tr>
-            </thead>
-            <tbody>
-              {% for guest in guests %}
-              <tr>
-                <th>{{ guest['name'] }}</th>
-                <td>{{ guest['email'] }}</td>
-                <td>{{ guest['telephone'] }}</td>
-                <td>{{ guest['guest_notes'] }}</td>
-                <td>{{ guest['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ guest['username'] }}</td>
-                <td>
-                  <a class="btn btn-sm btn-primary" href="{{ url_for('guests.update', id=guest['id']) }}">
-                  <i class="fas fa-sm fa-edit mr-1"></i> Edit</a>
-                </td>
-              </tr>
-            {% endfor %}
-            </tbody>
+          </thead>
+          <tbody>
+            {% for guest in guests %}
+            <tr>
+              <th>{{ guest['name'] }}</th>
+              <td>{{ guest['email'] }}</td>
+              <td>{{ guest['telephone'] }}</td>
+              <td>{{ guest['guest_notes'] }}</td>
+              <td>{{ guest['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ guest['username'] }}</td>
+              <td>
+                <a class="btn btn-sm btn-primary" href="{{ url_for('guests.update', id=guest['id']) }}">
+                <i class="fas fa-sm fa-edit mr-1"></i> Edit</a>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
         </table>
       </div>      
     </div>

@@ -1,3 +1,7 @@
+def room_image_location():
+    return "img/hotel_rooms/"
+
+
 def format_required_field_error(fields):
     message = "<ul>"
     for f in fields:

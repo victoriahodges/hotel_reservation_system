@@ -1,23 +1,51 @@
-{% extends 'base.html' %}
+{% extends 'admin_base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Add New Room Type{% endblock %}</h1>
+  <h1 class="m-0">{% block page_title %}Add New Room Type{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-  <form method="post">
-    <label for="type_name">Type Name</label>
-    <input name="type_name" id="type_name" value="{{ request.form['type_name'] }}" required>
-    <label for="base_price_per_night">Base price per night</label>
-    <input name="base_price_per_night" id="base_price_per_night" value="{{ request.form['base_price_per_night'] }}" required>
-    <label for="amenities">Amenities</label>
-    <input name="amenities" id="amenities" value="{{ request.form['amenities'] }}" required>
-    <label for="photo">Photo</label>
-    <input name="photo" id="photo" value="{{ request.form['photo'] }}" required>
-    <label for="max_occupants">Max. occupants</label>
-    <input name="max_occupants" id="max_occupants" value="{{ request.form['max_occupants'] }}" required>  
+<div class="row">
+  <div class="col-6">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Room Type Details</h3>
+      </div>
+      <!-- /.card-header -->      
+      <div class="card-body">
+        <form method="post" id="form" >
+          <div class="form-group">
+            <label for="type_name">Type Name</label>
+            <input class="form-control" name="type_name" id="type_name" value="{{ request.form['type_name'] }}" required>
+          </div>
+          <div class="form-group">
+            <label for="base_price_per_night">Base price per night</label>
+            <input class="form-control" name="base_price_per_night" id="base_price_per_night" value="{{ request.form['base_price_per_night'] }}" required>
+          </div>
+          <div class="form-group">
+            <label for="amenities">Amenities</label>
+            <input class="form-control" name="amenities" id="amenities" value="{{ request.form['amenities'] }}" required>
+          </div>
+          <div class="form-group">
+            <!-- TODO file upload -->
+            <label for="photo">Photo</label>
+            <input class="form-control" name="photo" id="photo" value="{{ request.form['photo'] }}" required>
+          </div>
+          <div class="form-group">
+            <label for="max_occupants">Max. occupants</label>
+            <input class="form-control" name="max_occupants" id="max_occupants" value="{{ request.form['max_occupants'] }}" required>  
+          </div>
+        </form>
 
-    <input type="submit" value="Save">
-    <a class="action" href="{{ url_for('room_types.index') }}">Cancel</a>
-</form>
+      </div>
+      <!-- /.card-body -->   
+      <div class="card-footer">
+        <button type="submit" form="form" value="Save" class="btn btn-primary"><i class="fas fa-save mr-1"></i> Save</button>
+      
+        <a href="{{ url_for('room_types.index') }}" class="btn btn-default ml-2">Go back</a>
+      </div>
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
 {% endblock %}

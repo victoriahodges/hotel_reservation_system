@@ -11,7 +11,7 @@ from reservation_system.db_queries import (
     get_row_by_id,
     sql_insert_placeholders,
 )
-from reservation_system.helpers import format_required_field_error
+from reservation_system.helpers import format_required_field_error, room_image_location
 
 bp = Blueprint("room_types", __name__, url_prefix="/room_types")
 table = "room_types"
@@ -45,7 +45,7 @@ def index():
 
     room_types = get_all_rows(table, fields, join, order_by="base_price_per_night DESC")
 
-    return render_template("room_types/index.html", room_types=room_types)
+    return render_template("room_types/index.html", room_types=room_types, image_location=room_image_location())
 
 
 @bp.route("/create", methods=("GET", "POST"))
