@@ -39,28 +39,7 @@
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
-      <!-- Navbar Search -->
-      <!-- <li class="nav-item">
-        <a class="nav-link" data-widget="navbar-search" href="#" role="button">
-          <i class="fas fa-search"></i>
-        </a>
-        <div class="navbar-search-block">
-          <form class="form-inline">
-            <div class="input-group input-group-sm">
-              <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
-              <div class="input-group-append">
-                <button class="btn btn-navbar" type="submit">
-                  <i class="fas fa-search"></i>
-                </button>
-                <button class="btn btn-navbar" type="button" data-widget="navbar-search">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </li> -->
-
+      <!-- TODO -->
       <!-- Notifications Dropdown Menu -->
       <!-- <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#">
@@ -89,6 +68,12 @@
         </div>
       </li> -->
       <!-- Fullscreen -->
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('auth.logout') }}" role="button">
+          <i class="fas fa-sign-out-alt"></i> Log out
+        </a>
+      </li>
+
       <li class="nav-item">
         <a class="nav-link" data-widget="fullscreen" href="#" role="button">
           <i class="fas fa-expand-arrows-alt"></i>
@@ -228,6 +213,13 @@
     <!-- Main content -->
     <div class="content">
       <div class="container-fluid">
+        {% for message in get_flashed_messages() %}
+        <div class="alert alert-danger alert-dismissible">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+          <h5><i class="icon fas fa-ban"></i> Alert!</h5>
+          {{ message | safe }}
+        </div>
+        {% endfor %}
 {% block content %}{% endblock %}
 
       </div><!-- /.container-fluid -->

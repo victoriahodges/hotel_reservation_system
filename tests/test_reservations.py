@@ -13,7 +13,7 @@ def test_index(client, auth):
 
     auth.login()
     response = client.get("/reservations/")
-    assert b"Log Out" in response.data
+    assert b"Log out" in response.data
     assert b"Alice Johnson" in response.data
     assert b"101" in response.data
     assert b"130.0" in response.data
