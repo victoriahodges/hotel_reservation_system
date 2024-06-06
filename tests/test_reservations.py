@@ -232,8 +232,11 @@ def test_create_validate_booking_in_the_past(client, auth, path, start_date, end
 
 
 def test_delete(client, auth, app):
+    data = {
+        "redirect": ""
+    }
     auth.login()
-    response = client.post("/reservations/1/delete")
+    response = client.post("/reservations/1/delete", data=data)
     assert response.headers["Location"] == "/reservations/"
 
     with app.app_context():

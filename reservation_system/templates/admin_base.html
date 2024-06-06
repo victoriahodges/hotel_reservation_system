@@ -33,7 +33,7 @@
         <a href="#" class="nav-link">View Website</a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="{{ url_for('reservations.create') }}" class="btn btn-block btn-primary">Create Booking</a>
+        <a href="{{ url_for('reservations.create', redirect=request.path) }}" class="btn btn-block btn-primary">Create Booking</a>
       </li>
     </ul>
 

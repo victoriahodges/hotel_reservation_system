@@ -92,8 +92,8 @@
                 <div class="col-12 col-md-12 col-lg-8 order-2 order-md-1">
 
                   <div class="float-right">
-                    <a href="{{ url_for('reservations.update', id=res['id']) }}" class="btn btn-primary mr-1"><i class="fas fa-book mr-1"></i> Edit Booking</a>
-                    <a href="{{ url_for('guests.update', id=res['guest_id']) }}" class="btn btn-info"><i class="fas fa-user mr-1"></i> Edit Guest</a>
+                    <a href="{{ url_for('reservations.update', id=res['id'], redirect=request.path) }}" class="btn btn-primary mr-1"><i class="fas fa-book mr-1"></i> Edit Booking</a>
+                    <a href="{{ url_for('guests.update', id=res['guest_id'], redirect=request.path) }}" class="btn btn-info"><i class="fas fa-user mr-1"></i> Edit Guest</a>
                   </div> 
 
                   <h4>Guest Details</h4>
@@ -155,7 +155,7 @@
                       </div>
                     </div>
                     <div class="col-12 col-sm-3">
-                      <div class="info-box" style="background-color: {{ res['bg_color']}};">
+                      <div class="info-box" style="background-color: {{ res['bg_color'] }};">
                         <div class="info-box-content" >
                           <span class="info-box-text text-center text-muted">Status</span>
                           <span class="info-box-number text-center text-muted mb-0">{{ res['status'] }}</span>

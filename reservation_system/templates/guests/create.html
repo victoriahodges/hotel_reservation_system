@@ -59,8 +59,10 @@
       <!-- /.card-body -->   
       <div class="card-footer">
         <button type="submit" form="form" value="Save" class="btn btn-primary"><i class="fas fa-save mr-1"></i> Save</button>
-      
-        <a href="{{ url_for('guests.index') }}" class="btn btn-default ml-2">Go back</a>
+        
+        {% set redirect = request.args.get('redirect') %}
+        <a href="{% if redirect %}{{ redirect }}{% else %}{{ url_for('guests.index') }}{% endif %}" 
+        class="btn btn-default ml-2">Go back</a>
       </div>
     </div>
     <!-- /.card -->

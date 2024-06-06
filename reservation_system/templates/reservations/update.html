@@ -99,8 +99,12 @@
       <div class="card-footer">
         <button type="submit" form="form" value="Save" class="btn btn-primary"><i class="fas fa-save mr-1"></i> Save</button>
       
-        <a href="{{ url_for('reservations.index') }}" class="btn btn-default ml-2">Go back</a>
+        {% set redirect = request.args.get('redirect') %}
+        <a href="{% if redirect %}{{ redirect }}{% else %}{{ url_for('reservations.index') }}{% endif %}" 
+        class="btn btn-default ml-2">Go back</a>
+        
         <form class="float-right" action="{{ url_for('reservations.delete', id=reservation['id']) }}" method="post">
+        <input type="hidden" name="redirect" value="{{ redirect }}">
         <button type="submit" class="btn btn-danger" value="Delete" onclick="return confirm('Are you sure?');">
           <i class="fas fa-trash mr-1"></i> Delete
         </button>

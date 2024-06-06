@@ -16,7 +16,7 @@
       <div class="card-body">
         <div class="row">
           <div class="col-12">
-            <a class="btn btn-info mb-3" href="{{ url_for('guests.create', redirect='reservations.create') }}"><i class="fas fa-user-plus mr-1"></i>Add New Guest</a>
+            <a class="btn btn-info mb-3" href="{{ url_for('guests.create', redirect=request.path) }}"><i class="fas fa-user-plus mr-1"></i>Add New Guest</a>
           </div>
         </div>
   
@@ -94,7 +94,9 @@
       <div class="card-footer">
         <button type="submit" form="form" value="Save" class="btn btn-primary"><i class="fas fa-save mr-1"></i> Save</button>
       
-        <a href="{{ url_for('reservations.index') }}" class="btn btn-default ml-2">Go back</a>
+        {% set redirect = request.args.get('redirect') %}
+        <a href="{% if redirect %}{{ redirect }}{% else %}{{ url_for('reservations.index') }}{% endif %}" 
+        class="btn btn-default ml-2">Go back</a>
       </div>
     </div>
     <!-- /.card -->
