@@ -13,7 +13,7 @@
       </div>
       <!-- /.card-header -->      
       <div class="card-body">
-        <form method="post" id="form" >
+        <form method="post" id="form" enctype=multipart/form-data >
           <div class="form-group">
             <label for="type_name">Type Name</label>
             <input class="form-control" name="type_name" id="type_name" value="{{ request.form['type_name'] or room_type['type_name']  }}" required>
@@ -27,9 +27,18 @@
             <input class="form-control" name="amenities" id="amenities" value="{{ request.form['amenities'] or room_type['amenities'] }}" required>
           </div>
           <div class="form-group">
-            <!-- TODO file upload and preview -->
             <label for="photo">Photo</label>
-            <input class="form-control" name="photo" id="photo" value="{{ request.form['photo'] or room_type['photo'] }}" required>
+            <div class="mb-3" id="photo_preview">
+              <img class="img-bordered-sm elevation-1 float-left mr-3" src="{{ url_for('static', filename=image_location+room_type['photo']) }}"
+              style="width: 125px;">
+              <p class="clearfix">{{ room_type['photo'] }}</p>
+            </div>
+            <div class="input-group">
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" onchange="show_filename()" name="photo" id="photo" value="{{ request.form['photo'] or room_type['photo'] }}">
+                <label class="custom-file-label" id="photo_label" for="photo">Choose photo...</label>
+              </div>
+            </div>
           </div>
           <div class="form-group">
             <label for="max_occupants">Max. occupants</label>
@@ -53,4 +62,14 @@
     <!-- /.card -->
   </div>
 </div>
+
+<script>
+  function show_filename () {
+    var name = document.getElementById('photo');
+    var label = document.getElementById('photo_label');
+    var preview = document.getElementById('photo_preview')
+    label.innerHTML = name.files.item(0).name;
+    preview.classList.add('d-none')
+  };
+</script>
 {% endblock %}

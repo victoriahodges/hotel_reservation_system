@@ -13,7 +13,7 @@
       </div>
       <!-- /.card-header -->      
       <div class="card-body">
-        <form method="post" id="form" >
+        <form method="post" id="form" enctype=multipart/form-data>
           <div class="form-group">
             <label for="type_name">Type Name</label>
             <input class="form-control" name="type_name" id="type_name" value="{{ request.form['type_name'] }}" required>
@@ -27,9 +27,14 @@
             <input class="form-control" name="amenities" id="amenities" value="{{ request.form['amenities'] }}" required>
           </div>
           <div class="form-group">
-            <!-- TODO file upload -->
             <label for="photo">Photo</label>
-            <input class="form-control" name="photo" id="photo" value="{{ request.form['photo'] }}" required>
+            <div class="input-group">
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" onchange="show_filename()" name="photo" id="photo" value="{{ request.form['photo'] }}">
+                <label id="photo_label" class="custom-file-label" for="photo">Choose photo...</label>
+              </div>
+              <div id="selected_filename"></div>
+            </div>
           </div>
           <div class="form-group">
             <label for="max_occupants">Max. occupants</label>
@@ -48,4 +53,12 @@
     <!-- /.card -->
   </div>
 </div>
+
+<script>
+    function show_filename () {
+      var name = document.getElementById('photo');
+      var label = document.getElementById('photo_label');
+      label.innerHTML = name.files.item(0).name;
+    };
+</script>
 {% endblock %}

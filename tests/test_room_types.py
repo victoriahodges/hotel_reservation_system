@@ -1,3 +1,5 @@
+from io import BytesIO
+
 import pytest
 from reservation_system.db import get_db
 
@@ -48,13 +50,13 @@ def test_create(client, auth, app):
         "type_name": "Single",
         "base_price_per_night": "95",
         "amenities": "Single bed, sea views, shower",
-        "photo": "single_room.jpg",
         "max_occupants": "1",
     }
+    data["photo"] = (BytesIO(b"abcdef"), "test.jpg")
 
     auth.login()
     assert client.get("/room_types/create").status_code == 200
-    client.post("/room_types/create", data=data)
+    client.post("/room_types/create", data=data, content_type="multipart/form-data")
 
     with app.app_context():
         db = get_db()
@@ -67,13 +69,13 @@ def test_update(client, auth, app):
         "type_name": "Single",
         "base_price_per_night": "95",
         "amenities": "Single bed, sea views, shower",
-        "photo": "single_room.jpg",
         "max_occupants": "1",
     }
+    data["photo"] = (BytesIO(b"abcdef"), "test.jpg")
 
     auth.login()
     assert client.get("/room_types/1/update").status_code == 200
-    res = client.post("/room_types/1/update", data=data)
+    res = client.post("/room_types/1/update", data=data, content_type="multipart/form-data")
     assert res.status_code == 302
 
     with app.app_context():
@@ -95,14 +97,59 @@ def test_create_update_validate(client, auth, path):
         "type_name": "",
         "base_price_per_night": "",
         "amenities": "Single bed, sea views, shower",
-        "photo": "single_room.jpg",
         "max_occupants": "",
     }
+    data["photo"] = (BytesIO(b"abcdef"), "test.jpg")
+
     auth.login()
-    response = client.post(path, data=data)
+    response = client.post(path, data=data, content_type="multipart/form-data")
     assert b"Type Name is required." in response.data
     assert b"Base Price Per Night is required." in response.data
     assert b"Max Occupants is required." in response.data
+
+
+@pytest.mark.parametrize(
+    "path, extension",
+    [
+        ("/room_types/create", "pdf"),
+        ("/room_types/1/update", "txt"),
+    ],
+)
+def test_create_update_allowed_extensions_validate(client, auth, path, extension):
+    data = {
+        "type_name": "Single",
+        "base_price_per_night": "95",
+        "amenities": "Single bed, sea views, shower",
+        "max_occupants": "1",
+    }
+    data["photo"] = (BytesIO(b"abcdef"), f"test.{extension}")
+
+    auth.login()
+    response = client.post(path, data=data, content_type="multipart/form-data")
+    assert b"Not a valid file type." in response.data
+
+
+@pytest.mark.parametrize(
+    "path, key, filename, expected",
+    [
+        ("/room_types/create", "", "test.jpg", b"No photo part found"),
+        ("/room_types/create", "photo", "", b"No selected photo"),
+        ("/room_types/1/update", "", "test.jpg", b"No photo part found"),
+        ("/room_types/1/update", "photo", "", b"No selected photo"),
+    ],
+)
+def test_create_update_photo_upload_validate(client, auth, path, key, filename, expected):
+    data = {
+        "type_name": "Single",
+        "base_price_per_night": "95",
+        "amenities": "Single bed, sea views, shower",
+        "max_occupants": "1",
+    }
+    data[key] = (BytesIO(b"abcdef"), filename)
+
+    auth.login()
+    response = client.post(path, data=data, content_type="multipart/form-data")
+    assert expected in response.data
 
 
 def test_delete(client, auth, app):
