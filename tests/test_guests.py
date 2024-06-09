@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from reservation_system.db import get_db
 
@@ -67,6 +69,40 @@ def test_create(client, auth, app):
         assert count == 3
 
 
+@pytest.mark.parametrize(
+    "redirect_url, expected",
+    [
+        ("/reservations/create", "/reservations/create?guest_id=3"),
+        ("/calendar/2024/6", "/guests/"),
+        ("", "/guests/"),
+    ],
+)
+def test_create_with_redirect(client, auth, app, redirect_url, expected):
+    data = {
+        "name": "Any Name",
+        "email": "anyemail@example.com",
+        "telephone": "+44 123456789",
+        "address_1": "123 Any Street",
+        "address_2": "Anywhere",
+        "city": "Anytown",
+        "county": "Someshire",
+        "postcode": "AB12 3CD",
+        "guest_notes": "",
+    }
+
+    auth.login()
+    assert client.get(f"/guests/create?redirect={redirect_url}").status_code == 200
+
+    response = client.post(f"/guests/create?redirect={redirect_url}", data=data)
+
+    with app.app_context():
+        db = get_db()
+        count = db.execute("SELECT COUNT(id) FROM guests").fetchone()[0]
+        assert count == 3
+
+    assert response.headers["Location"] == expected
+
+
 def test_update(client, auth, app):
     data = {
         "name": "Any Name",
@@ -82,14 +118,53 @@ def test_update(client, auth, app):
 
     auth.login()
     assert client.get("/guests/1/update").status_code == 200
-    res = client.post("/guests/1/update", data=data)
-    assert res.status_code == 302
+    response = client.post("/guests/1/update", data=data)
+    assert response.status_code == 302
 
     with app.app_context():
         db = get_db()
-        res = db.execute("SELECT * FROM guests WHERE id = 1").fetchone()
-        assert res["email"] == "updated@example.com"
-        assert res["guest_notes"] == "Some notes"
+        result = db.execute("SELECT * FROM guests WHERE id = 1").fetchone()
+        assert result["email"] == "updated@example.com"
+        assert result["guest_notes"] == "Some notes"
+
+
+@pytest.mark.parametrize(
+    "redirect_url, expected",
+    [
+        ("/reservations/create", "/reservations/create"),
+        (
+            f"/calendar/{datetime.now().year}/{datetime.now().month}",
+            f"/calendar/{datetime.now().year}/{datetime.now().month}/",
+        ),
+        ("/calendar/2024/6/", "/calendar/2024/6/"),
+        ("", "/guests/"),
+    ],
+)
+def test_update_with_redirect(client, auth, app, redirect_url, expected):
+    data = {
+        "name": "Any Name",
+        "email": "updated@example.com",
+        "telephone": "+44 123456789",
+        "address_1": "123 Any Street",
+        "address_2": "Anywhere",
+        "city": "Anytown",
+        "county": "Someshire",
+        "postcode": "AB12 3CD",
+        "guest_notes": "Some notes",
+    }
+
+    auth.login()
+    assert client.get(f"/guests/1/update?redirect={redirect_url}").status_code == 200
+    response = client.post(f"/guests/1/update?redirect={redirect_url}", data=data)
+    assert response.status_code == 302
+
+    with app.app_context():
+        db = get_db()
+        result = db.execute("SELECT * FROM guests WHERE id = 1").fetchone()
+        assert result["email"] == "updated@example.com"
+        assert result["guest_notes"] == "Some notes"
+
+    assert response.headers["Location"] == expected
 
 
 @pytest.mark.parametrize(

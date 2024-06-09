@@ -84,8 +84,6 @@ def create():
             if previous_page == "reservations.create":
                 # adding new guest when making a new reservation
                 return redirect(url_for(previous_page, guest_id=guest_id))
-            elif previous_page:
-                return redirect(url_for(previous_page))
             return redirect(url_for(parent_page))
 
     return render_template("guests/create.html")
