@@ -12,7 +12,6 @@ from reservation_system.db_queries import (
     sql_insert_placeholders,
 )
 from reservation_system.helpers import format_required_field_error, previous_page_url
-from werkzeug.routing.exceptions import BuildError
 
 bp = Blueprint("reservations", __name__, url_prefix="/reservations")
 table = "reservations"
@@ -186,13 +185,10 @@ def create():
             )
             db.commit()
 
-            try:
-                # new bookings should return to the calendar page for the dates selected
-                year = datetime.strptime(request.form["start_date"], "%Y-%m-%d").year
-                month = datetime.strptime(request.form["start_date"], "%Y-%m-%d").month
-                return redirect(url_for("calendar.calendar", year=year, month=month))
-            except BuildError:
-                return redirect(url_for(parent_page))
+            # new bookings should return to the calendar page for the dates selected
+            year = datetime.strptime(request.form["start_date"], "%Y-%m-%d").year
+            month = datetime.strptime(request.form["start_date"], "%Y-%m-%d").month
+            return redirect(url_for("calendar.calendar", year=year, month=month))
 
     return render_template(
         "reservations/create.html", guests=guests, res_status=res_status, rooms=rooms, number_of_guests=max_occupants
@@ -238,8 +234,8 @@ def update(id):
             flash(end_date_before_start_date_message)
         elif find_existing_reservation_collisions(id):
             flash(reservation_collision_message)
-        elif reservation_dates_in_the_past():
-            flash(dates_in_the_past_message)
+        # elif reservation_dates_in_the_past():
+        #     flash(dates_in_the_past_message)
         else:
             db = get_db()
             db.execute(
@@ -258,13 +254,10 @@ def update(id):
             )
             db.commit()
 
-            try:
-                # existing bookings should return to the calendar page for the dates selected
-                year = datetime.strptime(request.form["start_date"], "%Y-%m-%d").year
-                month = datetime.strptime(request.form["start_date"], "%Y-%m-%d").month
-                return redirect(url_for("calendar.calendar", year=year, month=month))
-            except BuildError:
-                return redirect(url_for(parent_page))
+            # existing bookings should return to the calendar page for the dates selected
+            year = datetime.strptime(request.form["start_date"], "%Y-%m-%d").year
+            month = datetime.strptime(request.form["start_date"], "%Y-%m-%d").month
+            return redirect(url_for("calendar.calendar", year=year, month=month))
 
     return render_template(
         "reservations/update.html",
@@ -282,7 +275,7 @@ def delete(id):
     delete_by_id(id, table, commit=False)
     delete_by_id(id, "join_guests_reservations", param="reservation_id", commit=False)
     delete_by_id(id, "join_rooms_reservations", param="reservation_id")
-    previous_page = previous_page_url(request.form['redirect'])
+    previous_page = previous_page_url(request.form["redirect"])
     if isinstance(previous_page, tuple):
         # return to calendar after deleting reservation
         year, month = previous_page
