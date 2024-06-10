@@ -41,14 +41,14 @@
             <tr>
               <th class="room bg-lightblue">{{ room['room_number']}}</th>
               {% for day, date in dates.items() %}
-              <td {%- set classes = [] -%} 
+              <td {%- set classes = [] -%}
                 {%- for res in reservations %}
                   {%- if res['room_number'] == room['room_number'] -%}
                     {%- if date == res['start_date'] and res['end_date'] > month_end %} style="background-color: {{ res['bg_color'] }}" colspan="{{ (month_end - res['start_date']).days +1 }}"
                     {%- elif date == month_start and res['start_date'] < month_start %} style="background-color: {{ res['bg_color'] }}" colspan="{{ (res['end_date'] - month_start).days }}"
                     {%- elif date == res['start_date'] %} style="background-color: {{ res['bg_color'] }}" colspan="{{ (res['end_date'] - res['start_date']).days }}"
                     {%- endif -%}
-                    {%- if (date > res['start_date'] and date < res['end_date']) -%}{{ classes.append('booking-cell-none')|default("", True) }}{%- endif -%}
+                    {%- if date != month_start and res['end_date'] > month_start and date > res['start_date'] and date < res['end_date'] -%}{{ classes.append('booking-cell-none')|default("", True) }}{%- endif -%}
                   {%- endif -%}
                 {%- endfor -%}
                 {%- if date in weekends %}{{ classes.append('weekend')|default("", True)  }}{% endif -%}                
