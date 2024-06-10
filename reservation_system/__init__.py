@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask, render_template
+from reservation_system.auth import login_required
 
 from . import auth, calendar, db, guests, reservation_status, reservations, room_types, rooms
 
@@ -28,6 +29,7 @@ def create_app(test_config=None):
 
     # load the homepage
     @app.route("/")
+    @login_required
     def index():
         return render_template("homepage/index.html")
 

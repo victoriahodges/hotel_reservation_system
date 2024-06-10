@@ -11,10 +11,11 @@ from reservation_system.db_queries import (
     get_row_by_id,
     sql_insert_placeholders,
 )
-from reservation_system.helpers import format_required_field_error
+from reservation_system.helpers import format_required_field_error, previous_page_url
 
 bp = Blueprint("reservations", __name__, url_prefix="/reservations")
 table = "reservations"
+parent_page = "reservations.index"
 
 
 def get_table_fields():
@@ -122,8 +123,13 @@ def index():
 
 
 def get_other_table_rows():
-    rooms = get_all_rows("rooms", "room_number, type_name", " JOIN room_types rt ON rooms.room_type = rt.id")
-    guests = get_all_rows("guests", "id, name, address_1")
+    rooms = get_all_rows(
+        "rooms",
+        "room_number, type_name, max_occupants",
+        " JOIN room_types rt ON rooms.room_type = rt.id",
+        order_by="room_number",
+    )
+    guests = get_all_rows("guests", "id, name, address_1", order_by="name")
     res_status = get_all_rows("reservation_status", "*")
     return rooms, guests, res_status
 
@@ -132,6 +138,8 @@ def get_other_table_rows():
 @login_required
 def create():
     rooms, guests, res_status = get_other_table_rows()
+
+    max_occupants = max([r["max_occupants"] for r in rooms])
 
     if request.method == "POST":
         data = [request.form[f] for f in get_table_fields()] + [g.user["id"]]
@@ -176,9 +184,15 @@ def create():
                 (room_id, reservation_id),
             )
             db.commit()
-            return redirect(url_for("reservations.index"))
 
-    return render_template("reservations/create.html", guests=guests, res_status=res_status, rooms=rooms)
+            # new bookings should return to the calendar page for the dates selected
+            year = datetime.strptime(request.form["start_date"], "%Y-%m-%d").year
+            month = datetime.strptime(request.form["start_date"], "%Y-%m-%d").month
+            return redirect(url_for("calendar.calendar", year=year, month=month))
+
+    return render_template(
+        "reservations/create.html", guests=guests, res_status=res_status, rooms=rooms, number_of_guests=max_occupants
+    )
 
 
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
@@ -187,14 +201,19 @@ def update(id):
     reservation = get_row_by_id(
         id,
         table,
-        format_sql_query_columns(get_table_fields() + ["guest_id", "room_id", "modified_by_id", "username"]),
+        format_sql_query_columns(
+            get_table_fields() + ["guest_id", "room_id", "status", "bg_color", "modified_by_id", "username"]
+        ),
         f"""
           JOIN users u ON {table}.modified_by_id = u.id
           JOIN join_guests_reservations gr ON {table}.id = gr.reservation_id
           JOIN join_rooms_reservations rr ON {table}.id = rr.reservation_id
+          JOIN reservation_status rs ON {table}.status_id = rs.id
         """,
     )
     rooms, guests, res_status = get_other_table_rows()
+
+    max_occupants = max([r["max_occupants"] for r in rooms])
 
     if request.method == "POST":
         modified = datetime.now()
@@ -215,8 +234,8 @@ def update(id):
             flash(end_date_before_start_date_message)
         elif find_existing_reservation_collisions(id):
             flash(reservation_collision_message)
-        elif reservation_dates_in_the_past():
-            flash(dates_in_the_past_message)
+        # elif reservation_dates_in_the_past():
+        #     flash(dates_in_the_past_message)
         else:
             db = get_db()
             db.execute(
@@ -234,10 +253,19 @@ def update(id):
                 (room_id, id),
             )
             db.commit()
-            return redirect(url_for("reservations.index"))
+
+            # existing bookings should return to the calendar page for the dates selected
+            year = datetime.strptime(request.form["start_date"], "%Y-%m-%d").year
+            month = datetime.strptime(request.form["start_date"], "%Y-%m-%d").month
+            return redirect(url_for("calendar.calendar", year=year, month=month))
 
     return render_template(
-        "reservations/update.html", reservation=reservation, guests=guests, res_status=res_status, rooms=rooms
+        "reservations/update.html",
+        reservation=reservation,
+        guests=guests,
+        res_status=res_status,
+        rooms=rooms,
+        number_of_guests=max_occupants,
     )
 
 
@@ -247,4 +275,11 @@ def delete(id):
     delete_by_id(id, table, commit=False)
     delete_by_id(id, "join_guests_reservations", param="reservation_id", commit=False)
     delete_by_id(id, "join_rooms_reservations", param="reservation_id")
-    return redirect(url_for("reservations.index"))
+    previous_page = previous_page_url(request.form["redirect"])
+    if isinstance(previous_page, tuple):
+        # return to calendar after deleting reservation
+        year, month = previous_page
+        return redirect(url_for("calendar.calendar", year=year, month=month))
+    elif previous_page:
+        return redirect(url_for(previous_page))
+    return redirect(url_for(parent_page))

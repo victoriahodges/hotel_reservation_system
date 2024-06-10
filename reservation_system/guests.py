@@ -11,10 +11,11 @@ from reservation_system.db_queries import (
     get_row_by_id,
     sql_insert_placeholders,
 )
-from reservation_system.helpers import format_required_field_error
+from reservation_system.helpers import format_required_field_error, previous_page_url
 
 bp = Blueprint("guests", __name__, url_prefix="/guests")
 table = "guests"
+parent_page = "guests.index"
 
 
 def get_table_fields():
@@ -72,12 +73,18 @@ def create():
             flash(format_required_field_error(error_fields))
         else:
             db = get_db()
-            db.execute(
+            cursor = db.execute(
                 f"INSERT INTO {table} ({columns}) VALUES ({placeholders})",
                 data,
             )
+            guest_id = cursor.lastrowid
             db.commit()
-            return redirect(url_for("guests.index"))
+
+            previous_page = previous_page_url(request.args.get("redirect"))
+            if previous_page == "reservations.create":
+                # adding new guest when making a new reservation
+                return redirect(url_for(previous_page, guest_id=guest_id))
+            return redirect(url_for(parent_page))
 
     return render_template("guests/create.html")
 
@@ -112,7 +119,14 @@ def update(id):
                 data,
             )
             db.commit()
-            return redirect(url_for("guests.index"))
+            previous_page = previous_page_url(request.args.get("redirect"))
+            if isinstance(previous_page, tuple):
+                # return to calendar after updating guest
+                year, month = previous_page
+                return redirect(url_for("calendar.calendar", year=year, month=month))
+            elif previous_page:
+                return redirect(url_for(previous_page))
+            return redirect(url_for(parent_page))
 
     return render_template("guests/update.html", guest=guest)
 
@@ -120,5 +134,7 @@ def update(id):
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required
 def delete(id):
+    # TODO: Warn if there are active bookings connected to guest
+    # Delete booking ?
     delete_by_id(id, table)
-    return redirect(url_for("guests.index"))
+    return redirect(url_for(parent_page))

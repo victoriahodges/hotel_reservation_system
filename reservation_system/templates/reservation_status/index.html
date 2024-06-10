@@ -1,27 +1,51 @@
-{% extends 'base.html' %}
+{% extends 'admin_base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Reservation Statuses{% endblock %}</h1>
-  {% if g.user %}
-    <a class="action" href="{{ url_for('reservation_status.create') }}">New</a>
-  {% endif %}
+  <h1 class="m-0">{% block page_title %}Reservation Statuses{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-<table>
-    <tr>
-        <th>Status</th>
-        <th>Description</th>
-        <th>Action</th>
-    </tr>
-  {% for status in res_status %}
-    <tr>
-        <th style="background-color: {{ status['bg_color'] }};">
-          {{ status['status'] }}
-        </th>
-        <td>{{ status['description'] }}</td>
-        <td><a class="action" href="{{ url_for('reservation_status.update', id=status['id']) }}">Edit</a></td>
-    </tr>
-  {% endfor %}
-</table>  
+<div class="row">
+  <div class="col-6">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Status Details</h3>
+      </div>
+      <!-- /.card-header -->      
+      <div class="card-body">
+        <div class="row">
+          <div class="col-12">
+            <a class="btn bg-navy mb-4" href="{{ url_for('reservation_status.create') }}"><i class="fas fa-cog mr-2"></i>Add New Status</a>
+          </div>
+        </div>
+      
+        <table class="table table-sm table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Description</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for status in res_status %}
+            <tr>
+              <th style="background-color: {{ status['bg_color'] }};">
+                {{ status['status'] }}
+              </th>
+              <td>{{ status['description'] }}</td>
+              <td>
+                <a class="btn btn-sm btn-primary" href="{{ url_for('reservation_status.update', id=status['id']) }}">
+                <i class="fas fa-sm fa-edit mr-1"></i> Edit</a>
+              </td>
+            </tr>
+            {% endfor %}
+           </tbody>
+        </table>
+
+      </div>
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
 {% endblock %}

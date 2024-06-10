@@ -1,6 +1,6 @@
 # Hotel Reservation System
 
-Part of TM470 Final IT Project
+Part of Open University TM470 Final IT Project
 
 Python application using Flask framework, REST API and SQLAlchemy.
 
@@ -65,6 +65,9 @@ $ flask --app reservation_system dummy-data
 $ flask --app reservation_system run --debug
 ```
 
+#### Styles
+
+Admin views are styled with AdminLTE (https://adminlte.io/)
 
 ### Run the tests
 
@@ -99,7 +102,7 @@ $ coverage xml
 
 ### Customers
 
-- [ ] Add guest details at booking time (currently a guest must be created before creating a reservation)
+- [x] Add new guest details at booking time (currently a guest must be created before creating a reservation)
 - [ ] Allow multiple rooms per booking
 
 ### Invoicing

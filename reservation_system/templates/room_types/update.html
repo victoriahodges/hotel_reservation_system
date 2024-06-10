@@ -1,27 +1,75 @@
-{% extends 'base.html' %}
+{% extends 'admin_base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Edit Room Type{% endblock %}</h1>
+  <h1 class="m-0">{% block page_title %}Edit Room Type{% endblock %}: {{ room_type['type_name'] }}</h1>
 {% endblock %}
 
 {% block content %}
-  <form method="post">
-    <label for="type_name">Type Name</label>
-    <input name="type_name" id="type_name" value="{{ request.form['type_name'] or room_type['type_name']  }}" required>
-    <label for="base_price_per_night">Base price per night</label>
-    <input name="base_price_per_night" id="base_price_per_night" value="{{ request.form['base_price_per_night'] or room_type['base_price_per_night'] }}" required>
-    <label for="amenities">Amenities</label>
-    <input name="amenities" id="amenities" value="{{ request.form['amenities'] or room_type['amenities'] }}" required>
-    <label for="photo">Photo</label>
-    <input name="photo" id="photo" value="{{ request.form['photo'] or room_type['photo'] }}" required>
-    <label for="max_occupants">Max. occupants</label>
-    <input name="max_occupants" id="max_occupants" value="{{ request.form['max_occupants'] or room_type['max_occupants'] }}" required>   
+<div class="row">
+  <div class="col-6">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Room Type Details</h3>
+      </div>
+      <!-- /.card-header -->      
+      <div class="card-body">
+        <form method="post" id="form" enctype=multipart/form-data >
+          <div class="form-group">
+            <label for="type_name">Type Name</label>
+            <input class="form-control" name="type_name" id="type_name" value="{{ request.form['type_name'] or room_type['type_name']  }}" required>
+          </div>
+          <div class="form-group">
+            <label for="base_price_per_night">Base price per night</label>
+            <input class="form-control" name="base_price_per_night" id="base_price_per_night" value="{{ request.form['base_price_per_night'] or room_type['base_price_per_night'] }}" required>
+          </div>
+          <div class="form-group">
+            <label for="amenities">Amenities</label>
+            <input class="form-control" name="amenities" id="amenities" value="{{ request.form['amenities'] or room_type['amenities'] }}" required>
+          </div>
+          <div class="form-group">
+            <label for="photo">Photo</label>
+            <div class="mb-3" id="photo_preview">
+              <img class="img-bordered-sm elevation-1 float-left mr-3" src="{{ url_for('static', filename=image_location+room_type['photo']) }}"
+              style="width: 125px;">
+              <p class="clearfix">{{ room_type['photo'] }}</p>
+            </div>
+            <div class="input-group">
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" onchange="show_filename()" name="photo" id="photo" value="{{ request.form['photo'] or room_type['photo'] }}">
+                <label class="custom-file-label" id="photo_label" for="photo">Choose photo...</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="max_occupants">Max. occupants</label>
+            <input class="form-control" name="max_occupants" id="max_occupants" value="{{ request.form['max_occupants'] or room_type['max_occupants'] }}" required>   
+          </div>
+        </form>
 
-    <input type="submit" value="Save">
-    <a class="action" href="{{ url_for('room_types.index') }}">Cancel</a>
-</form>
-<hr>
-<form action="{{ url_for('room_types.delete', id=room_type['id']) }}" method="post">
-  <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
-</form>
+      </div>
+      <!-- /.card-body -->   
+      <div class="card-footer">
+        <button type="submit" form="form" value="Save" class="btn btn-primary"><i class="fas fa-save mr-1"></i> Save</button>
+      
+        <a href="{{ url_for('room_types.index') }}" class="btn btn-default ml-2">Go back</a>
+        <form class="float-right" action="{{ url_for('room_types.delete', id=room_type['id']) }}" method="post">
+          <button type="submit" class="btn btn-danger" value="Delete" onclick="return confirm('Are you sure?');">
+            <i class="fas fa-trash mr-1"></i> Delete
+          </button>
+          </form>
+      </div>
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
+
+<script>
+  function show_filename () {
+    var name = document.getElementById('photo');
+    var label = document.getElementById('photo_label');
+    var preview = document.getElementById('photo_preview')
+    label.innerHTML = name.files.item(0).name;
+    preview.classList.add('d-none')
+  };
+</script>
 {% endblock %}

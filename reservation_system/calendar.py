@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import Blueprint, redirect, render_template, url_for
 from reservation_system.auth import login_required
 from reservation_system.db_queries import format_sql_query_columns, get_all_rows
+from reservation_system.helpers import room_image_location
 
 bp = Blueprint("calendar", __name__, url_prefix="/calendar")
 table = "reservations"
@@ -28,7 +29,7 @@ def index():
 @login_required
 def calendar(year, month):
 
-    # NOTE: datetime queries and calculations
+    # datetime queries and calculations
     # calculate number of days in month
     calendar_start = datetime(year, month, 1)
     month_start = calendar_start.date()
@@ -66,14 +67,16 @@ def calendar(year, month):
     today_year = datetime.now().year
     today_month = datetime.now().month
 
-    # NOTE: Database queries
+    # Database queries
     fields = format_sql_query_columns(
         get_table_fields()
         + [
+            "g.id as guest_id",
             "g.*",
             "r.room_number",
             "rt.type_name",
             "rt.base_price_per_night",
+            "rt.photo",
             "rs.status",
             "rs.bg_color",
             f"{table}.modified",
@@ -106,6 +109,7 @@ def calendar(year, month):
         "calendar/index.html",
         reservations=reservations,
         rooms=rooms,
+        image_location=room_image_location(),
         dates=dates,
         title=title,
         year=year,

@@ -6,6 +6,10 @@ def test_config():
     assert create_app({"TESTING": True}).testing
 
 
-def test_index(client):
+def test_index(client, auth):
     response = client.get("/")
-    assert b"Main Menu" in response.data
+    assert b"Homepage" not in response.data
+
+    auth.login()
+    response = client.get("/")
+    assert b"Homepage" in response.data

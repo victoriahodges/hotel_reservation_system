@@ -11,7 +11,7 @@ def test_index(client, auth):
 
     auth.login()
     response = client.get("/rooms/")
-    assert b"Log Out" in response.data
+    assert b"Log out" in response.data
     assert b"Room Type" in response.data
     assert b"101" in response.data
     assert b"Superior Double" in response.data

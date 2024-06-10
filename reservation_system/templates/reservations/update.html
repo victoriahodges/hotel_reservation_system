@@ -1,55 +1,117 @@
-{% extends 'base.html' %}
+{% extends 'admin_base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Edit Reservation{% endblock %}</h1>
+  <h1 class="m-0">{% block page_title %}Edit Reservation{% endblock %} #{{ '%05d' % reservation['id'] }}</h1>
 {% endblock %}
 
 {% block content %}
-  <form method="post">
-    <label for="start_date">Check-In</label>
-    <input type="date" name="start_date" id="start_date" value="{{ request.form['start_date'] or reservation['start_date'] }}" required>
-    <label for="end_date">Check-Out</label>
-    <input type="date" name="end_date" id="end_date" value="{{ request.form['end_date'] or reservation['end_date'] }}" required>
-    <label for="room_id">Select Room</label>
-    <select name="room_id" id="room_id" required>
-      {% for room in rooms %}
-        {% if room['id'] == reservation['room_id'] %}
-      <option selected value="{{ room['id'] }}">Room {{ room['room_number'] }} - {{ room['type_name'] }}</option>
-        {% else %}
-      <option value="{{ room['id'] }}">Room {{ room['room_number'] }} - {{ room['type_name'] }}</option>
-        {% endif %}
-      {% endfor %}
-    </select>    
-    <label for="guest_id">Select Guest</label>
-    <select name="guest_id" id="guest_id" required>
-      {% for guest in guests %}
-        {% if guest['id'] == reservation['guest_id'] %}
-      <option selected value="{{ guest['id'] }}">{{ guest['name'] }}: {{ guest['address_1'] }}</option>
-        {% else %}
-      <option value="{{ guest['id'] }}">{{ guest['name'] }}: {{ guest['address_1'] }}</option>
-        {% endif %}
-      {% endfor %}
-    </select>
-    <label for="number_of_guests">Number of Guests</label>
-    <input type="number" name="number_of_guests" id="number_of_guests" value="{{ request.form['number_of_guests'] or reservation['number_of_guests'] }}" required>
-    <label for="status">Status</label>
-    <select name="status_id" id="status_id" required>
-      {% for status in res_status %}
-        {% if status['id'] == reservation['status_id'] %}
-      <option selected value="{{ status['id'] }}">{{ status['status'] }}</option>
-        {% else %}
-      <option value="{{ status['id'] }}">{{ status['status'] }}</option>
-        {% endif %}
-      {% endfor %}
-    </select>
-    <label for="notes">Notes</label>
-    <textarea name="reservation_notes" id="notes">{{ request.form['reservation_notes'] or reservation['reservation_notes'] }}</textarea>
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Reservation Details</h3>
+      </div>
+      <!-- /.card-header -->      
+      <div class="card-body">
+        <form method="post" id="form" >
+        <div class="row">
+            <div class="col-12 col-md-6 pr-md-3">
+              <div class="form-group">
+                <label for="guest_id">Select Guest</label>
+                <select class="custom-select bg-light" name="guest_id" id="guest_id" required>
+                  {% for guest in guests %}
+                    {% if guest['id'] == reservation['guest_id'] %}
+                  <option selected value="{{ guest['id'] }}">{{ guest['name'] }}: {{ guest['address_1'] }}</option>
+                    {% else %}
+                  <option value="{{ guest['id'] }}">{{ guest['name'] }}: {{ guest['address_1'] }}</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="row">
+                <div class="form-group col-6">
+                  <label for="start_date">Check-In</label>
+                  <input class="form-control"  type="date" name="start_date" id="start_date" value="{{ request.form['start_date'] or reservation['start_date'] }}" required>
+                </div>
+                <div class="form-group col-6">
+                  <label for="end_date">Check-Out</label>
+                  <input class="form-control"  type="date" name="end_date" id="end_date" value="{{ request.form['end_date'] or reservation['end_date'] }}" required>
+                </div>
+              </div>
+
+              
+              <div class="form-group">
+                <label for="room_id">Select Room</label>
+                <select class="custom-select" name="room_id" id="room_id" required>
+                  {% for room in rooms %}
+                    {% if room['id'] == reservation['room_id'] %}
+                  <option selected value="{{ room['id'] }}">Room {{ room['room_number'] }} - {{ room['type_name'] }}</option>
+                    {% else %}
+                  <option value="{{ room['id'] }}">Room {{ room['room_number'] }} - {{ room['type_name'] }}</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="number_of_guests">Number of Guests</label>
+                <div class="radio-wrapper" style="display: flex;">
+              {% for num in range(1, number_of_guests+1) %}
+                <div class="custom-control custom-radio">
+                {% if num == reservation['number_of_guests'] %}
+                  <input class="custom-control-input" checked type="radio" id="number_of_guests{{ num }}" name="number_of_guests" value="{{ num }}" required>
+                {% else %}
+                  <input class="custom-control-input" type="radio" id="number_of_guests{{ num }}" name="number_of_guests" value="{{ num }}" required>
+                {% endif %}
+                  <label class="custom-control-label mr-4" for="number_of_guests{{ num }}">{{ num }}</label>
+                </div>
+              {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-6 pl-md-3">
+              <div class="form-group">
+                <label for="status">Status</label>
+                <select 
+                class="custom-select bg-light" name="status_id" id="status_id" required>
+                  {% for status in res_status %}
+                    {% if status['id'] == reservation['status_id'] %}
+                  <option selected value="{{ status['id'] }}">{{ status['status'] }}</option>
+                    {% else %}
+                  <option value="{{ status['id'] }}">{{ status['status'] }}</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="notes">Notes</label>
+                <textarea class="form-control" rows="5"  name="reservation_notes" id="notes">{{ request.form['reservation_notes'] or reservation['reservation_notes'] }}</textarea>
+              </div>
     
-    <input type="submit" value="Save">
-    <a class="action" href="{{ url_for('reservations.index') }}">Cancel</a>
-</form>
-<hr>
-<form action="{{ url_for('reservations.delete', id=reservation['id']) }}" method="post">
-  <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
-</form>
+            </div>
+          </div>
+        </form>
+
+      </div>
+      <!-- /.card-body -->   
+      <div class="card-footer">
+        <button type="submit" form="form" value="Save" class="btn btn-primary"><i class="fas fa-save mr-1"></i> Save</button>
+      
+        {% set redirect = request.args.get('redirect') %}
+        <a href="{% if redirect %}{{ redirect }}{% else %}{{ url_for('reservations.index') }}{% endif %}" 
+        class="btn btn-default ml-2">Go back</a>
+        
+        <form class="float-right" action="{{ url_for('reservations.delete', id=reservation['id']) }}" method="post">
+        <input type="hidden" name="redirect" value="{{ redirect }}">
+        <button type="submit" class="btn btn-danger" value="Delete" onclick="return confirm('Are you sure?');">
+          <i class="fas fa-trash mr-1"></i> Delete
+        </button>
+        </form>
+      </div>
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
 {% endblock %}

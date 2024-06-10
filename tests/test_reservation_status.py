@@ -11,7 +11,7 @@ def test_index(client, auth):
 
     auth.login()
     response = client.get("/reservation_status/")
-    assert b"Log Out" in response.data
+    assert b"Log out" in response.data
     assert b"Confirmed" in response.data
     assert b"Guest has checked into their room." in response.data
     assert b'href="/reservation_status/1/update"' in response.data

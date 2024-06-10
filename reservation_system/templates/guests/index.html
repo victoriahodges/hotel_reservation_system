@@ -1,31 +1,91 @@
-{% extends 'base.html' %}
+{% extends 'admin_base.html' %}
+
+{% block css %}
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">  
+{% endblock %}
 
 {% block header %}
-  <h1>{% block title %}Guests{% endblock %}</h1>
-  {% if g.user %}
-    <a class="action" href="{{ url_for('guests.create') }}">New</a>
-  {% endif %}
+  <h1 class="m-0">{% block page_title %}Guests{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Telephone</th>
-        <th>Notes</th>
-        <th>Last modified</th>
-        <th>Action</th>
-    </tr>
-  {% for guest in guests %}
-    <tr>
-        <th>{{ guest['name'] }}</th>
-        <td>{{ guest['email'] }}</td>
-        <td>{{ guest['telephone'] }}</td>
-        <td>{{ guest['guest_notes'] }}</td>
-        <td>{{ guest['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ guest['username'] }}</td>
-        <td><a class="action" href="{{ url_for('guests.update', id=guest['id']) }}">Edit</a></td>
-    </tr>
-  {% endfor %}
-</table>  
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Guest Details <span class="small ml-3">Search, filter and export guests</span></h3>
+      </div>
+      <!-- /.card-header -->      
+      <div class="card-body">
+        <div class="row">
+          <div class="col-12">
+            <a class="btn btn-info mb-4" href="{{ url_for('guests.create') }}"><i class="fas fa-user-plus mr-2"></i>Add New Guest</a>
+          </div>
+        </div>
+        
+        <table id="data_table" class="table table-sm table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Telephone</th>
+              <th>Notes</th>
+              <th>Last modified</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for guest in guests %}
+            <tr>
+              <th>{{ guest['name'] }}</th>
+              <td>{{ guest['email'] }}</td>
+              <td>{{ guest['telephone'] }}</td>
+              <td>{{ guest['guest_notes'] }}</td>
+              <td>{{ guest['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ guest['username'] }}</td>
+              <td>
+                <a class="btn btn-sm btn-primary" href="{{ url_for('guests.update', id=guest['id']) }}">
+                <i class="fas fa-sm fa-edit mr-1"></i> Edit</a>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>      
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
+
+{% endblock %}
+
+{% block data_table_js %}
+<!-- DataTables  & Plugins -->
+<script src="{{ url_for('static', filename='admin/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+
+<!-- Page specific script -->
+<script>
+  $(function () {
+    $("#data_table").DataTable({
+      "responsive": true, "lengthChange": true, "autoWidth": false,
+      "buttons": ["copy", "csv", "print", "colvis"],
+      // disable sorting on last column "Action"
+      "columnDefs": [{ targets: 5, orderable: false}],
+      "lengthMenu": [
+        [20, 50, 100, -1],
+        [20, 50, 100, 'All']
+      ]      
+    }).buttons().container().appendTo('#data_table_filter').addClass('ml-3');
+  });
+</script>
 {% endblock %}
