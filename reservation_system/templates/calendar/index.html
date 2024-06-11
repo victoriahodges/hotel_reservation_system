@@ -42,30 +42,35 @@
               <th class="room bg-lightblue">{{ room['room_number']}}</th>
               {% for day, date in dates.items() %}
               <td {%- set classes = [] -%}
-                {%- for res in reservations %}
-                  {%- if res['room_number'] == room['room_number'] -%}
-                    {%- if date == res['start_date'] and res['end_date'] > month_end %} style="background-color: {{ res['bg_color'] }}" colspan="{{ (month_end - res['start_date']).days +1 }}"
-                    {%- elif date == month_start and res['start_date'] < month_start %} style="background-color: {{ res['bg_color'] }}" colspan="{{ (res['end_date'] - month_start).days }}"
-                    {%- elif date == res['start_date'] %} style="background-color: {{ res['bg_color'] }}" colspan="{{ (res['end_date'] - res['start_date']).days }}"
-                    {%- endif -%}
-                    {%- if date != month_start and res['end_date'] > month_start and date > res['start_date'] and date < res['end_date'] -%}{{ classes.append('booking-cell-none')|default("", True) }}{%- endif -%}
+                {%- for res in reservations if res['room_number'] == room['room_number'] %}
+                  {%- if date == res['start_date'] and res['end_date'] > month_end %} style="background-color: {{ res['bg_color'] }}" colspan="{{ (month_end - res['start_date']).days +1 }}"
+                  {%- elif date == month_start and res['start_date'] < month_start %} style="background-color: {{ res['bg_color'] }}" colspan="{{ (res['end_date'] - month_start).days }}"
+                  {%- elif date == res['start_date'] %} style="background-color: {{ res['bg_color'] }}" colspan="{{ (res['end_date'] - res['start_date']).days }}"
                   {%- endif -%}
+                  {%- if date != month_start and res['end_date'] > month_start and date > res['start_date'] and date < res['end_date'] -%}{{ classes.append('booking-cell-none')|default("", True) }}{%- endif -%}
                 {%- endfor -%}
                 {%- if date in weekends %}{{ classes.append('weekend')|default("", True)  }}{% endif -%}                
                 {%- if classes %} class="{{ classes|join(' ') }}"{%- endif -%}>
-                {%- for res in reservations -%}
-                  {%- if res['room_number'] == room['room_number'] %}
-                    {%- if date == res['start_date'] %}
-                  <a class="booking" onclick="show_booking_details({{ res['id'] }})">
-                    <span>{{ res['name'] }}</span>
-                  </a>
-                    {%- elif  date == month_start and res['start_date'] < month_start %}
-                  <a class="booking" onclick="show_booking_details({{ res['id'] }})">
-                    <span>{{ res['name'] }}</span>
-                  </a>
-                    {%- endif -%}
+
+                <a class="booking"
+                {% set ns = namespace(href=True) %}
+                {%- for res in reservations if res['room_number'] == room['room_number']-%}
+                  {%- if date == res['start_date'] or date == month_start and res['start_date'] < month_start %}
+                  onclick="show_booking_details({{ res['id'] }})"
+                  {% set ns.href = False %}
                   {%- endif -%}
-                {%- endfor -%}    
+                {%- endfor -%}
+                {% if ns.href %}
+                  href="{{ url_for('reservations.create', start_date=date ) }}">
+                {% else %}
+                  >
+                {%- endif -%}
+                {%- for res in reservations if res['room_number'] == room['room_number']-%}
+                  {%- if date == res['start_date'] or date == month_start and res['start_date'] < month_start %}
+                  <span>{{ res['name'] }}</span>
+                  {%- endif -%}
+                {%- endfor -%}
+                </a>
               </td>
               {% endfor %}
             </tr>
