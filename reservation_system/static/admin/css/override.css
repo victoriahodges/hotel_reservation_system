@@ -1,12 +1,23 @@
 #calendar {table-layout: fixed;}
 #calendar th {padding: 5px 3px; text-align: center; vertical-align: middle;}
+#calendar th.date_now {background-color: #3c8dbc75;}
+#calendar th.past_date {background-color: #f3f3f3;}
 #calendar th.room {width: 55px;}
-#calendar td {background-color: #f3f3f3; height: 40px; overflow: hidden; padding: 0;}
+#calendar td {background-color: #3c8dbc15; height: 40px; overflow: hidden; padding: 0;}
 #calendar td.booking-cell-none {display: none;}
-#calendar td.weekend {background-color: #ececec;}
-#calendar a.booking {display:block; position: relative; color: black; cursor: pointer; width: 100%; height: 100%;}
-#calendar a.booking:hover {background-color: #fff5;}
-#calendar a.booking span {position: absolute; font-size: 12px; padding:2px;}
-.booking-details {display: none;}
+#calendar td.weekend {background-color: #3c8dbc20;;}
+#calendar td.past_date {background-color: #f3f3f3; cursor:not-allowed;}
+#calendar td.weekend.past_date {background-color: #ececec;}
+#calendar td.date_now {background-color: #3c8dbc50;}
+#calendar td.booking a {display:block; position: relative; color: black; cursor: pointer; width: 100%; height: 100%;}
+#calendar td.booking a:hover {background-color: #fff5;}
+#calendar td.booking a span {position: absolute; font-size: 12px; padding:2px;}
 
+#calendar td a.booking_link {display:block; position: relative; cursor: pointer; width: 100%; height: 100%;}
+#calendar td a.booking_link:hover {background-color: #3c8dbc50;}
+#calendar td.disabled a, #calendar td.booking.disabled a {background-color: #fff; pointer-events: none;}
+#calendar td.date_selected {background-color: orange;}
+#calendar td.date_selected:hover {background-color: orange;}
+
+.booking-details {display: none;}
 .icon-circle {float: left; border-radius: 50%; font-size: 18px; height: 40px;  width: 40px; line-height: 40px; text-align: center;}

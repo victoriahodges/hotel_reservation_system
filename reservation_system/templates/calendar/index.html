@@ -27,12 +27,14 @@
       </div>
       <!-- /.card-header --> 
       <div class="card-body p-3">
-        <table id="calendar" class="table table-bordered table-hover">
+        <table id="calendar" class="table table-bordered">
           <thead>
             <tr>
               <th class="room bg-lightblue">Room</th>
               {% for day, date in dates.items() %}
-                <th>{{ day }}</th>
+                <th {%- if date == date_now %} class="date_now" {% endif -%}
+                {%- if date < date_now %} class="past_date" {% endif -%}
+                >{{ day }}</th>
               {%endfor%}
             </tr>
           </thead>
@@ -43,34 +45,36 @@
               {% for day, date in dates.items() %}
               <td {%- set classes = [] -%}
                 {%- for res in reservations if res['room_number'] == room['room_number'] %}
-                  {%- if date == res['start_date'] and res['end_date'] > month_end %} style="background-color: {{ res['bg_color'] }}" colspan="{{ (month_end - res['start_date']).days +1 }}"
-                  {%- elif date == month_start and res['start_date'] < month_start %} style="background-color: {{ res['bg_color'] }}" colspan="{{ (res['end_date'] - month_start).days }}"
-                  {%- elif date == res['start_date'] %} style="background-color: {{ res['bg_color'] }}" colspan="{{ (res['end_date'] - res['start_date']).days }}"
+                  {%- if date == res['start_date'] and res['end_date'] > month_end %}
+                  {{ classes.append('booking')|default("", True) }} style="background-color: {{ res['bg_color'] }}" colspan="{{ (month_end - res['start_date']).days +1 }}"
+                  {%- elif date == month_start and res['start_date'] < month_start %}
+                  {{ classes.append('booking')|default("", True) }} style="background-color: {{ res['bg_color'] }}" colspan="{{ (res['end_date'] - month_start).days }}"
+                  {%- elif date == res['start_date'] %}
+                  {{ classes.append('booking')|default("", True) }} style="background-color: {{ res['bg_color'] }}" colspan="{{ (res['end_date'] - res['start_date']).days }}"
                   {%- endif -%}
                   {%- if date != month_start and res['end_date'] > month_start and date > res['start_date'] and date < res['end_date'] -%}{{ classes.append('booking-cell-none')|default("", True) }}{%- endif -%}
                 {%- endfor -%}
-                {%- if date in weekends %}{{ classes.append('weekend')|default("", True)  }}{% endif -%}                
+                {%- if date in weekends %}{{ classes.append('weekend')|default("", True)  }}{% endif -%}
+                {%- if date < date_now %}{{ classes.append('past_date')|default("", True)  }}{% endif -%}
+                {%- if date == date_now %}{{ classes.append('date_now')|default("", True)  }}{% endif -%}
                 {%- if classes %} class="{{ classes|join(' ') }}"{%- endif -%}>
-
-                <a class="booking"
-                {% set ns = namespace(href=True) %}
+                
+                {% set ns = namespace(new_booking=True) %}
                 {%- for res in reservations if res['room_number'] == room['room_number']-%}
                   {%- if date == res['start_date'] or date == month_start and res['start_date'] < month_start %}
-                  onclick="show_booking_details({{ res['id'] }})"
-                  {% set ns.href = False %}
+                  <a data="{{ date }}" onclick="show_booking_details({{ res['id'] }})">
+                  {% set ns.new_booking = False %}
                   {%- endif -%}
                 {%- endfor -%}
-                {% if ns.href %}
-                  href="{{ url_for('reservations.create', start_date=date ) }}">
-                {% else %}
-                  >
+                {% if ns.new_booking and date >= date_now %}
+                  <a class="booking_link" data="{{ date }}" onclick="make_new_booking(this, {{ room['id'] }}, '{{ request.path }}');">
                 {%- endif -%}
                 {%- for res in reservations if res['room_number'] == room['room_number']-%}
                   {%- if date == res['start_date'] or date == month_start and res['start_date'] < month_start %}
-                  <span>{{ res['name'] }}</span>
+                  <span>{{ res['name'] }}</span></a>
                   {%- endif -%}
                 {%- endfor -%}
-                </a>
+                {% if ns.new_booking and date >= date_now %}</a>{%- endif -%}
               </td>
               {% endfor %}
             </tr>
@@ -267,6 +271,43 @@
 {% block calendar_js%}
 <!-- Calendar View -->
 <script>
+
+  function make_new_booking(link, room_id, request_path) {
+    var cell = $(link).parent();
+    var row = $(cell).parent();
+    var start_date;
+    var end_date;
+    
+    if ($(cell).attr("id") == "start_date"){
+      $('.date_selected:last').next().attr("id", "end_date");
+      start_date = $("#start_date a").attr('data');
+      end_date = $("#end_date a").attr('data');
+      window.location.replace(
+      "{{ url_for('reservations.create') }}?room_id="+room_id+"&start_date="+start_date+"&end_date="+end_date+"&redirect="+request_path
+      );
+    }
+
+    $(cell).addClass("date_selected");
+    $(".booking_link").parent().addClass("disabled");
+    $(row).children("td").removeClass("disabled");
+    $(".booking").addClass("disabled");
+    $(cell).nextAll(".booking").nextUntil('tr').addClass("disabled");
+    $(cell).prevAll(".booking").prevUntil('tr').addClass("disabled");
+    $(cell).attr("id", "start_date");
+    
+    if ($('.date_selected').length > 1){
+      $('.date_selected:first').nextUntil('.date_selected').addClass('date_selected');
+      $('.date_selected:last').next().attr("id", "end_date");
+    }
+
+    start_date = $("#start_date a").attr('data');
+    end_date = $("#end_date a").attr('data');
+    if ($('.date_selected').length > 1){
+    window.location.replace(
+      "{{ url_for('reservations.create') }}?room_id="+room_id+"&start_date="+start_date+"&end_date="+end_date+"&redirect="+request_path
+      );
+    }
+  }
 
   function show_booking_details(id) {
     $(".booking-details").hide();

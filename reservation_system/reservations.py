@@ -84,8 +84,8 @@ def end_date_before_start_date():
 def reservation_dates_in_the_past():
     # Purpose: Prevent choosing check-in or check-out dates in the past
     if (
-        datetime.strptime(request.form["end_date"], "%Y-%m-%d") <= datetime.now()
-        or datetime.strptime(request.form["start_date"], "%Y-%m-%d") <= datetime.now()
+        datetime.strptime(request.form["start_date"], "%Y-%m-%d") < datetime.now()
+        and datetime.strptime(request.form["end_date"], "%Y-%m-%d") <= datetime.now()
     ):
         return True
     return False

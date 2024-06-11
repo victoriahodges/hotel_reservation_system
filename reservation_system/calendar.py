@@ -114,6 +114,7 @@ def calendar(year, month):
         title=title,
         year=year,
         month=month,
+        date_now=datetime.now().date(),
         prev_year=prev_year,
         prev_month=prev_month,
         next_year=next_year,
