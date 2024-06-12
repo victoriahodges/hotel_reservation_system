@@ -137,17 +137,17 @@
 <script>
   $(function () {
         $('#start_date').datetimepicker({
-          defaultDate: {% if request.args.get('start_date') %}"{{ request.args.get('start_date') }}" {% else %} false {% endif %},
+          defaultDate: {% if request.args.get('start_date') %}"{{ request.args.get('start_date') }}" {% else %}false{% endif -%},
           useCurrent: false,
           format: 'yyyy-MM-DD',
           minDate: moment().startOf('day').toString(),
-          {% if request.args.get('end_date') %}maxDate: "{{ request.args.get('end_date') }}"{% endif %},
+          {% if request.args.get('end_date') %}maxDate: "{{ request.args.get('end_date') }}",{% endif -%}
         });
         $('#end_date').datetimepicker({
-          defaultDate: {% if request.args.get('end_date') %}"{{ request.args.get('end_date') }}" {% else %} false {% endif %},
+          defaultDate: {% if request.args.get('end_date') %}"{{ request.args.get('end_date') }}" {% else %}false{% endif -%},
           useCurrent: false,
           format: 'yyyy-MM-DD',
-          {% if request.args.get('start_date') %}minDate: "{{ request.args.get('start_date') }}"{% endif %},
+          {% if request.args.get('start_date') %}minDate: "{{ request.args.get('start_date') }}",{% endif -%}
         });
         $("#start_date").on("change.datetimepicker", function (e) {
             $('#end_date').datetimepicker('minDate', e.date);

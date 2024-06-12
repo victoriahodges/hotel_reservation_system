@@ -147,7 +147,6 @@
           defaultDate: "{{ request.form['start_date'] or reservation['start_date'] }}",
           useCurrent: false,
           format: 'yyyy-MM-DD',
-          minDate: moment().startOf('day').toString(),
           maxDate: "{{ request.form['end_date'] or reservation['end_date'] }}",
         });
         $('#end_date').datetimepicker({
