@@ -84,8 +84,8 @@ def end_date_before_start_date():
 def reservation_dates_in_the_past():
     # Purpose: Prevent choosing check-in or check-out dates in the past
     if (
-        datetime.strptime(request.form["end_date"], "%Y-%m-%d") <= datetime.now()
-        or datetime.strptime(request.form["start_date"], "%Y-%m-%d") <= datetime.now()
+        datetime.strptime(request.form["start_date"], "%Y-%m-%d") < datetime.now()
+        and datetime.strptime(request.form["end_date"], "%Y-%m-%d") <= datetime.now()
     ):
         return True
     return False
@@ -188,7 +188,7 @@ def create():
             # new bookings should return to the calendar page for the dates selected
             year = datetime.strptime(request.form["start_date"], "%Y-%m-%d").year
             month = datetime.strptime(request.form["start_date"], "%Y-%m-%d").month
-            return redirect(url_for("calendar.calendar", year=year, month=month))
+            return redirect(url_for("calendar.calendar", year=year, month=month, reservation_id=reservation_id))
 
     return render_template(
         "reservations/create.html", guests=guests, res_status=res_status, rooms=rooms, number_of_guests=max_occupants
@@ -257,7 +257,7 @@ def update(id):
             # existing bookings should return to the calendar page for the dates selected
             year = datetime.strptime(request.form["start_date"], "%Y-%m-%d").year
             month = datetime.strptime(request.form["start_date"], "%Y-%m-%d").month
-            return redirect(url_for("calendar.calendar", year=year, month=month))
+            return redirect(url_for("calendar.calendar", year=year, month=month, reservation_id=id))
 
     return render_template(
         "reservations/update.html",
