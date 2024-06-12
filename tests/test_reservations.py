@@ -96,7 +96,7 @@ def test_create_with_redirect(client, auth, app, redirect_url, expected):
         count = db.execute("SELECT COUNT(id) FROM reservations").fetchone()[0]
         assert count == 3
 
-    assert response.headers["Location"] == expected
+    assert response.headers["Location"] == expected + "?reservation_id=3"
 
 
 def test_update(client, auth, app):
@@ -155,7 +155,7 @@ def test_update_with_redirect(client, auth, app, redirect_url, expected):
     response = client.post("/reservations/1/update", data=data)
     assert response.status_code == 302
 
-    assert response.headers["Location"] == expected
+    assert response.headers["Location"] == expected + "?reservation_id=1"
 
 
 @pytest.mark.parametrize(

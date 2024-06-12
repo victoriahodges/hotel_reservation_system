@@ -329,5 +329,10 @@
     }
   }
 
+  {% if request.args.get('reservation_id') %}
+  $(function() {
+    show_booking_details({{ request.args.get('reservation_id')|int }});
+  });
+  {% endif %}
 </script>
 {% endblock %}
