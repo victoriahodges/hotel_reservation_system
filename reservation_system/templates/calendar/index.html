@@ -9,7 +9,7 @@
 <div class="row">
   <div class="col-12">
     <div class="card">
-      <div class="card-header" style="display: flex; justify-content:flex-start; align-items: center;">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
         <div class="card-tools mr-3">
           <div class="btn-group">
             <a class="btn btn-primary" href="{{ url_for('calendar.calendar', year=prev_year, month=prev_month )}}">
@@ -21,9 +21,15 @@
           </div>
           <a class="btn btn-primary" href="{{ url_for('calendar.calendar', year=today_year, month=today_month )}}">
             today
-          </a>       
+          </a>
         </div>
         <h3 class="card-title">{{ title }}</h3>
+        <div style="flex-grow: 10;"></div>
+        <div class="card-tools ml-3">
+          <a id="clear_selection" class="btn bg-light" onclick="clear_make_new_booking()" title="Press escape" style="display: none;">
+            clear selection <i class="fas fa-times ml-1"></i>
+          </a>
+        </div>
       </div>
       <!-- /.card-header --> 
       <div class="card-body p-3">
@@ -287,6 +293,7 @@
       );
     }
 
+    $("#clear_selection").show();
     $(cell).addClass("date_selected");
     $(".booking_link").parent().addClass("disabled");
     $(row).children("td").removeClass("disabled");
@@ -308,6 +315,21 @@
       );
     }
   }
+
+  function clear_make_new_booking() {
+    $(".booking_link").parent().removeClass("disabled");
+    $(".booking").removeClass("disabled");
+    $('.date_selected').removeClass('date_selected')
+    $("#start_date").removeAttr("id");
+    $("#end_date").removeAttr("id");
+    $("#clear_selection").hide();
+  }
+
+  $(document).keyup(function(e) {
+     if (e.key === "Escape") { // escape key maps to keycode `27`
+          clear_make_new_booking();
+    }
+  });
 
   function show_booking_details(id) {
     $(".booking-details").hide();
