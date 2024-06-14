@@ -182,20 +182,16 @@
                   <h4>Room Details</h4>
                     <div class="post">
                       <img src="{{ url_for('static', filename=image_location+res['photo']) }}" style="width: 100px;" class="img-bordered-sm elevation-1 float-left mr-3" alt="User Image">
-                      <h5><b>Room {{ res['room_number'] }}:</b> {{ res['type_name'] }}</h5>
+                      <h5><b>Room {{ res['room_number'] }}:</b> {{ res['type_name'] }} - &pound;{{ '%.2f' % res['base_price_per_night'] }} per night</h5>
                       <p>
-                        Lorem ipsum represents a long-held tradition for designers,
-                        typographers and the like. Some people hate it and argue for
-                        its demise, but others ignore.
+                        {{ res['amenities']}}
                       </p>
                     </div>
 
                     {% if res['reservation_notes'] %}
                     <h4>Reservation Notes</h4>
                       <div class="post">
-                        <p>
-                          {{ res['reservation_notes'] }}
-                        </p>
+                        <p>{{ res['reservation_notes'] }}</p>
     
                       </div>
                     {% endif %}
@@ -213,47 +209,45 @@
                         <tbody>
                           <tr>
                             <th class="text-left">
-                            Total Cost
+                            Room Costs
                             </th>
-                            <td class="text-right">&pound; 0.00</td>
+                            <td class="text-right">&pound; {{ '%.2f' % invoices[res['id']]['room_total'] }}</td>
                           </tr>
                           <tr>
                             <th class="text-left">
-                            Discount
+                              Additional charges
                             </th>
-                            <td class="text-right">&pound; 0.00</td>
+                            <td class="text-right">&pound; {{ '%.2f' % invoices[res['id']]['extras'] }}</td>
+                          </tr>
+                          <tr>
+                            <th class="text-left">
+                            Discounts
+                            </th>
+                            <td class="text-right">&pound;  {{ '%.2f' % invoices[res['id']]['discount'] }}</td>
                           </tr>
                           <tr>
                             <th class="text-left">
                             Paid to date
                             </th>
-                            <td class="text-right">&pound; 0.00</td>
-                          </tr>
-                          <tr>
-                            <th class="text-left">
-                            Additional charges
-                            </th>
-                            <td class="text-right">&pound; 0.00</td>
+                            <td class="text-right">&pound;  {{ '%.2f' % invoices[res['id']]['paid_to_date'] }}</td>
                           </tr>
                           <tr style="border-top: 2px solid #6c757d;">
                             <th class="text-left">
                             Total Due
                             </th>
-                            <td class="text-right">&pound; 0.00</td>
+                            <td class="text-right">&pound;  {{ '%.2f' % invoices[res['id']]['total_due'] }}</td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
                   </div>  
 
+                  {% if res['guest_notes'] %}
                   <h4>Guest Notes</h4>
                   <div class="post clearfix">
-                    <p>
-                      Lorem ipsum represents a long-held tradition for designers,
-                      typographers and the like. Some people hate it and argue for
-                      its demise, but others ignore.
-                    </p>
-                  </div>                  
+                    <p>{{ res['guest_notes'] }}</p>
+                  </div>
+                  {% endif %}                 
                 </div>
               </div>
             </div>

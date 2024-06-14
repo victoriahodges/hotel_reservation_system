@@ -77,6 +77,7 @@ def calendar(year, month):
             "rt.type_name",
             "rt.base_price_per_night",
             "rt.photo",
+            "rt.amenities",
             "rs.status",
             "rs.bg_color",
             f"{table}.modified",
@@ -105,6 +106,21 @@ def calendar(year, month):
     """
     rooms = get_all_rows("rooms", "*", room_joins, order_by="room_number")
 
+    # Booking details invoice summaries
+    # if invoice exists, get amounts from invoice else derive totals from reservations
+    invoices_by_res_id = {}
+    for res in reservations:
+        invoice = {}
+        invoice["reservation_id"] = res["id"]
+        no_nights = (res["end_date"] - res["start_date"]).days
+        room_total = invoice["room_total"] = res["base_price_per_night"] * no_nights
+        extras = invoice["extras"] = 0  # TODO setup extras
+        discount = invoice["discount"] = 0  # TODO setup offers and discounts
+        paid_to_date = invoice["paid_to_date"] = 0  # TODO setup payments on account
+        invoice["total_due"] = room_total + extras - discount - paid_to_date
+
+        invoices_by_res_id[res["id"]] = invoice
+
     return render_template(
         "calendar/index.html",
         reservations=reservations,
@@ -124,4 +140,5 @@ def calendar(year, month):
         month_start=month_start,
         month_end=month_end,
         weekends=weekends,
+        invoices=invoices_by_res_id,
     )
