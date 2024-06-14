@@ -7,9 +7,9 @@ INSERT INTO users (username, password)
 INSERT INTO room_types
   (type_name, base_price_per_night, amenities, photo, max_occupants, modified_by_id)
 VALUES
-  ("Four Poster Nest", 145.00, "King-size bed, shower, bath", "four_poster_nest.jpg", 2, 1),
-  ("Superior Double", 130.00, "King-size bed, shower, bath", "superior_room.jpg", 2, 1),
-  ("Classic Double", 115.00, "King-size bed, shower, bath", "classic_double_room.jpg", 2, 1)
+  ("Four Poster Nest", 145.0, "King-size bed, shower, bath", "four_poster_nest.jpg", 2, 1),
+  ("Superior Double", 130.0, "King-size bed, shower, bath", "superior_room.jpg", 2, 1),
+  ("Classic Double", 115.0, "King-size bed, shower, bath", "classic_double_room.jpg", 2, 1)
 ;
 
 -- Insert rooms
@@ -59,6 +59,21 @@ VALUES
   ("2024-06-08","2024-06-12",2,3,1)
 ;
 
+INSERT INTO invoices
+  (modified_by_id)
+VALUES
+  (1),
+  (1)
+;
+
+INSERT INTO invoice_items
+  (invoice_id, item_description, quantity, amount, total, modified_by_id)
+VALUES
+  (1, "Superior Double", 3, 130.0, 390.0, 1),
+  (1, "Dinner", 2, 25.0, 50.0, 1),
+  (2, "Four Poster Nest", 5, 145.0, 725.0, 1)
+;
+
 INSERT INTO join_guests_reservations
   (guest_id, reservation_id)
 VALUES
@@ -74,5 +89,13 @@ VALUES
   (2, 2),
   (3, 3)
 ;
+
+INSERT INTO join_invoices_reservations
+  (invoice_id, reservation_id)
+VALUES
+  (1, 1),
+  (2, 2)
+;
+
 
 

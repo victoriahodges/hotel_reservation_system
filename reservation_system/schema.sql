@@ -4,9 +4,11 @@ DROP TABLE IF EXISTS room_types;
 DROP TABLE IF EXISTS rooms;
 DROP TABLE IF EXISTS reservations;
 DROP TABLE IF EXISTS reservation_status;
-DROP TABLE IF EXISTS reservation_status;
+DROP TABLE IF EXISTS invoices;
+DROP TABLE IF EXISTS invoice_items;
 DROP TABLE IF EXISTS join_guests_reservations;
 DROP TABLE IF EXISTS join_rooms_reservations;
+DROP TABLE IF EXISTS join_invoices_reservations;
 
 
 CREATE TABLE users (
@@ -75,6 +77,28 @@ CREATE TABLE reservation_status (
   bg_color TEXT
 );
 
+CREATE TABLE invoices (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  discount_amount REAL NOT NULL DEFAULT 0,
+  amount_paid REAL NOT NULL DEFAULT 0,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modified_by_id INTEGER NOT NULL
+);
+
+CREATE TABLE invoice_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  invoice_id INTEGER NOT NULL,
+  item_description TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  amount REAL NOT NULL,
+  total REAL NOT NULL,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modified_by_id INTEGER NOT NULL,
+  FOREIGN KEY (invoice_id) REFERENCES invoices (id)
+);
+
 CREATE TABLE join_guests_reservations (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   guest_id INTEGER NOT NULL,
@@ -88,5 +112,13 @@ CREATE TABLE join_rooms_reservations (
   room_id INTEGER NOT NULL,
   reservation_id INTEGER NOT NULL,
   FOREIGN KEY (room_id) REFERENCES rooms (id),
+  FOREIGN KEY (reservation_id) REFERENCES reservations (id)
+);
+
+CREATE TABLE join_invoices_reservations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  invoice_id INTEGER NOT NULL,
+  reservation_id INTEGER NOT NULL,
+  FOREIGN KEY (invoice_id) REFERENCES invoices (id),
   FOREIGN KEY (reservation_id) REFERENCES reservations (id)
 );
