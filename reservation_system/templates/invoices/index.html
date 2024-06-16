@@ -42,15 +42,15 @@
               <tr>
                 <th>{{ '%05d' % inv['id'] }}</th>
                 <td><a href="{{ url_for('calendar.calendar',year=year, month=month, reservation_id=inv['reservation_id'] )}}">#{{ '%05d' % inv['reservation_id'] }}</a></td>
-                <td>{{ inv['end_date'] }}</td>
+                <td>{{ inv['end_date'].strftime('%d %B %Y') }}</td>
                 <td>{{ inv['name'] }}</td>
                 <td>&pound;{{ '%.2f' % inv['discount_amount'] }}</td>
                 <td>&pound;{{ '%.2f' % inv['total'] }}</td>
                 <td>&pound;{{ '%.2f' % inv['amount_paid'] }}</td>
                 <td>{{ inv['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ inv['username'] }}</td>
                 <td>
-                  <a class="btn btn-sm btn-primary" href="#">
-                  <i class="fas fa-sm fa-print mr-1"></i> Print</a>
+                  <a class="btn btn-sm btn-primary" href="{{ url_for('invoices.view', id=inv['id']) }}">
+                  <i class="fas fa-sm fa-eye mr-1"></i> View</a>
                 </td>
               </tr>
             {% endfor %}

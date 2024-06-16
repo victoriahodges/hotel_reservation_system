@@ -35,17 +35,36 @@ def get_invoice_summary(reservation_id):
         + [
             "ir.reservation_id",
             "end_date",
-            "SUM(item.total) AS total",
+            "g.*",
+            "SUM(item.total) AS items_total",
         ]
     )
     join = f"""
     JOIN invoice_items item ON {table}.id = item.invoice_id
     JOIN join_invoices_reservations ir ON {table}.id = ir.invoice_id
     JOIN reservations res ON res.id = ir.reservation_id
-    GROUP BY {table}.id
+    JOIN join_guests_reservations gr ON ir.reservation_id = gr.reservation_id
+    JOIN guests g ON gr.guest_id = g.id
     """
 
     return get_row_by_id(reservation_id, table, fields, join)
+
+
+def get_invoice_items(reservation_id):
+    # returns sum of invoice totals
+    fields = format_sql_query_columns(
+        [
+            "item.*",
+            "ir.reservation_id",
+            f"{table}.created",
+        ]
+    )
+    join = f"""
+    JOIN invoice_items item ON {table}.id = item.invoice_id
+    JOIN join_invoices_reservations ir ON {table}.id = ir.invoice_id
+    WHERE ir.reservation_id = {reservation_id}
+    """
+    return get_all_rows(table, fields, join, order_by="item.id")
 
 
 @bp.route("/")
@@ -84,6 +103,15 @@ def get_other_table_rows():
     type_names = get_all_rows("room_types", "id, type_name")
 
     return type_names
+
+
+@bp.route("/<int:id>/view")
+@login_required
+def view(id):
+    invoice = get_invoice_summary(id)
+    items = get_invoice_items(id)
+
+    return render_template("invoices/view.html", invoice=invoice, items=items)
 
 
 @bp.route("/create", methods=("GET", "POST"))
