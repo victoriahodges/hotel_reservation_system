@@ -120,12 +120,13 @@ def update(id):
             )
             db.commit()
             previous_page = previous_page_url(request.args.get("redirect"))
+            reservation_id = request.args.get("reservation_id")
             if isinstance(previous_page, tuple):
                 # return to calendar after updating guest
                 year, month = previous_page
-                return redirect(url_for("calendar.calendar", year=year, month=month))
+                return redirect(url_for("calendar.calendar", year=year, month=month, reservation_id=reservation_id))
             elif previous_page:
-                return redirect(url_for(previous_page))
+                return redirect(url_for(previous_page, reservation_id=reservation_id))
             return redirect(url_for(parent_page))
 
     return render_template("guests/update.html", guest=guest)

@@ -12,6 +12,8 @@ from reservation_system.db_queries import (
     sql_insert_placeholders,
 )
 from reservation_system.helpers import format_required_field_error, previous_page_url
+from reservation_system.invoice_items import get_room_invoice_item_data
+from reservation_system.invoices import get_invoice_summary
 
 bp = Blueprint("reservations", __name__, url_prefix="/reservations")
 table = "reservations"
@@ -130,14 +132,14 @@ def get_other_table_rows():
         order_by="room_number",
     )
     guests = get_all_rows("guests", "id, name, address_1", order_by="name")
-    res_status = get_all_rows("reservation_status", "*")
-    return rooms, guests, res_status
+    res_statuses = get_all_rows("reservation_status", "*")
+    return rooms, guests, res_statuses
 
 
 @bp.route("/create", methods=("GET", "POST"))
 @login_required
 def create():
-    rooms, guests, res_status = get_other_table_rows()
+    rooms, guests, res_statuses = get_other_table_rows()
 
     max_occupants = max([r["max_occupants"] for r in rooms])
 
@@ -191,7 +193,11 @@ def create():
             return redirect(url_for("calendar.calendar", year=year, month=month, reservation_id=reservation_id))
 
     return render_template(
-        "reservations/create.html", guests=guests, res_status=res_status, rooms=rooms, number_of_guests=max_occupants
+        "reservations/create.html",
+        guests=guests,
+        res_statuses=res_statuses,
+        rooms=rooms,
+        number_of_guests=max_occupants,
     )
 
 
@@ -202,16 +208,19 @@ def update(id):
         id,
         table,
         format_sql_query_columns(
-            get_table_fields() + ["guest_id", "room_id", "status", "bg_color", "modified_by_id", "username"]
+            get_table_fields()
+            + [
+                "guest_id",
+                "room_id",
+            ]
         ),
         f"""
           JOIN users u ON {table}.modified_by_id = u.id
           JOIN join_guests_reservations gr ON {table}.id = gr.reservation_id
           JOIN join_rooms_reservations rr ON {table}.id = rr.reservation_id
-          JOIN reservation_status rs ON {table}.status_id = rs.id
         """,
     )
-    rooms, guests, res_status = get_other_table_rows()
+    rooms, guests, res_statuses = get_other_table_rows()
 
     max_occupants = max([r["max_occupants"] for r in rooms])
 
@@ -252,6 +261,14 @@ def update(id):
                 "UPDATE join_rooms_reservations SET room_id = ? WHERE reservation_id = ?",
                 (room_id, id),
             )
+            # update_room_invoice()
+            invoice_id = get_invoice_summary(id)["invoice_id"]
+            if invoice_id:
+                res_columns, res_data = get_room_invoice_item_data(id, invoice_id, update=True)
+                db.execute(
+                    f"UPDATE invoice_items SET {res_columns} WHERE invoice_id = ? AND is_room = TRUE",
+                    res_data,
+                )
             db.commit()
 
             # existing bookings should return to the calendar page for the dates selected
@@ -263,7 +280,7 @@ def update(id):
         "reservations/update.html",
         reservation=reservation,
         guests=guests,
-        res_status=res_status,
+        res_statuses=res_statuses,
         rooms=rooms,
         number_of_guests=max_occupants,
     )

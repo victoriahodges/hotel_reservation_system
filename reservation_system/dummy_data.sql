@@ -60,18 +60,18 @@ VALUES
 ;
 
 INSERT INTO invoices
-  (modified_by_id)
+  (reservation_id, modified_by_id)
 VALUES
-  (1),
-  (1)
+  (2,1),
+  (1,1)
 ;
 
 INSERT INTO invoice_items
-  (invoice_id, item_description, quantity, amount, total, modified_by_id)
+  (invoice_id, item_description, is_room, quantity, amount, total, modified_by_id)
 VALUES
-  (1, "Superior Double", 3, 130.0, 390.0, 1),
-  (1, "Dinner", 2, 25.0, 50.0, 1),
-  (2, "Four Poster Nest", 5, 145.0, 725.0, 1)
+  (2, "Superior Double", 1, 3, 130.0, 390.0, 1),
+  (2, "Dinner", 0, 2, 25.0, 50.0, 1),
+  (1, "Four Poster Nest", 1, 5, 145.0, 725.0, 1)
 ;
 
 INSERT INTO join_guests_reservations
@@ -89,13 +89,3 @@ VALUES
   (2, 2),
   (3, 3)
 ;
-
-INSERT INTO join_invoices_reservations
-  (invoice_id, reservation_id)
-VALUES
-  (1, 1),
-  (2, 2)
-;
-
-
-

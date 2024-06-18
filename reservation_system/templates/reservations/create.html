@@ -100,7 +100,7 @@
                 <label for="status">Status</label>
                 <select 
                 class="custom-select bg-light" name="status_id" id="status_id" required>
-                  {% for status in res_status %}
+                  {% for status in res_statuses %}
                   <option value="{{ status['id'] }}">{{ status['status'] }}</option>
                   {% endfor %}
                 </select>

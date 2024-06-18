@@ -9,16 +9,6 @@ bp = Blueprint("calendar", __name__, url_prefix="/calendar")
 table = "reservations"
 
 
-def get_table_fields():
-    return [
-        "number_of_guests",
-        "start_date",
-        "end_date",
-        "reservation_notes",
-        "status_id",
-    ]
-
-
 @bp.route("/")
 @login_required
 def index():
@@ -69,15 +59,16 @@ def calendar(year, month):
 
     # Database queries
     fields = format_sql_query_columns(
-        get_table_fields()
-        + [
+        [
+            f"{table}.id as reservation_id",
+            "start_date",
+            "end_date",
+            "reservation_notes",
+            "status_id",
             "g.id as guest_id",
             "g.*",
             "r.room_number",
-            "rt.type_name",
-            "rt.base_price_per_night",
-            "rt.photo",
-            "rt.amenities",
+            "rt.*",
             "rs.status",
             "rs.bg_color",
             "inv.id as invoice_id",

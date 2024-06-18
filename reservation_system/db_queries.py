@@ -39,6 +39,23 @@ def get_row_by_id(id, table, columns, joins=None):
     return row
 
 
+def get_row_by_where_id(where_column, where_id, table, columns, joins=None):
+    joins = joins if joins else ""
+    row = (
+        get_db()
+        .execute(
+            f"SELECT {table}.id, {columns} FROM {table} {joins} WHERE {where_column} = ?",
+            (where_id,),
+        )
+        .fetchone()
+    )
+
+    if row is None:
+        abort(404, f"Not found: id {id} in {table} doesn't exist.")
+
+    return row
+
+
 def delete_by_id(id, table, param="id", commit=True):
     db = get_db()
     deleted_row = db.execute(f"DELETE FROM {table} WHERE {param} = ?", (id,))
