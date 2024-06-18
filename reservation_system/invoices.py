@@ -110,13 +110,15 @@ def get_other_table_rows():
     return type_names
 
 
-@bp.route("/<int:id>/view")
+@bp.route("/<int:reservation_id>/view")
 @login_required
-def view(id):
-    invoice = get_invoice_summary(id)
-    items = get_invoice_items(invoice["id"])
+def view(reservation_id):
+    invoice = get_invoice_summary(reservation_id)
+    if invoice:
+        items = get_invoice_items(invoice["id"])
+        balance_due = invoice["items_total"] - invoice["amount_paid"]
 
-    return render_template("invoices/view.html", invoice=invoice, items=items)
+    return render_template("invoices/view.html", invoice=invoice, items=items, balance_due=balance_due)
 
 
 @bp.route("/create", methods=("GET", "POST"))

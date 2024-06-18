@@ -72,6 +72,7 @@ def calendar(year, month):
             "rs.status",
             "rs.bg_color",
             "inv.id as invoice_id",
+            "amount_paid",
             f"{table}.modified",
             f"{table}.modified_by_id",
             "username",
@@ -90,14 +91,19 @@ def calendar(year, month):
         LEFT JOIN invoices inv ON {table}.id = inv.reservation_id
         {where}
     """
-
     reservations = get_all_rows(table, fields, join, order_by="start_date")
 
-    room_joins = """
-    JOIN users u ON rooms.modified_by_id = u.id
-    JOIN room_types rt ON rooms.room_type = rt.id
+    rooms = get_all_rows("rooms", "*", order_by="room_number")
+
+    inv_join = f"""
+        JOIN invoices inv on inv.id = invoice_id
+        JOIN reservations r on r.id = inv.reservation_id
+        {where} AND is_room = FALSE
+        GROUP BY invoice_id
     """
-    rooms = get_all_rows("rooms", "*", room_joins, order_by="room_number")
+    invoice_extra_items_totals = get_all_rows(
+        "invoice_items", "invoice_id, is_room, SUM(total) as items_total", inv_join
+    )
 
     # Booking details invoice summaries
     # if invoice exists, get amounts from invoice else derive totals from reservations
@@ -108,9 +114,13 @@ def calendar(year, month):
         invoice["reservation_id"] = res["id"]
         no_nights = (res["end_date"] - res["start_date"]).days
         room_total = invoice["room_total"] = res["base_price_per_night"] * no_nights
-        extras = invoice["extras"] = 0  # TODO setup extras
+        invoice_items = [
+            row["items_total"] for row in invoice_extra_items_totals if row["invoice_id"] == invoice["invoice_id"]
+        ]
+        # there should only be one row returned from invoice_items if any
+        extras = invoice["extras"] = invoice_items[0] if invoice_items else 0
         discount = invoice["discount"] = 0  # TODO setup offers and discounts
-        paid_to_date = invoice["paid_to_date"] = 0  # TODO setup payments on account
+        paid_to_date = invoice["paid_to_date"] = res["amount_paid"] or 0
         invoice["total_due"] = room_total + extras - discount - paid_to_date
 
         invoices_by_res_id[res["id"]] = invoice

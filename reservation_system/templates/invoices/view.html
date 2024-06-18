@@ -127,7 +127,7 @@
                 <div class="table-responsive">
                   <table class="table">
                     <tr>
-                      <th style="width:50%">Subtotal:</th>
+                      <th style="width:50%">Total:</th>
                       <td>&pound;{{ '%.2f' % invoice['items_total'] }}</td>
                     </tr>
                     {% if invoice['discount_amount'] %}<tr>
@@ -139,8 +139,8 @@
                       <td>&pound;  {{ '%.2f' % invoice['amount_paid'] }}</td>
                     </tr>{% endif %}
                     <tr>
-                      <th>Total:</th>
-                      <td>&pound;{{ '%.2f' % invoice['items_total'] }}</td>
+                      <th>Balance Due:</th>
+                      <td>&pound;{{ '%.2f' % balance_due }}</td>
                     </tr>
                   </table>
                 </div>

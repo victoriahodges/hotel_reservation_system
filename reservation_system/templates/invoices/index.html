@@ -46,10 +46,11 @@
                 <td>{{ inv['name'] }}</td>
                 <td>&pound;{{ '%.2f' % inv['discount_amount'] }}</td>
                 <td>&pound;{{ '%.2f' % inv['total'] }}</td>
-                <td>&pound;{{ '%.2f' % inv['amount_paid'] }}</td>
+                {% set outstanding = inv['amount_paid'] - inv['total'] %}
+                <td {% if outstanding < 0 %}style="color: red;"{% endif %}>&pound;{{ '%.2f' % outstanding }}</td>
                 <td>{{ inv['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ inv['username'] }}</td>
                 <td>
-                  <a class="btn btn-sm btn-primary" href="{{ url_for('invoices.view', id=inv['id']) }}">
+                  <a class="btn btn-sm btn-primary" href="{{ url_for('invoices.view', reservation_id=inv['reservation_id']) }}">
                   <i class="fas fa-sm fa-eye mr-1"></i> View</a>
                 </td>
               </tr>

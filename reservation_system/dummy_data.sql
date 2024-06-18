@@ -60,10 +60,10 @@ VALUES
 ;
 
 INSERT INTO invoices
-  (reservation_id, modified_by_id)
+  (reservation_id, amount_paid, modified_by_id)
 VALUES
-  (2,1),
-  (1,1)
+  (2, 0, 1),
+  (1, 390, 1)
 ;
 
 INSERT INTO invoice_items
@@ -71,7 +71,9 @@ INSERT INTO invoice_items
 VALUES
   (2, "Superior Double", 1, 3, 130.0, 390.0, 1),
   (2, "Dinner", 0, 2, 25.0, 50.0, 1),
-  (1, "Four Poster Nest", 1, 5, 145.0, 725.0, 1)
+  (1, "Four Poster Nest", 1, 5, 145.0, 725.0, 1),
+  (1, "Dinner", 0, 2, 25.0, 50.0, 1),
+  (1, "Drinks", 0, 4, 2.5, 10.0, 1)
 ;
 
 INSERT INTO join_guests_reservations
