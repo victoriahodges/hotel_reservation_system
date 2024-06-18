@@ -80,6 +80,7 @@ def calendar(year, month):
             "rt.amenities",
             "rs.status",
             "rs.bg_color",
+            "inv.id as invoice_id",
             f"{table}.modified",
             f"{table}.modified_by_id",
             "username",
@@ -95,6 +96,7 @@ def calendar(year, month):
         JOIN join_rooms_reservations rr ON {table}.id = rr.reservation_id
         JOIN rooms r ON rr.room_id = r.id
         JOIN room_types rt ON r.room_type = rt.id
+        LEFT JOIN invoices inv ON {table}.id = inv.reservation_id
         {where}
     """
 
@@ -111,6 +113,7 @@ def calendar(year, month):
     invoices_by_res_id = {}
     for res in reservations:
         invoice = {}
+        invoice["invoice_id"] = res["invoice_id"] or None
         invoice["reservation_id"] = res["id"]
         no_nights = (res["end_date"] - res["start_date"]).days
         room_total = invoice["room_total"] = res["base_price_per_night"] * no_nights
