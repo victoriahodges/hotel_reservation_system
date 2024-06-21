@@ -29,7 +29,7 @@ def get_reservation(id):
     return reservation
 
 
-def get_room_invoice_item_data(reservation_id, invoice_id, insert=None, update=None):
+def calculate_room_invoice_item(reservation_id, invoice_id, insert=None, update=None):
     res = get_reservation(reservation_id)
     # automatically updates the room item after changes made to booking
     description = f"Room {res['room_number']}: {res['type_name']}"

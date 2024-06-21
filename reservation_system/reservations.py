@@ -12,7 +12,7 @@ from reservation_system.db_queries import (
     sql_insert_placeholders,
 )
 from reservation_system.helpers import format_required_field_error, previous_page_url
-from reservation_system.invoice_items import get_room_invoice_item_data
+from reservation_system.invoice_items import calculate_room_invoice_item
 from reservation_system.invoices import get_invoice_summary
 
 bp = Blueprint("reservations", __name__, url_prefix="/reservations")
@@ -262,9 +262,10 @@ def update(id):
                 (room_id, id),
             )
             # update_room_invoice()
-            invoice_id = get_invoice_summary(id)["invoice_id"]
-            if invoice_id:
-                res_columns, res_data = get_room_invoice_item_data(id, invoice_id, update=True)
+            invoice = get_invoice_summary(id)
+            if invoice:
+                invoice_id = invoice["invoice_id"]
+                res_columns, res_data = calculate_room_invoice_item(id, invoice_id, update=True)
                 db.execute(
                     f"UPDATE invoice_items SET {res_columns} WHERE invoice_id = ? AND is_room = TRUE",
                     res_data,

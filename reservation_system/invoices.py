@@ -13,7 +13,8 @@ from reservation_system.db_queries import (
     sql_insert_placeholders,
 )
 from reservation_system.helpers import format_required_field_error, previous_page_url
-from reservation_system.invoice_items import get_room_invoice_item_data
+from reservation_system.invoice_items import calculate_room_invoice_item
+from werkzeug.exceptions import NotFound
 
 bp = Blueprint("invoices", __name__, url_prefix="/invoices")
 table = "invoices"
@@ -26,10 +27,6 @@ def get_table_fields():
         "discount_amount",
         "amount_paid",
     ]
-
-
-def get_required_fields():
-    return []
 
 
 def get_invoice_summary(reservation_id):
@@ -118,7 +115,10 @@ def view(reservation_id):
         items = get_invoice_items(invoice["id"])
         balance_due = invoice["items_total"] - invoice["amount_paid"]
 
-    return render_template("invoices/view.html", invoice=invoice, items=items, balance_due=balance_due)
+        return render_template("invoices/view.html", invoice=invoice, items=items, balance_due=balance_due)
+
+    flash(f"No invoice exists for reservation {reservation_id}.")
+    return redirect(url_for(parent_page))
 
 
 @bp.route("/create", methods=("GET", "POST"))
@@ -126,11 +126,12 @@ def view(reservation_id):
 def create():
     if request.method == "POST":
         reservation_id = request.form["reservation_id"]
-        invoice = get_invoice_summary(reservation_id)
-        if invoice is not None:
-            flash(f"Invoice #{ '%05d' % invoice['id']} already exists on another booking.")
-        else:
-            # Initialise invoice with values set to zero for discount and amount_paid
+        try:
+            invoice = get_invoice_summary(reservation_id)
+            if invoice:
+                flash(f"Invoice #{ '%05d' % invoice['id']} already exists on another booking.")
+        except NotFound:
+            # Initialise new invoice with values set to zero for discount and amount_paid
             data = [reservation_id, g.user["id"]]
             columns = format_sql_query_columns(["reservation_id", "modified_by_id"])
             placeholders = sql_insert_placeholders(len(data))
@@ -143,7 +144,7 @@ def create():
             # get invoice id
             invoice_id = cursor.lastrowid
 
-            res_columns, res_placeholders, res_data = get_room_invoice_item_data(
+            res_columns, res_placeholders, res_data = calculate_room_invoice_item(
                 reservation_id, invoice_id, insert=True
             )
 
@@ -162,7 +163,6 @@ def create():
             elif previous_page:
                 return redirect(url_for(previous_page))
 
-    flash("No invoice generated.")
     return redirect(url_for(parent_page))
 
 
@@ -206,4 +206,4 @@ def update(id):
 @login_required
 def delete(id):
     delete_by_id(id, table)
-    return redirect(url_for("rooms.index"))
+    return redirect(url_for("invoices.index"))

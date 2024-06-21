@@ -50,8 +50,8 @@ def get_row_by_where_id(where_column, where_id, table, columns, joins=None):
         .fetchone()
     )
 
-    if row is None:
-        abort(404, f"Not found: id {id} in {table} doesn't exist.")
+    if row["id"] is None:
+        abort(404, f"Not found: id {where_id} in column {where_column} doesn't exist.")
 
     return row
 
