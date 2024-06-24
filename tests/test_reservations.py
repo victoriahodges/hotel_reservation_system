@@ -112,8 +112,8 @@ def test_update(client, auth, app):
 
     auth.login()
     assert client.get("/reservations/2/update").status_code == 200
-    res = client.post("/reservations/2/update", data=data)
-    assert res.status_code == 302
+    response = client.post("/reservations/2/update", data=data, follow_redirects=True)
+    assert response.status_code == 200
 
     with app.app_context():
         db = get_db()
@@ -134,6 +134,8 @@ def test_update(client, auth, app):
             WHERE reservation_id = 2 AND is_room = TRUE"""
         ).fetchone()
         assert res["quantity"] == 7
+
+    assert b'<span class="info-box-number text-center text-muted mb-0">7</span>' in response.data
 
 
 @pytest.mark.parametrize(

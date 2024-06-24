@@ -263,8 +263,7 @@ def update(id):
             )
             # update_room_invoice()
             invoice = get_invoice_summary_by_reservation_id(id)
-            if invoice:
-                invoice_id = invoice["invoice_id"]
+            if invoice_id := invoice["invoice_id"]:
                 res_columns, res_data = calculate_room_invoice_item(id, invoice_id, update=True)
                 db.execute(
                     f"UPDATE invoice_items SET {res_columns} WHERE invoice_id = ? AND is_room = TRUE",

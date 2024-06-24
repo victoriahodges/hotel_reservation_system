@@ -5,6 +5,7 @@ from reservation_system.db_queries import (
     delete_by_id,
     format_sql_query_columns,
     get_all_rows,
+    get_row_by_id,
     get_row_by_where_id,
     sql_insert_placeholders,
 )
@@ -44,11 +45,7 @@ def get_invoice_summary_by_reservation_id(reservation_id):
     """
     where_id = f"{table}.reservation_id"
 
-    row = get_row_by_where_id(where_id, reservation_id, table, fields, join)
-
-    if row["id"]:
-        return row
-    return None
+    return get_row_by_where_id(where_id, reservation_id, table, fields, join)
 
 
 def get_invoice_items(invoice_id):
@@ -101,15 +98,29 @@ def index():
 @bp.route("/<int:id>/view")
 @login_required
 def view(id):
-    reservation_id = request.args.get("reservation_id")
-    invoice = get_invoice_summary_by_reservation_id(reservation_id)
-    if invoice:
+    fields = format_sql_query_columns(
+        get_table_fields()
+        + [
+            f"{table}.id as invoice_id",
+            "end_date",
+            "g.*",
+            "SUM(item.total) AS items_total",
+        ]
+    )
+    join = f"""
+    JOIN invoice_items item ON {table}.id = item.invoice_id
+    JOIN reservations res ON res.id = {table}.reservation_id
+    JOIN join_guests_reservations gr ON {table}.reservation_id = gr.reservation_id
+    JOIN guests g ON gr.guest_id = g.id
+    """
+
+    invoice = get_row_by_id(id, table, fields, join)
+    if invoice["id"]:
         items = get_invoice_items(id)
         balance_due = invoice["items_total"] - invoice["amount_paid"]
-
         return render_template("invoices/view.html", invoice=invoice, items=items, balance_due=balance_due)
 
-    flash(f"No invoice exists for reservation {reservation_id}.")
+    flash(f"Invoice #{'%05d' % id} does not exist.")
     return redirect(url_for(parent_page))
 
 
@@ -120,7 +131,7 @@ def create():
         reservation_id = request.form["reservation_id"]
         try:
             invoice = get_invoice_summary_by_reservation_id(reservation_id)
-            if invoice:
+            if invoice["invoice_id"] is not None:
                 flash(f"Invoice #{ '%05d' % invoice['id']} already exists on another booking.")
         except NotFound:
             # Initialise new invoice with values set to zero for discount and amount_paid
@@ -149,11 +160,9 @@ def create():
 
             previous_page = previous_page_url(request.args.get("redirect"))
             if isinstance(previous_page, tuple):
-                # return to calendar after updating guest
+                # return to calendar after creating invoice
                 year, month = previous_page
                 return redirect(url_for("calendar.calendar", year=year, month=month, reservation_id=reservation_id))
-            elif previous_page:
-                return redirect(url_for(previous_page))
 
     return redirect(url_for(parent_page))
 
