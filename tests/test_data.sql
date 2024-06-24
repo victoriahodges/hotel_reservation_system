@@ -39,7 +39,7 @@ VALUES
   (2, 0, "2024-05-30 12:59:24", 1);
 
 INSERT INTO invoice_items
-  (invoice_id, item_description, is_room, quantity, amount, total, modified_by_id)
+  (invoice_id, item_description, is_room, quantity, price, total, modified_by_id)
 VALUES
   (2, "Superior Double", 1, 3, 130.0, 390.0, 1),
   (2, "Dinner", 0, 2, 25.0, 50.0, 1),

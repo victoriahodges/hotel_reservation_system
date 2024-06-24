@@ -8,6 +8,7 @@ from . import (
     calendar,
     db,
     guests,
+    invoice_items,
     invoices,
     reservation_status,
     reservations,
@@ -60,5 +61,7 @@ def create_app(test_config=None):
     app.add_url_rule("/", endpoint="reservation_status.index")
     app.register_blueprint(invoices.bp)
     app.add_url_rule("/", endpoint="invoices.index")
+    app.register_blueprint(invoice_items.bp)
+    app.add_url_rule("/", endpoint="invoice_items.index")
 
     return app

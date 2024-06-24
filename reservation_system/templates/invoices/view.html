@@ -21,9 +21,10 @@
                 <button type="button" class="btn btn-success float-right ml-2">
                   <i class="far fa-credit-card mr-2"></i>Submit Payment
                 </button>
-                <button type="button" class="btn btn-primary float-right">
-                  <i class="fas fa-download mr-1"></i> Generate PDF
-                </button>
+                <a class="btn btn-primary float-right ml-2" 
+                href="{{ url_for('invoice_items.create', reservation_id=invoice['reservation_id'], invoice_id=invoice['id'], redirect=redirect) }}">
+                  <i class="fas fa-plus mr-2"></i>Add Item
+                </a>
               </div>
             </div>
           </div>
@@ -85,19 +86,33 @@
                 <table class="table table-striped">
                   <thead>
                   <tr>
-                    <th>Qty</th>
                     <th>Description</th>
                     <th>Price</th>
-                    <th>Subtotal</th>
+                    <th>Qty</th>
+                    <th class="text-right">Subtotal</th>
+                    <th class="no-print"></th>
                   </tr>
                   </thead>
                   <tbody>
                   {% for item in items %}
                   <tr>
-                    <td>{{ item['quantity'] }}</td>
                     <td>{{ item['item_description'] }}</td>
-                    <td>&pound;{{ '%.2f' % item['amount'] }}</td>
-                    <td>&pound;{{ '%.2f' % item['total'] }}</td>
+                    <td>&pound;{{ '%.2f' % item['price'] }}</td>
+                    <td>{{ item['quantity'] }}</td>
+                    <td class="text-right">&pound;{{ '%.2f' % item['total'] }}
+                    </td>
+                    <td class="no-print">
+                      {% if not item['is_room'] %}
+                      <a class="btn btn-primary btn-sm no-print float-right ml-2" href="{{ url_for('invoice_items.update', id=item['item_id'], reservation_id=invoice['reservation_id'], redirect=redirect) }}"><i class="fas fa-pen"></i></a>
+                      <form class="float-right" action="{{ url_for('invoice_items.delete', id=item['item_id'], redirect=redirect) }}" method="post">
+                        <input type="hidden" name="reservation_id" value="{{ invoice['reservation_id'] }}">
+                        <input type="hidden" name="invoice_id" value="{{ item['invoice_id'] }}">
+                        <button type="submit" class="btn btn-danger btn-sm no-print float-rightr" value="Delete" onclick="return confirm('Are you sure?');">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </form>
+                      {% endif %}
+                    </td>
                   </tr>
                   {% endfor %}
                   </tbody>
@@ -109,7 +124,7 @@
 
             <div class="row">
               <!-- accepted payments column -->
-              <div class="col-6">
+              <div class="col-8">
                 <p class="lead">Payment Methods:</p>
                 <img src="{{ url_for('static', filename='/img/payment_logos/visa.png') }}" alt="Visa">
                 <img src="{{ url_for('static', filename='/img/payment_logos/mastercard.png') }}" alt="Mastercard">
@@ -121,26 +136,26 @@
                 </p>
               </div>
               <!-- /.col -->
-              <div class="col-6">
+              <div class="col-4">
                 <p class="lead">Amount Due</p>
 
                 <div class="table-responsive">
                   <table class="table">
                     <tr>
-                      <th style="width:50%">Total:</th>
-                      <td>&pound;{{ '%.2f' % invoice['items_total'] }}</td>
+                      <th>Total:</th>
+                      <td class="text-right">&pound;{{ '%.2f' % invoice['items_total'] }}</td>
                     </tr>
                     {% if invoice['discount_amount'] %}<tr>
                       <th>Discounts</th>
-                      <td>{{ '%.2f' % invoice['discount_amount'] }}</td>
+                      <td class="text-right">{{ '%.2f' % invoice['discount_amount'] }}</td>
                     </tr>{% endif %}
                     {% if invoice['amount_paid'] %}<tr>
                       <th>Paid to date</th>
-                      <td>&pound;  {{ '%.2f' % invoice['amount_paid'] }}</td>
+                      <td class="text-right">&pound;  {{ '%.2f' % invoice['amount_paid'] }}</td>
                     </tr>{% endif %}
                     <tr>
                       <th>Balance Due:</th>
-                      <td>&pound;{{ '%.2f' % balance_due }}</td>
+                      <td class="text-right">&pound;{{ '%.2f' % balance_due }}</td>
                     </tr>
                   </table>
                 </div>

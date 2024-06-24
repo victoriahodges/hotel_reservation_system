@@ -50,8 +50,14 @@
                 <td {% if outstanding < 0 %}style="color: red;"{% endif %}>&pound;{{ '%.2f' % outstanding }}</td>
                 <td>{{ inv['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ inv['username'] }}</td>
                 <td>
-                  <a class="btn btn-sm btn-primary" href="{{ url_for('invoices.view', reservation_id=inv['reservation_id']) }}">
+                  <a class="btn btn-sm btn-primary" href="{{ url_for('invoices.view', id=inv['id'], reservation_id=inv['reservation_id']) }}">
                   <i class="fas fa-sm fa-eye mr-1"></i> View</a>
+                  <form action="{{ url_for('invoices.delete', id=inv['id'], redirect=redirect) }}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger btn-sm no-print float-rightr" value="Delete" onclick="return confirm('Are you sure?');">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+
                 </td>
               </tr>
             {% endfor %}

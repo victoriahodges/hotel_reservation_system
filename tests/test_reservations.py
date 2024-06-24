@@ -130,7 +130,8 @@ def test_update(client, auth, app):
         assert res["room_id"] == 2
 
         res = db.execute(
-            "SELECT * FROM invoices inv JOIN invoice_items ON inv.id = invoice_id WHERE reservation_id = 2 AND is_room = TRUE"
+            """SELECT * FROM invoices inv JOIN invoice_items ON inv.id = invoice_id
+            WHERE reservation_id = 2 AND is_room = TRUE"""
         ).fetchone()
         assert res["quantity"] == 7
 
