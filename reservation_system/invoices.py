@@ -26,28 +26,6 @@ def get_table_fields():
     ]
 
 
-def get_invoice_summary_by_reservation_id(reservation_id):
-    # returns sum of invoice totals
-    fields = format_sql_query_columns(
-        get_table_fields()
-        + [
-            f"{table}.id as invoice_id",
-            "end_date",
-            "g.*",
-            "SUM(item.total) AS items_total",
-        ]
-    )
-    join = f"""
-    JOIN invoice_items item ON {table}.id = item.invoice_id
-    JOIN reservations res ON res.id = {table}.reservation_id
-    JOIN join_guests_reservations gr ON {table}.reservation_id = gr.reservation_id
-    JOIN guests g ON gr.guest_id = g.id
-    """
-    where_id = f"{table}.reservation_id"
-
-    return get_row_by_where_id(where_id, reservation_id, table, fields, join)
-
-
 def get_invoice_items(invoice_id):
     # returns sum of invoice totals
     fields = format_sql_query_columns(
@@ -130,9 +108,15 @@ def create():
     if request.method == "POST":
         reservation_id = request.form["reservation_id"]
         try:
-            invoice = get_invoice_summary_by_reservation_id(reservation_id)
-            if invoice["invoice_id"] is not None:
-                flash(f"Invoice #{ '%05d' % invoice['id']} already exists on another booking.")
+            # check reservation exists to create invoice
+            get_row_by_id(reservation_id, "reservations")
+        except NotFound:
+            flash(f"Reservation #{ '%05d' % int(reservation_id)} does not exist.")
+            return redirect(url_for(parent_page))
+
+        try:
+            invoice = get_row_by_where_id("invoices.reservation_id", reservation_id, "invoices")
+            flash(f"Invoice #{ '%05d' % invoice['id']} already exists on another booking.")
         except NotFound:
             # Initialise new invoice with values set to zero for discount and amount_paid
             data = [reservation_id, g.user["id"]]

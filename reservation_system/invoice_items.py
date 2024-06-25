@@ -137,7 +137,7 @@ def get_reservation(id):
     return reservation
 
 
-def calculate_room_invoice_item(reservation_id, invoice_id, insert=None, update=None):
+def calculate_room_invoice_item(reservation_id, invoice_id, insert=False):
     res = get_reservation(reservation_id)
     # automatically updates the room item after changes made to booking
     description = f"Room {res['room_number']}: {res['type_name']}"
@@ -152,9 +152,9 @@ def calculate_room_invoice_item(reservation_id, invoice_id, insert=None, update=
         res_placeholders = sql_insert_placeholders(len(res_data))
         return res_columns, res_placeholders, res_data
 
-    if update:
-        res_data = [description, True, no_nights, res["base_price_per_night"], item_total, g.user["id"], invoice_id]
-        res_columns = format_sql_update_columns(
-            ["item_description", "is_room", "quantity", "price", "total", "modified_by_id"]
-        )
-        return res_columns, res_data
+    # else update:
+    res_data = [description, True, no_nights, res["base_price_per_night"], item_total, g.user["id"], invoice_id]
+    res_columns = format_sql_update_columns(
+        ["item_description", "is_room", "quantity", "price", "total", "modified_by_id"]
+    )
+    return res_columns, res_data

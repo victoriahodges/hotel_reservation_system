@@ -130,22 +130,24 @@ def test_create_update_allowed_extensions_validate(client, auth, path, extension
 
 
 @pytest.mark.parametrize(
-    "path, key, filename, expected",
+    "path, key, filename, photo_bytes, expected",
     [
-        ("/room_types/create", "", "test.jpg", b"No photo part found"),
-        ("/room_types/create", "photo", "", b"No selected photo"),
-        ("/room_types/1/update", "", "test.jpg", b"No photo part found"),
-        ("/room_types/1/update", "photo", "", b"No selected photo"),
+        ("/room_types/create", "", "test.jpg", b"abcdef", b"No photo part found"),
+        ("/room_types/create", "photo", "", b"abcdef", b"No selected photo"),
+        ("/room_types/create", "photo", "test.jpg", b"", b"Invalid file"),
+        ("/room_types/1/update", "", "test.jpg", b"abcdef", b"No photo part found"),
+        ("/room_types/1/update", "photo", "", b"abcdef", b"No selected photo"),
+        ("/room_types/1/update", "photo", "test.jpg", b"", b"Invalid file"),
     ],
 )
-def test_create_update_photo_upload_validate(client, auth, path, key, filename, expected):
+def test_create_update_photo_upload_validate(client, auth, path, key, filename, photo_bytes, expected):
     data = {
         "type_name": "Single",
         "base_price_per_night": "95",
         "amenities": "Single bed, sea views, shower",
         "max_occupants": "1",
     }
-    data[key] = (BytesIO(b"abcdef"), filename)
+    data[key] = (BytesIO(photo_bytes), filename)
 
     auth.login()
     response = client.post(path, data=data, content_type="multipart/form-data")

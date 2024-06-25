@@ -78,6 +78,23 @@ def test_create_invoice_exists(client, auth):
     assert b"Invoice #00001 already exists on another booking." in response.data
 
 
+def test_create_reservation_does_not_exist(client, auth, app):
+    data = {
+        "reservation_id": 200,
+    }
+    auth.login()
+    # no page is returned when generating an invoice
+    assert client.get("/invoices/create").status_code == 302
+    response = client.post("/invoices/create", data=data, follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b"Reservation #00200 does not exist." in response.data
+    with app.app_context():
+        db = get_db()
+        count = db.execute("SELECT COUNT(id) FROM invoices").fetchone()[0]
+        assert count == 1
+
+
 @pytest.mark.parametrize(
     "redirect_url, expected",
     [
