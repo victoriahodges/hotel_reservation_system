@@ -1,0 +1,102 @@
+{% extends 'admin_base.html' %}
+
+{% block css %}
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">  
+{% endblock %}
+
+{% block header %}
+  <h1 class="m-0">{% block page_title %}Invoices{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Invoice Details <span class="small ml-3">Search, filter and export invoices</span></h3>
+      </div>
+      <!-- /.card-header -->      
+      <div class="card-body">
+
+        <table id="data_table" class="table table-sm table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>Invoice No.</th>
+              <th>Booking Ref</th>
+              <th>Check-Out</th>
+              <th>Guest</th>
+              <th>Discount</th>
+              <th>Total</th>
+              <th>Outstanding</th>
+              <th>Last modified</th>
+              <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+              {% for inv in invoices %}
+              {% set year = inv['end_date'].strftime('%Y') %}
+              {% set month = inv['end_date'].strftime('%m') %}
+              <tr>
+                <th>{{ '%05d' % inv['id'] }}</th>
+                <td><a href="{{ url_for('calendar.calendar',year=year, month=month, reservation_id=inv['reservation_id'] )}}">#{{ '%05d' % inv['reservation_id'] }}</a></td>
+                <td>{{ inv['end_date'].strftime('%d %B %Y') }}</td>
+                <td>{{ inv['name'] }}</td>
+                <td>&pound;{{ '%.2f' % inv['discount_amount'] }}</td>
+                <td>&pound;{{ '%.2f' % inv['total'] }}</td>
+                {% set outstanding = inv['amount_paid'] - inv['total'] %}
+                <td {% if outstanding < 0 %}style="color: red;"{% endif %}>&pound;{{ '%.2f' % outstanding }}</td>
+                <td>{{ inv['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ inv['username'] }}</td>
+                <td>
+                  <a class="btn btn-sm btn-primary" href="{{ url_for('invoices.view', id=inv['id'], reservation_id=inv['reservation_id']) }}">
+                  <i class="fas fa-sm fa-eye mr-1"></i> View</a>
+                  <form action="{{ url_for('invoices.delete', id=inv['id'], redirect=redirect) }}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger btn-sm no-print float-rightr" value="Delete" onclick="return confirm('Are you sure?');">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+      </div>      
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
+
+{% endblock %}
+
+{% block data_table_js %}
+<!-- DataTables  & Plugins -->
+<script src="{{ url_for('static', filename='admin/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+
+<!-- Page specific script -->
+<!-- TODO disable printing of action column -->
+<script>
+  $(function () {
+    $("#data_table").DataTable({
+      "responsive": true, "lengthChange": true, "autoWidth": false,
+      "buttons": ["copy", "csv", "print", "colvis"],
+      // disable sorting on last column "Action"
+      "columnDefs": [{ targets: 8, orderable: false}],
+      "lengthMenu": [
+        [20, 50, 100, -1],
+        [20, 50, 100, 'All']
+      ]          
+    }).buttons().container().appendTo('#data_table_filter').addClass('ml-3');
+  });
+</script>
+{% endblock %}

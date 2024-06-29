@@ -4,7 +4,8 @@ DROP TABLE IF EXISTS room_types;
 DROP TABLE IF EXISTS rooms;
 DROP TABLE IF EXISTS reservations;
 DROP TABLE IF EXISTS reservation_status;
-DROP TABLE IF EXISTS reservation_status;
+DROP TABLE IF EXISTS invoices;
+DROP TABLE IF EXISTS invoice_items;
 DROP TABLE IF EXISTS join_guests_reservations;
 DROP TABLE IF EXISTS join_rooms_reservations;
 
@@ -73,6 +74,31 @@ CREATE TABLE reservation_status (
   status TEXT NOT NULL,
   description TEXT,
   bg_color TEXT
+);
+
+CREATE TABLE invoices (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reservation_id INTEGER NOT NULL,
+  discount_amount REAL NOT NULL DEFAULT 0,
+  amount_paid REAL NOT NULL DEFAULT 0,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modified_by_id INTEGER NOT NULL,
+  FOREIGN KEY (reservation_id) REFERENCES reservations (id)
+);
+
+CREATE TABLE invoice_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  invoice_id INTEGER NOT NULL,
+  item_description TEXT NOT NULL,
+  is_room INTEGER DEFAULT 0,
+  quantity INTEGER NOT NULL,
+  price REAL NOT NULL,
+  total REAL NOT NULL,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modified_by_id INTEGER NOT NULL,
+  FOREIGN KEY (invoice_id) REFERENCES invoices (id)
 );
 
 CREATE TABLE join_guests_reservations (

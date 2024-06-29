@@ -79,8 +79,8 @@ def test_create_with_redirect(client, auth, app, redirect_url, expected):
     # assert that creating a reservation redirects to calendar view
     data = {
         "number_of_guests": "2",
-        "start_date": (datetime.datetime.now() + datetime.timedelta(days=10)).date(),
-        "end_date": (datetime.datetime.now() + datetime.timedelta(days=15)).date(),
+        "start_date": (datetime.datetime.now() + datetime.timedelta(days=5)).date(),
+        "end_date": (datetime.datetime.now() + datetime.timedelta(days=7)).date(),
         "reservation_notes": "Early breakfast.",
         "status_id": "2",
         "room_id": "1",
@@ -99,10 +99,10 @@ def test_create_with_redirect(client, auth, app, redirect_url, expected):
     assert response.headers["Location"] == expected + "?reservation_id=3"
 
 
-def test_update(client, auth, app):
+def test_update_with_invoice(client, auth, app):
     data = {
         "number_of_guests": "1",
-        "start_date": (datetime.datetime.now() + datetime.timedelta(days=10)).date(),
+        "start_date": (datetime.datetime.now() + datetime.timedelta(days=8)).date(),  # 5 nights changes to 7
         "end_date": (datetime.datetime.now() + datetime.timedelta(days=15)).date(),
         "reservation_notes": "Early breakfast.",
         "status_id": "2",
@@ -110,24 +110,83 @@ def test_update(client, auth, app):
         "room_id": "2",
     }
 
+    with app.app_context():
+        db = get_db()
+        res = db.execute(
+            """SELECT * FROM invoices inv JOIN invoice_items ON inv.id = invoice_id
+            WHERE reservation_id = 2 AND is_room = TRUE"""
+        ).fetchone()
+        assert res["quantity"] == 5
+        assert res["total"] == 725.0
+
     auth.login()
-    assert client.get("/reservations/1/update").status_code == 200
-    res = client.post("/reservations/1/update", data=data)
-    assert res.status_code == 302
+    assert client.get("/reservations/2/update").status_code == 200
+    response = client.post("/reservations/2/update", data=data, follow_redirects=True)
+    assert response.status_code == 200
 
     with app.app_context():
         db = get_db()
-        res = db.execute("SELECT * FROM reservations WHERE id = 1").fetchone()
-        assert res["start_date"] == (datetime.datetime.now() + datetime.timedelta(days=10)).date()
+        res = db.execute("SELECT * FROM reservations WHERE id = 2").fetchone()
+        assert res["start_date"] == (datetime.datetime.now() + datetime.timedelta(days=8)).date()
         assert res["end_date"] == (datetime.datetime.now() + datetime.timedelta(days=15)).date()
         assert res["reservation_notes"] == "Early breakfast."
         assert res["number_of_guests"] == 1
 
-        res = db.execute("SELECT * FROM join_guests_reservations WHERE reservation_id = 1").fetchone()
+        res = db.execute("SELECT * FROM join_guests_reservations WHERE reservation_id = 2").fetchone()
         assert res["guest_id"] == 1
+
+        res = db.execute("SELECT * FROM join_rooms_reservations WHERE reservation_id = 2").fetchone()
+        assert res["room_id"] == 2
+
+        res = db.execute(
+            """SELECT * FROM invoices inv JOIN invoice_items ON inv.id = invoice_id
+            WHERE reservation_id = 2 AND is_room = TRUE"""
+        ).fetchone()
+        assert res["quantity"] == 7
+        assert res["total"] == 910.0
+
+    assert b'<span class="info-box-number text-center text-muted mb-0">7</span>' in response.data
+
+
+def test_update_with_no_existing_invoice(client, auth, app):
+    data = {
+        "number_of_guests": "1",
+        "start_date": (datetime.datetime.now() + datetime.timedelta(days=8)).date(),  # 3 nights changes to 1
+        "end_date": (datetime.datetime.now() + datetime.timedelta(days=9)).date(),
+        "reservation_notes": "Early breakfast.",
+        "status_id": "2",
+        "guest_id": "2",
+        "room_id": "2",
+    }
+
+    auth.login()
+    assert client.get("/reservations/1/update").status_code == 200
+    response = client.post("/reservations/1/update", data=data, follow_redirects=True)
+    assert response.status_code == 200
+
+    with app.app_context():
+        db = get_db()
+        res = db.execute("SELECT * FROM reservations WHERE id = 1").fetchone()
+        assert res["start_date"] == (datetime.datetime.now() + datetime.timedelta(days=8)).date()
+        assert res["end_date"] == (datetime.datetime.now() + datetime.timedelta(days=9)).date()
+        assert res["reservation_notes"] == "Early breakfast."
+        assert res["number_of_guests"] == 1
+
+        res = db.execute("SELECT * FROM join_guests_reservations WHERE reservation_id = 1").fetchone()
+        assert res["guest_id"] == 2
 
         res = db.execute("SELECT * FROM join_rooms_reservations WHERE reservation_id = 1").fetchone()
         assert res["room_id"] == 2
+
+        count = db.execute("SELECT COUNT(id) FROM invoices").fetchone()[0]
+        assert count == 1
+        res = db.execute(
+            """SELECT * FROM invoices inv JOIN invoice_items ON inv.id = invoice_id
+            WHERE reservation_id = 1 AND is_room = TRUE"""
+        ).fetchone()
+        assert res is None
+
+    assert b'<span class="info-box-number text-center text-muted mb-0">1</span>' in response.data
 
 
 @pytest.mark.parametrize(
@@ -142,8 +201,8 @@ def test_update_with_redirect(client, auth, app, redirect_url, expected):
     # assert that updating a reservation redirects to calendar view
     data = {
         "number_of_guests": "2",
-        "start_date": (datetime.datetime.now() + datetime.timedelta(days=10)).date(),
-        "end_date": (datetime.datetime.now() + datetime.timedelta(days=15)).date(),
+        "start_date": (datetime.datetime.now() + datetime.timedelta(days=5)).date(),
+        "end_date": (datetime.datetime.now() + datetime.timedelta(days=7)).date(),
         "reservation_notes": "Early breakfast.",
         "status_id": "2",
         "room_id": "1",
@@ -151,11 +210,11 @@ def test_update_with_redirect(client, auth, app, redirect_url, expected):
     }
 
     auth.login()
-    assert client.get("/reservations/1/update").status_code == 200
-    response = client.post("/reservations/1/update", data=data)
+    assert client.get("/reservations/2/update").status_code == 200
+    response = client.post("/reservations/2/update", data=data)
     assert response.status_code == 302
 
-    assert response.headers["Location"] == expected + "?reservation_id=1"
+    assert response.headers["Location"] == expected + "?reservation_id=2"
 
 
 @pytest.mark.parametrize(
@@ -193,7 +252,7 @@ def test_create_update_validate_form_fields(client, auth, path):
         ("2024-05-18", "2024-05-27", "2"),  # outside
         ("2024-05-21", "2024-05-23", "2"),  # inside
         ("2024-05-18", "2024-05-23", "2"),  # start_date overl
-        ("2024-05-23", "2024-05-27", "2"),  # end_date overlap
+        ("2024-05-21", "2024-05-27", "2"),  # end_date overlap
     ],
 )
 def test_create_validate_collisions(client, auth, start_date, end_date, room_id):

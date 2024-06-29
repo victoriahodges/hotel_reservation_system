@@ -1,0 +1,44 @@
+{% extends 'admin_base.html' %}
+
+{% block header %}
+  <h1 class="m-0">{% block page_title %}Update Invoice Item{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-6">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Item Details</h3>
+      </div>
+      <!-- /.card-header -->      
+      <div class="card-body">
+        <form method="post" id="form" >
+
+          <input type="hidden" name="invoice_id" id="invoice_id" value="{{ invoice_id or items['invoice_id']}}">
+          <div class="form-group">
+            <label for="item_description">Item Description</label>
+            <input class="form-control" name="item_description" id="item_description" value="{{ request.form['item_description'] or items['item_description'] }}">
+          </div>
+          <div class="form-group">
+            <label for="price">Price</label>
+            <input class="form-control" name="price" id="price" value="{{ request.form['price'] or items['price']}}" required>
+          </div>
+          <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <input class="form-control" name="quantity" id="quantity" value="{{ request.form['quantity'] or items['quantity']}}" required>
+          </div>
+        </form>
+
+      </div>
+      <!-- /.card-body -->   
+      <div class="card-footer">
+        <button type="submit" form="form" value="Save" class="btn btn-primary"><i class="fas fa-save mr-1"></i> Save</button>
+      
+        <a href="{{ url_for('invoices.view', id=items['invoice_id'], reservation_id=reservation_id) }}" class="btn btn-default ml-2">Go back</a>
+      </div>
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
+{% endblock %}

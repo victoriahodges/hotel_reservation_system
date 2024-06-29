@@ -3,7 +3,18 @@ import os
 from flask import Flask, render_template
 from reservation_system.auth import login_required
 
-from . import auth, calendar, db, guests, reservation_status, reservations, room_types, rooms
+from . import (
+    auth,
+    calendar,
+    db,
+    guests,
+    invoice_items,
+    invoices,
+    reservation_status,
+    reservations,
+    room_types,
+    rooms,
+)
 
 
 def create_app(test_config=None):
@@ -48,5 +59,9 @@ def create_app(test_config=None):
     app.add_url_rule("/", endpoint="reservations.index")
     app.register_blueprint(reservation_status.bp)
     app.add_url_rule("/", endpoint="reservation_status.index")
+    app.register_blueprint(invoices.bp)
+    app.add_url_rule("/", endpoint="invoices.index")
+    app.register_blueprint(invoice_items.bp)
+    app.add_url_rule("/", endpoint="invoice_items.index")
 
     return app

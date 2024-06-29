@@ -12,7 +12,6 @@
   {% block css %}{% endblock %}
   <!-- Theme style -->
   <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/adminlte.min.css') }}">
-  <!-- Theme style -->
   <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/override.css') }}">
 
 </head>
@@ -148,7 +147,7 @@
             </a>
           </li>      
           <li class="nav-item">
-            <a href="{{ url_for('guests.index') }}" class="nav-link">
+            <a href="{{ url_for('invoices.index') }}" class="nav-link">
               <i class="nav-icon fas fa-file-invoice"></i>
               <p>
                 Invoices

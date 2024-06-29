@@ -60,7 +60,8 @@
         <button type="submit" form="form" value="Save" class="btn btn-primary"><i class="fas fa-save mr-1"></i> Save</button>
         
         {% set redirect = request.args.get('redirect') %}
-        <a href="{% if redirect %}{{ redirect }}{% else %}{{ url_for('guests.index') }}{% endif %}" 
+        {% set reservation_id = request.args.get('reservation_id') %}
+        <a href="{% if redirect %}{{ redirect }}?reservation_id={{ reservation_id }}{% else %}{{ url_for('guests.index') }}{% endif %}" 
         class="btn btn-default ml-2">Go back</a>
 
         <form class="float-right" action="{{ url_for('guests.delete', id=guest['id']) }}" method="post">

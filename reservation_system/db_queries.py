@@ -22,7 +22,7 @@ def get_all_rows(table, columns, joins=None, order_by=None):
     return all_rows
 
 
-def get_row_by_id(id, table, columns, joins=None):
+def get_row_by_id(id, table, columns="*", joins=None):
     joins = joins if joins else ""
     row = (
         get_db()
@@ -35,6 +35,23 @@ def get_row_by_id(id, table, columns, joins=None):
 
     if row is None:
         abort(404, f"Not found: id {id} in {table} doesn't exist.")
+
+    return row
+
+
+def get_row_by_where_id(where_column, where_id, table, columns="*", joins=None):
+    joins = joins if joins else ""
+    row = (
+        get_db()
+        .execute(
+            f"SELECT {table}.id, {columns} FROM {table} {joins} WHERE {where_column} = ?",
+            (where_id,),
+        )
+        .fetchone()
+    )
+
+    if row is None:
+        abort(404, f"Not found: id {where_id} in column {where_column} doesn't exist.")
 
     return row
 

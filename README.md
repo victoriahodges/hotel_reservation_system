@@ -97,7 +97,7 @@ $ coverage xml
 ### Rooms / Room Types
 
 - [ ] Add special offers/discount rates
-- [ ] Photo uploads
+- [x] Photo uploads
 - [ ] Amenities list
 
 ### Customers
@@ -107,8 +107,8 @@ $ coverage xml
 
 ### Invoicing
 
-- [ ] Calulate full booking price
-- [ ] Print invoice
+- [x] Calulate full booking price
+- [x] Print invoice
 - [ ] Print revenue report
 
 ### Code

@@ -42,10 +42,13 @@ def upload_file(files):
         flash("Not a valid file type.")
         return False
 
-    if file:
+    file.seek(0, os.SEEK_END)
+    if file.tell() > 0:
         filename = secure_filename(file.filename)
         file.save(os.path.join(bp.static_folder, room_image_location(), filename))
         return filename
+    flash("Invalid file")
+    return False
 
 
 def get_table_fields():
