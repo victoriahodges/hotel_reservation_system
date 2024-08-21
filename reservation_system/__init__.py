@@ -10,6 +10,7 @@ from . import (
     guests,
     invoice_items,
     invoices,
+    payments,
     reservation_status,
     reservations,
     room_types,
@@ -62,6 +63,8 @@ def create_app(test_config=None):
     app.register_blueprint(invoices.bp)
     app.add_url_rule("/", endpoint="invoices.index")
     app.register_blueprint(invoice_items.bp)
-    app.add_url_rule("/", endpoint="invoice_items.index")
+    app.add_url_rule("/", endpoint="invoice_items.create")
+    app.register_blueprint(payments.bp)
+    app.add_url_rule("/", endpoint="payments.index")
 
     return app

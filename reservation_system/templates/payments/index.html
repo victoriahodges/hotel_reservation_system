@@ -16,7 +16,7 @@
   <div class="col-12">
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title">Invoice Details <span class="small ml-3">Search, filter and export invoices</span></h3>
+        <h3 class="card-title">Payment Details <span class="small ml-3">Search, filter and export payments</span></h3>
       </div>
       <!-- /.card-header -->      
       <div class="card-body">
@@ -28,35 +28,25 @@
               <th>Booking Ref</th>
               <th>Check-Out</th>
               <th>Guest</th>
-              <th>Discount</th>
-              <th>Total</th>
-              <th>Outstanding</th>
+              <th>Amount</th>
               <th>Last modified</th>
               <th>Action</th>
             </tr>
             </thead>
             <tbody>
-              {% for inv in invoices %}
-              {% set year = inv['end_date'].strftime('%Y') %}
-              {% set month = inv['end_date'].strftime('%m') %}
+              {% for pay in payments %}
+              {% set year = pay['end_date'].strftime('%Y') %}
+              {% set month = pay['end_date'].strftime('%m') %}
               <tr>
-                <th>{{ '%05d' % inv['id'] }}</th>
-                <td><a href="{{ url_for('calendar.calendar',year=year, month=month, reservation_id=inv['reservation_id'] )}}">#{{ '%05d' % inv['reservation_id'] }}</a></td>
-                <td>{{ inv['end_date'].strftime('%d %B %Y') }}</td>
-                <td>{{ inv['name'] }}</td>
-                <td>&pound;{{ '%.2f' % inv['discount_amount'] }}</td>
-                <td>&pound;{{ '%.2f' % inv['total'] }}</td>
-                {% set outstanding = inv['amount_paid'] - inv['total'] %}
-                <td {% if outstanding < 0 %}style="color: red;"{% endif %}>&pound;{{ '%.2f' % outstanding }}</td>
-                <td>{{ inv['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ inv['username'] }}</td>
+                <th><a href="{{ url_for('invoices.view', id=pay['invoice_id'], reservation_id=pay['reservation_id'], redirect=request.path) }}">{{ '%05d' % pay['invoice_id'] }}</a></th>
+                <td><a href="{{ url_for('calendar.calendar',year=year, month=month, reservation_id=pay['reservation_id'] )}}">#{{ '%05d' % pay['reservation_id'] }}</a></td>
+                <td>{{ pay['end_date'].strftime('%d %B %Y') }}</td>
+                <td>{{ pay['name'] }}</td>
+                <td>&pound;{{ '%.2f' % pay['amount'] }}</td>
+                <td>{{ pay['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ pay['username'] }}</td>
                 <td>
-                  <a class="btn btn-sm btn-primary" href="{{ url_for('invoices.view', id=inv['id'], reservation_id=inv['reservation_id']) }}">
+                  <a class="btn btn-sm btn-primary" href="{{ url_for('payments.update', id=pay['id'], redirect=request.path) }}">
                   <i class="fas fa-sm fa-eye mr-1"></i> View</a>
-                  <form action="{{ url_for('invoices.delete', id=inv['id'], redirect=request.path) }}" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-danger btn-sm no-print" value="Delete" onclick="return confirm('Are you sure?');">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </form>
 
                 </td>
               </tr>
@@ -91,7 +81,7 @@
       "responsive": true, "lengthChange": true, "autoWidth": false,
       "buttons": ["copy", "csv", "print", "colvis"],
       // disable sorting on last column "Action"
-      "columnDefs": [{ targets: 8, orderable: false}],
+      "columnDefs": [{ targets: 6, orderable: false}],
       "lengthMenu": [
         [20, 50, 100, -1],
         [20, 50, 100, 'All']

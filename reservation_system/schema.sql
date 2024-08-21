@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS reservations;
 DROP TABLE IF EXISTS reservation_status;
 DROP TABLE IF EXISTS invoices;
 DROP TABLE IF EXISTS invoice_items;
+DROP TABLE IF EXISTS payments;
 DROP TABLE IF EXISTS join_guests_reservations;
 DROP TABLE IF EXISTS join_rooms_reservations;
 
@@ -95,6 +96,16 @@ CREATE TABLE invoice_items (
   quantity INTEGER NOT NULL,
   price REAL NOT NULL,
   total REAL NOT NULL,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modified_by_id INTEGER NOT NULL,
+  FOREIGN KEY (invoice_id) REFERENCES invoices (id)
+);
+
+CREATE TABLE payments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  invoice_id INTEGER NOT NULL,
+  amount REAL NOT NULL,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   modified_by_id INTEGER NOT NULL,
