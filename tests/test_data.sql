@@ -47,6 +47,11 @@ VALUES
   (1, "Dinner", 0, 2, 25.0, 50.0, 1),
   (1, "Drinks", 0, 4, 2.5, 10.0, 1);
 
+INSERT INTO payments
+  (invoice_id, amount, modified_by_id)
+VALUES
+  (1,90,1);
+
 INSERT INTO join_guests_reservations
   (guest_id, reservation_id)
 VALUES

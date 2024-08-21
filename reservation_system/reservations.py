@@ -262,7 +262,7 @@ def update(id):
                 "UPDATE join_rooms_reservations SET room_id = ? WHERE reservation_id = ?",
                 (room_id, id),
             )
-            # update_room_invoice()
+            # update room in invoice_items
             try:
                 invoice = get_row_by_where_id("invoices.reservation_id", id, "invoices")
                 res_columns, res_data = calculate_room_invoice_item(id, invoice["id"])

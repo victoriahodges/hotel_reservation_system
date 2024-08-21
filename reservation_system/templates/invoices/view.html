@@ -18,9 +18,10 @@
                 {% set redirect = request.args.get('redirect') %}
                 <a href="{% if redirect %}{{ redirect }}?reservation_id={{ invoice['reservation_id'] }}{% else %}{{ url_for('invoices.index') }}{% endif %}" 
                 class="btn btn-default ml-2">Go back</a>
-                <button type="button" class="btn btn-success float-right ml-2">
+                <a class="btn btn-success float-right ml-2"
+                href="{{ url_for('payments.create', reservation_id=invoice['reservation_id'], invoice_id=invoice['id'], redirect=redirect) }}">
                   <i class="far fa-credit-card mr-2"></i>Submit Payment
-                </button>
+                </a>
                 <a class="btn btn-primary float-right ml-2" 
                 href="{{ url_for('invoice_items.create', reservation_id=invoice['reservation_id'], invoice_id=invoice['id'], redirect=redirect) }}">
                   <i class="fas fa-plus mr-2"></i>Add Item

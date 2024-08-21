@@ -111,12 +111,12 @@ def create():
             # check reservation exists to create invoice
             get_row_by_id(reservation_id, "reservations")
         except NotFound:
-            flash(f"Reservation #{ '%05d' % int(reservation_id)} does not exist.")
+            flash(f"Reservation #{'%05d' % int(reservation_id)} does not exist.")
             return redirect(url_for(parent_page))
 
         try:
             invoice = get_row_by_where_id("invoices.reservation_id", reservation_id, "invoices")
-            flash(f"Invoice #{ '%05d' % invoice['id']} already exists on another booking.")
+            flash(f"Invoice #{'%05d' % invoice['id']} already exists on another booking.")
         except NotFound:
             # Initialise new invoice with values set to zero for discount and amount_paid
             data = [reservation_id, g.user["id"]]
