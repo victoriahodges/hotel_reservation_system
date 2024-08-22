@@ -132,7 +132,7 @@ def index():
 def get_other_table_rows():
     rooms = get_all_rows(
         "rooms",
-        "room_number, type_name, max_occupants",
+        "room_number, type_name, base_price_per_night, max_occupants",
         " JOIN room_types rt ON rooms.room_type = rt.id",
         order_by="room_number",
     )

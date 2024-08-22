@@ -66,9 +66,9 @@
                 <select class="custom-select" name="room_id" id="room_id" required>
                   {% for room in rooms %}
                     {% if room['id'] == reservation['room_id'] %}
-                  <option selected value="{{ room['id'] }}">Room {{ room['room_number'] }} - {{ room['type_name'] }}</option>
+                  <option selected value="{{ room['id'] }}" data-price="{{ room['base_price_per_night'] }}">Room {{ room['room_number'] }} - {{ room['type_name'] }} (&pound;{{ '%.2f' % room['base_price_per_night']}})</option>
                     {% else %}
-                  <option value="{{ room['id'] }}">Room {{ room['room_number'] }} - {{ room['type_name'] }}</option>
+                  <option value="{{ room['id'] }}" data-price="{{ room['base_price_per_night'] }}">Room {{ room['room_number'] }} - {{ room['type_name'] }} (&pound;{{ '%.2f' % room['base_price_per_night']}})</option>
                     {% endif %}
                   {% endfor %}
                 </select>
@@ -87,6 +87,24 @@
                   <label class="custom-control-label mr-4" for="number_of_guests{{ num }}">{{ num }}</label>
                 </div>
               {% endfor %}
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12 col-sm-6">
+                  <div class="info-box bg-light">
+                    <div class="info-box-content">
+                      <span class="info-box-text text-center text-muted">Nights</span>
+                      <span id="no_of_nights" class="info-box-number text-center text-muted mb-0">0</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <div class="info-box bg-light">
+                    <div class="info-box-content">
+                      <span class="info-box-text text-center text-muted">Total Cost</span>
+                      <span id="total_cost" class="info-box-number text-center text-muted mb-0">&pound; 0</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -109,7 +127,7 @@
                 <label for="notes">Notes</label>
                 <textarea class="form-control" rows="5"  name="reservation_notes" id="notes">{{ request.form['reservation_notes'] or reservation['reservation_notes'] }}</textarea>
               </div>
-    
+
             </div>
           </div>
         </form>
@@ -142,26 +160,62 @@
 <!-- Tempusdominus Bootstrap 4 -->
 <script src="{{ url_for('static', filename='admin/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
 <script>
+  var start = "{{ request.form['start_date'] or reservation['start_date'] }}";
+  var end = "{{ request.form['end_date'] or reservation['end_date'] }}";
+  var no_of_nights = 0;
+  var price = 0;
+
+  $( document ).ready(function() {
+        no_of_nights = calcDiff(start, end);
+        $('#no_of_nights').html(no_of_nights);
+        
+        price = $('#room_id').find(':selected').attr('data-price');
+        $('#total_cost').html("&pound; " + (no_of_nights*price));
+  });
+
   $(function () {
+        $('#room_id').on("change", function(){
+          price = $(this).find('option:selected').attr('data-price');
+          $('#total_cost').html("&pound; " + (no_of_nights*price));
+        });
+
         $('#start_date').datetimepicker({
-          defaultDate: "{{ request.form['start_date'] or reservation['start_date'] }}",
+          defaultDate: start,
           useCurrent: false,
           format: 'yyyy-MM-DD',
-          maxDate: "{{ request.form['end_date'] or reservation['end_date'] }}",
+          maxDate: end,
         });
         $('#end_date').datetimepicker({
-          defaultDate: "{{ request.form['end_date'] or reservation['end_date'] }}",
+          defaultDate: end,
           useCurrent: false,
           format: 'yyyy-MM-DD',
-          minDate: "{{ request.form['start_date'] or reservation['start_date'] }}",
+          minDate: start,
         });
         $("#start_date").on("change.datetimepicker", function (e) {
             $('#end_date').datetimepicker('minDate', e.date);
+            start = e.date;
+            no_of_nights = calcDiff(start.startOf('day'), moment(end).startOf('day'));
+            $('#no_of_nights').html(no_of_nights);
+            $('#total_cost').html("&pound; " + (no_of_nights*price));
         });
         $("#end_date").on("change.datetimepicker", function (e) {
             $('#start_date').datetimepicker('maxDate', e.date);
+            end = e.date;
+            no_of_nights = calcDiff(moment(start).startOf('day'), end.startOf('day'));
+            $('#no_of_nights').html(no_of_nights);
+            $('#total_cost').html("&pound; " + (no_of_nights*price));
         });
     });
+
+    function calcDiff(start, end) {
+      var startD = new Date(start);
+      var endD = new Date(end);
+      var diff = parseInt((endD.getTime() - startD.getTime())/(24*3600*1000));
+      if(diff>0){
+        return diff;
+      }
+      return 0;
+    }
 </script>
 
 {% endblock %}
