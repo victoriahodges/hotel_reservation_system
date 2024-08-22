@@ -43,13 +43,14 @@ def get_required_fields():
 
 
 # RESERVATION RULES
-reservation_collision_message = "BOOKING COLLISION: Please choose alternative dates."
+reservation_collision_message = "BOOKING COLLISION: Please choose alternative dates or another room."
 end_date_before_start_date_message = "DATE ERROR: Check-out date cannot be before or same as check-in date."
 dates_in_the_past_message = "DATE ERROR: Check-in or check-out dates cannot be in the past."
 
 
 def find_existing_reservation_collisions(id=None):
     # Purpose: Prevent double bookings
+    # Cancelled bookings can be booked again
 
     not_include_this_res_id = ""
     if id:
@@ -61,6 +62,7 @@ def find_existing_reservation_collisions(id=None):
         f"{table}.id, start_date, end_date, r.id",
         f"""
             JOIN join_rooms_reservations rr ON {table}.id = rr.reservation_id
+            JOIN reservation_status rs ON {table}.status_id = rs.id
             JOIN rooms r ON rr.room_id = r.id
             WHERE {request.form["room_id"]} = r.id {not_include_this_res_id}AND (
             -- outside booking
@@ -72,6 +74,8 @@ def find_existing_reservation_collisions(id=None):
             -- overlap end_date
             OR ("{request.form['start_date']}" < end_date AND "{request.form['end_date']}" >= end_date)
             )
+            -- exclude Cancelled bookings
+            AND rs.status <> "Cancelled"
             """,
     )
     return reservations

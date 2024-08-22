@@ -89,10 +89,7 @@ def create():
                 data,
             )
             # update invoice amount_paid
-            db.execute(
-                "UPDATE invoices SET amount_paid = ? WHERE id = ?",
-                (get_paid_to_date(invoice_id), invoice_id)
-            )
+            db.execute("UPDATE invoices SET amount_paid = ? WHERE id = ?", (get_paid_to_date(invoice_id), invoice_id))
             db.commit()
             previous_page = request.args.get("redirect")
             return redirect(
@@ -130,10 +127,7 @@ def update(id):
                 data,
             )
             # update invoice amount_paid
-            db.execute(
-                "UPDATE invoices SET amount_paid = ? WHERE id = ?",
-                (get_paid_to_date(invoice_id), invoice_id)
-            )
+            db.execute("UPDATE invoices SET amount_paid = ? WHERE id = ?", (get_paid_to_date(invoice_id), invoice_id))
             db.commit()
             previous_page = request.args.get("redirect")
             return redirect(
