@@ -79,6 +79,7 @@ def calendar(year, month):
         ]
     )
     # We only want reservations for this month view, not all time
+    # Cancelled bookings do not show
     where = f""" WHERE end_date > "{calendar_start}" AND start_date < "{calendar_end}" """
     join = f"""
         JOIN users u ON {table}.modified_by_id = u.id
@@ -89,7 +90,7 @@ def calendar(year, month):
         JOIN rooms r ON rr.room_id = r.id
         JOIN room_types rt ON r.room_type = rt.id
         LEFT JOIN invoices inv ON {table}.id = inv.reservation_id
-        {where}
+        {where} AND rs.status <> "Cancelled"
     """
     reservations = get_all_rows(table, fields, join, order_by="start_date")
 
