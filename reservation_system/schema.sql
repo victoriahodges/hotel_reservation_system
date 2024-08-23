@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS room_types;
 DROP TABLE IF EXISTS rooms;
 DROP TABLE IF EXISTS reservations;
 DROP TABLE IF EXISTS reservation_status;
+DROP TABLE IF EXISTS special_offers;
 DROP TABLE IF EXISTS invoices;
 DROP TABLE IF EXISTS invoice_items;
 DROP TABLE IF EXISTS payments;
@@ -75,6 +76,20 @@ CREATE TABLE reservation_status (
   status TEXT NOT NULL,
   description TEXT,
   bg_color TEXT
+);
+
+CREATE TABLE special_offers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  room_type INTEGER NOT NULL,
+  price_per_night REAL NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  is_enabled INTEGER DEFAULT 0,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modified_by_id INTEGER NOT NULL,
+  FOREIGN KEY (modified_by_id) REFERENCES users (id),
+  FOREIGN KEY (room_type) REFERENCES room_types (id)
 );
 
 CREATE TABLE invoices (

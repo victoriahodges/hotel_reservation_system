@@ -65,6 +65,14 @@ VALUES
   ("2024-06-08","2024-06-12",2,3,1)
 ;
 
+
+INSERT INTO special_offers
+  (room_type, price_per_night, start_date, end_date, is_enabled, modified_by_id)
+VALUES
+  (2, 120, "2024-08-01", "2024-08-31", 1, 1),
+  (1, 100, "2024-08-01", "2024-08-31", 1, 1)
+;
+
 INSERT INTO invoices
   (reservation_id, amount_paid, modified_by_id)
 VALUES

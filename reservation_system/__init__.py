@@ -15,6 +15,7 @@ from . import (
     reservations,
     room_types,
     rooms,
+    special_offers,
 )
 
 
@@ -60,6 +61,8 @@ def create_app(test_config=None):
     app.add_url_rule("/", endpoint="reservations.index")
     app.register_blueprint(reservation_status.bp)
     app.add_url_rule("/", endpoint="reservation_status.index")
+    app.register_blueprint(special_offers.bp)
+    app.add_url_rule("/", endpoint="special_offers.index")
     app.register_blueprint(invoices.bp)
     app.add_url_rule("/", endpoint="invoices.index")
     app.register_blueprint(invoice_items.bp)
