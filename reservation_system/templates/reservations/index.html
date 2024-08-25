@@ -35,7 +35,7 @@
               <th>Room No.</th>
               <th>Check-in</th>
               <th>Check-out</th>
-              <th>Price</th>
+              <th>Room Price</th>
               <th>Last modified</th>
               <th>Action</th>
             </tr>
@@ -49,7 +49,7 @@
                 <td>{{ res['room_number'] }}</td>
                 <td>{{ res['start_date'].strftime('%d %B %Y') }}</td>
                 <td>{{ res['end_date'].strftime('%d %B %Y') }}</td>
-                <td>&pound; {{ '%.2f' % res['base_price_per_night'] }}</td>
+                <td>&pound; {{ '%.2f' % res['total_room_price'] }}</td>
                 <td>{{ res['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ res['username'] }}</td>
                 <td>
                   <a class="btn btn-sm btn-primary" href="{{ url_for('reservations.update', id=res['id']) }}">

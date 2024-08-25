@@ -19,6 +19,7 @@ table = "special_offers"
 
 def get_table_fields():
     return [
+        "title",
         "room_type",
         "price_per_night",
         "start_date",
@@ -29,6 +30,7 @@ def get_table_fields():
 
 def get_required_fields():
     return [
+        "title",
         "room_type",
         "price_per_night",
         "start_date",

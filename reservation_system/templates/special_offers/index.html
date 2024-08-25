@@ -23,6 +23,7 @@
         <table class="table table-sm table-bordered table-hover">
           <thead>
             <tr>
+              <th>Title</th>
               <th>Room Type</th>
               <th>Price</th>
               <th>Start Date</th>
@@ -35,6 +36,7 @@
           <tbody>
             {% for offer in special_offers %}
             <tr>
+              <td>{{ offer['title'] }}</td>
               <td>{{ offer['type_name'] }}</td>
               <td>&pound;{{ '%.2f' % offer['price_per_night'] }}</td>
               <td>{{ offer['start_date'].strftime('%d %B %Y') }}</td>
