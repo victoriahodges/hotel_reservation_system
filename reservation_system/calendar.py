@@ -63,6 +63,7 @@ def calendar(year, month):
             f"{table}.id as reservation_id",
             "start_date",
             "end_date",
+            "total_room_price",
             "reservation_notes",
             "status_id",
             "g.id as guest_id",
@@ -120,7 +121,10 @@ def calendar(year, month):
         ]
         # there should only be one row returned from invoice_items if any
         extras = invoice["extras"] = invoice_items[0] if invoice_items else 0
-        discount = invoice["discount"] = 0  # TODO setup offers and discounts
+
+        discount = invoice["discount"] = (
+            (room_total - res["total_room_price"]) if res["total_room_price"] < room_total else 0
+        )
         paid_to_date = invoice["paid_to_date"] = res["amount_paid"] or 0
         invoice["total_due"] = room_total + extras - discount - paid_to_date
 

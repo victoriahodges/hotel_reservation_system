@@ -62,6 +62,7 @@ CREATE TABLE reservations (
   number_of_guests INTEGER NOT NULL,
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
+  total_room_price REAL NOT NULL,
   reservation_notes TEXT,
   status_id INTEGER NOT NULL,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -80,6 +81,7 @@ CREATE TABLE reservation_status (
 
 CREATE TABLE special_offers (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
   room_type INTEGER NOT NULL,
   price_per_night REAL NOT NULL,
   start_date DATE NOT NULL,
