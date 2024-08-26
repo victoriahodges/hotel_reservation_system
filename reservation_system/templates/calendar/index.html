@@ -285,9 +285,10 @@
 {% endblock %}
 
 {% block calendar_js%}
+<!-- Moment -->
+<script src="{{ url_for('static', filename='admin/plugins/moment/moment.min.js') }}"></script>
 <!-- Calendar View -->
 <script>
-
   function make_new_booking(link, room_id, request_path) {
     var cell = $(link).parent();
     var row = $(cell).parent();
@@ -295,9 +296,9 @@
     var end_date;
     
     if ($(cell).attr("id") == "start_date"){
-      $('.date_selected:last').next().attr("id", "end_date");
+      $('.date_selected:last').attr("id", "end_date");
       start_date = $("#start_date a").attr('data');
-      end_date = $("#end_date a").attr('data');
+      end_date = getCheckOutDate( $("#end_date a").attr('data') );
       window.location.replace(
       "{{ url_for('reservations.create') }}?room_id="+room_id+"&start_date="+start_date+"&end_date="+end_date+"&redirect="+request_path
       );
@@ -314,16 +315,20 @@
     
     if ($('.date_selected').length > 1){
       $('.date_selected:first').nextUntil('.date_selected').addClass('date_selected');
-      $('.date_selected:last').next().attr("id", "end_date");
+      $('.date_selected:last').attr("id", "end_date");
     }
 
     start_date = $("#start_date a").attr('data');
-    end_date = $("#end_date a").attr('data');
+    end_date = getCheckOutDate( $("#end_date a").attr('data') );
     if ($('.date_selected').length > 1){
     window.location.replace(
       "{{ url_for('reservations.create') }}?room_id="+room_id+"&start_date="+start_date+"&end_date="+end_date+"&redirect="+request_path
       );
     }
+  }
+
+  function getCheckOutDate(day){
+    return moment(day).add(1, 'days').format("YYYY-MM-DD")
   }
 
   function clear_make_new_booking() {
