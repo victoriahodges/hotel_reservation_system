@@ -2,7 +2,7 @@
 
 Part of Open University TM470 Final IT Project
 
-Python application using Flask framework, REST API and SQLAlchemy.
+Python application using Flask framework.
 
 ## Setup environment
 
