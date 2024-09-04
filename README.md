@@ -64,6 +64,8 @@ $ flask --app reservation_system dummy-data
 ```
 $ flask --app reservation_system run --debug
 ```
+###
+Log in to the system as username 'admin' with password 'dev'.
 
 #### Styles
 
