@@ -1,0 +1,52 @@
+{% extends 'admin_base.html' %}
+
+{% block header %}
+  <h1 class="m-0">{% block page_title %}User Profiles{% endblock %}</h1>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+  <div class="col-12 col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">User Details</h3>
+      </div>
+      <!-- /.card-header -->      
+      <div class="card-body">
+        <div class="row">
+          <div class="col-12">
+            <a class="btn bg-navy mb-4" href="{{ url_for('users.create') }}"><i class="fas fa-user-plus mr-2"></i>Add New User</a>
+          </div>
+        </div>
+      
+        <table class="table table-sm table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th style="width: 150px;">Action</th>
+            </tr>            
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr>
+              <td>
+                {{ user['username'] }}
+              </td>
+              <td>
+                <a class="btn btn-sm btn-primary" href="{{ url_for('users.update', id=user['id']) }}">
+                <i class="fas fa-sm fa-edit mr-1"></i> Edit</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>  
+
+      </div>
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
+
+
+{% endblock %}
