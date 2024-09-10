@@ -87,12 +87,17 @@ def update(id):
             flash(format_required_field_error(error_fields))
         else:
             db = get_db()
-            db.execute(
-                f"UPDATE {table} SET {columns} WHERE id = ?",
-                (username, generate_password_hash(password), id),
-            )
-            db.commit()
-            return redirect(url_for("users.index"))
+            try:
+                db.execute(
+                    f"UPDATE {table} SET {columns} WHERE id = ?",
+                    (username, generate_password_hash(password), id),
+                )
+                db.commit()
+            except db.IntegrityError:
+                error = f"User {username} is already registered."
+            else:
+                return redirect(url_for("users.index"))
+            flash(error)
 
     return render_template("users/update.html", user=user)
 
