@@ -16,6 +16,7 @@ from . import (
     room_types,
     rooms,
     special_offers,
+    users,
 )
 
 
@@ -49,6 +50,8 @@ def create_app(test_config=None):
     db.init_app(app)
 
     app.register_blueprint(auth.bp)
+    app.register_blueprint(users.bp)
+    app.add_url_rule("/", endpoint="users.index")
     app.register_blueprint(calendar.bp)
     app.add_url_rule("/", endpoint="calendar.index")
     app.register_blueprint(guests.bp)
