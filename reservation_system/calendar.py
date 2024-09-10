@@ -63,7 +63,8 @@ def calendar(year, month):
             f"{table}.id as reservation_id",
             "start_date",
             "end_date",
-            "total_room_price",
+            "total_room_base_price",
+            "special_offer_discount",
             "reservation_notes",
             "status_id",
             "g.id as guest_id",
@@ -115,18 +116,15 @@ def calendar(year, month):
         invoice["invoice_id"] = res["invoice_id"] or None
         invoice["reservation_id"] = res["id"]
         no_nights = (res["end_date"] - res["start_date"]).days
-        room_total = invoice["room_total"] = res["base_price_per_night"] * no_nights
+        room_base_total = invoice["total_room_base_price"] = res["base_price_per_night"] * no_nights
         invoice_items = [
             row["items_total"] for row in invoice_extra_items_totals if row["invoice_id"] == invoice["invoice_id"]
         ]
         # there should only be one row returned from invoice_items if any
         extras = invoice["extras"] = invoice_items[0] if invoice_items else 0
-
-        discount = invoice["discount"] = (
-            (room_total - res["total_room_price"]) if res["total_room_price"] < room_total else 0
-        )
+        discount = invoice["discount"] = res["special_offer_discount"]
         paid_to_date = invoice["paid_to_date"] = res["amount_paid"] or 0
-        invoice["total_due"] = room_total + extras - discount - paid_to_date
+        invoice["total_due"] = room_base_total + extras - discount - paid_to_date
 
         invoices_by_res_id[res["id"]] = invoice
 

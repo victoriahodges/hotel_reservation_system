@@ -28,10 +28,17 @@ VALUES
   ("Chris Brown", "chris.brown@example.com", "+44 20 7123 4571", "202 Birch Ln", "Ste 9", "Glasgow", "Strathclyde", "G1 5AA", "2024-01-30 08:02:01", 1);
 
 INSERT INTO reservations
-  (start_date, end_date, number_of_guests, status_id, modified_by_id)
+  (start_date, end_date, total_room_base_price, number_of_guests, status_id, modified_by_id)
 VALUES
-  ("2024-05-17","2024-05-20",2,1,1),
-  ("2024-05-20","2024-05-23",2,1,1);
+  ("2024-05-17","2024-05-20",130.0,2,1,1),
+  ("2024-05-20","2024-05-23",145.0,2,1,1);
+
+
+INSERT INTO special_offers
+  (title, room_type, price_per_night, start_date, end_date, is_enabled, modified_by_id)
+VALUES
+  ("Some offer", 2, 120, "2024-08-01", "2024-08-31", 1, 1),
+  ("Another offer", 1, 100, "2024-08-01", "2024-08-31", 1, 1);
 
 INSERT INTO invoices
   (reservation_id, amount_paid, modified, modified_by_id)

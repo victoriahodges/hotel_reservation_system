@@ -21,7 +21,6 @@ parent_page = "invoices.index"
 def get_table_fields():
     return [
         f"{table}.reservation_id",
-        "discount_amount",
         "amount_paid",
     ]
 
@@ -51,6 +50,7 @@ def index():
         get_table_fields()
         + [
             "end_date",
+            "special_offer_discount",
             "g.name",
             "SUM(item.total) AS total",
             f"{table}.created",
@@ -80,6 +80,7 @@ def view(id):
         get_table_fields()
         + [
             f"{table}.id as invoice_id",
+            "res.*",
             "end_date",
             "g.*",
             "SUM(item.total) AS items_total",
@@ -95,7 +96,7 @@ def view(id):
     invoice = get_row_by_id(id, table, fields, join)
     if invoice["id"]:
         items = get_invoice_items(id)
-        balance_due = invoice["items_total"] - invoice["amount_paid"]
+        balance_due = invoice["items_total"] - invoice["special_offer_discount"] - invoice["amount_paid"]
         return render_template("invoices/view.html", invoice=invoice, items=items, balance_due=balance_due)
 
     flash(f"Invoice #{'%05d' % id} does not exist.")
@@ -118,7 +119,7 @@ def create():
             invoice = get_row_by_where_id("invoices.reservation_id", reservation_id, "invoices")
             flash(f"Invoice #{'%05d' % invoice['id']} already exists on another booking.")
         except NotFound:
-            # Initialise new invoice with values set to zero for discount and amount_paid
+            # Initialise new invoice with values set to zero for amount_paid
             data = [reservation_id, g.user["id"]]
             columns = format_sql_query_columns(["reservation_id", "modified_by_id"])
             placeholders = sql_insert_placeholders(len(data))
@@ -135,7 +136,7 @@ def create():
                 reservation_id, invoice_id, insert=True
             )
 
-            # insert ivoice items for room reservation
+            # insert invoice items for room reservation
             db.execute(
                 f"INSERT INTO invoice_items ({res_columns}) VALUES ({res_placeholders})",
                 res_data,

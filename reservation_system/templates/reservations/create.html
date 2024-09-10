@@ -81,6 +81,11 @@
                   {% endfor %}
                 </select>
               </div>
+
+              <div class="form-group">
+                <label for="special_offer">Special Offer Applied</label>
+                <input type="text" class="form-control" id="special_offer" readonly name="special_offer_applied" value="{{ request.form['special_offer_applied'] }}"/>
+              </div>
               
               <div class="form-group">
                 <label for="number_of_guests">Number of Guests</label>
@@ -93,7 +98,19 @@
               {% endfor %}
                 </div>
               </div>
-              
+            </div>
+
+            <div class="col-12 col-md-6 pl-md-3">
+              <div class="form-group">
+                <label for="status">Status</label>
+                <select 
+                class="custom-select bg-light" name="status_id" id="status_id" required>
+                  {% for status in res_statuses %}
+                  <option value="{{ status['id'] }}">{{ status['status'] }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
               <div class="row">
                 <div class="col-12 col-sm-6">
                   <div class="info-box bg-light">
@@ -113,33 +130,13 @@
                 </div>
               </div>
 
-            </div>
-
-            <div class="col-12 col-md-6 pl-md-3">
-              <div class="form-group">
-                <label for="status">Status</label>
-                <select 
-                class="custom-select bg-light" name="status_id" id="status_id" required>
-                  {% for status in res_statuses %}
-                  <option value="{{ status['id'] }}">{{ status['status'] }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-
               <div class="form-group">
                 <label for="notes">Notes</label>
                 <textarea class="form-control" rows="5"  name="reservation_notes" id="notes">{{ request.form['reservation_notes'] }}</textarea>
               </div>
 
-              <div class="form-group">
-                <label for="room_id">Special Offer Applied</label>
-                <input type="text" class="form-control" id="special_offer" disabled value="None"/>
-              </div>
-
-              <div class="form-group">
-                <label for="total_room_price">Total Room Price (override)</label>
-                <input type="text" class="form-control" name="total_room_price" id="total_room_price" value="{{ request.form['total_room_price'] }}"/>
-              </div>
+              <input type="hidden" class="form-control" name="total_room_base_price" id="total_room_base_price" value="{{ request.form['total_room_base_price'] }}"/>
+              <input type="hidden" class="form-control" name="special_offer_discount" id="special_offer_discount" value="{{ request.form['special_offer_discount'] }}"/>
           
             </div>
           </div>
@@ -168,8 +165,8 @@
 <script>
   var start = {% if request.args.get('start_date') %}"{{ request.args.get('start_date') }}" {% else %}false{% endif -%};
   var end = {% if request.args.get('end_date') %}"{{ request.args.get('end_date') }}" {% else %}false{% endif -%};
-  var total_cost = 0;
   var no_of_nights = 0;
+  var base_price = 0;
   var price = 0;
   var special_offers_data = [
     {%- for offer in special_offers %}
@@ -233,10 +230,11 @@
     return 0;
   }
 
-  function calcSpecialOffer(start, end, room_type) {
+  function getSpecialOffer(start, end, room_type) {
     var offer = [];
     special_offers_data.forEach(el => {
-      if (moment(el[0]) <= moment(start) && moment(el[1]) >= moment(end) && room_type == el[2]) {
+      // add a day since checkout is the next day
+      if (moment(el[0]) <= moment(start) && moment(el[1]).add(1, 'days') >= moment(end) && room_type == el[2]) {
         offer[0] = el[3];
         offer[1] = el[4];
       }
@@ -246,20 +244,22 @@
 
   function setPrice() {
     room_type = $('#room_id').find(':selected').attr('data-room-type');
-    var offer = calcSpecialOffer(start, end, room_type);
+    base_price = parseFloat($('#room_id').find(':selected').attr('data-price'));
+    var offer = getSpecialOffer(start, end, room_type);
     if (offer.length != 0){
       price = offer[0];
       $('#special_offer').val(offer[1] + ": \u00A3" + price + " per night");
+      $('#special_offer_discount').val(no_of_nights*(base_price - price));
     } else {
-      price = $('#room_id').find(':selected').attr('data-price');
+      price = base_price;
       $('#special_offer').val("None");
+      $('#special_offer_discount').val(0);
     }
   }
 
   function totalRoomCost() {
-    total_cost = no_of_nights*price
-    $('#total_room_price').val(total_cost);
-    $('#total_cost').html("&pound; " + total_cost);
+    $('#total_room_base_price').val(no_of_nights*base_price);
+    $('#total_cost').html("&pound; " + no_of_nights*price);
   }
 
 </script>

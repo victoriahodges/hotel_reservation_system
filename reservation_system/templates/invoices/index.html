@@ -44,9 +44,10 @@
                 <td><a href="{{ url_for('calendar.calendar',year=year, month=month, reservation_id=inv['reservation_id'] )}}">#{{ '%05d' % inv['reservation_id'] }}</a></td>
                 <td>{{ inv['end_date'].strftime('%d %B %Y') }}</td>
                 <td>{{ inv['name'] }}</td>
-                <td>&pound;{{ '%.2f' % inv['discount_amount'] }}</td>
-                <td>&pound;{{ '%.2f' % inv['total'] }}</td>
-                {% set outstanding = inv['amount_paid'] - inv['total'] %}
+                <td>&pound;{{ '%.2f' % inv['special_offer_discount'] }}</td>
+                {% set total = inv['total'] - inv['special_offer_discount'] %}
+                <td>&pound;{{ '%.2f' % total }}</td>
+                {% set outstanding = inv['amount_paid'] - total  %}
                 <td {% if outstanding < 0 %}style="color: red;"{% endif %}>&pound;{{ '%.2f' % outstanding }}</td>
                 <td>{{ inv['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ inv['username'] }}</td>
                 <td>

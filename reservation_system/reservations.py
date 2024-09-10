@@ -26,7 +26,9 @@ def get_table_fields():
         "number_of_guests",
         "start_date",
         "end_date",
-        "total_room_price",
+        "total_room_base_price",
+        "special_offer_applied",
+        "special_offer_discount",
         "reservation_notes",
         "status_id",
     ]
@@ -142,7 +144,7 @@ def get_other_table_rows():
         "special_offers",
         "*",
         " JOIN room_types rt ON special_offers.room_type = rt.id WHERE is_enabled = 1 ",
-        order_by="start_date"
+        order_by="start_date",
     )
     return rooms, guests, res_statuses, special_offers
 

@@ -62,7 +62,9 @@ CREATE TABLE reservations (
   number_of_guests INTEGER NOT NULL,
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
-  total_room_price REAL NOT NULL,
+  total_room_base_price REAL NOT NULL,
+  special_offer_applied TEXT,
+  special_offer_discount REAL NOT NULL DEFAULT 0,
   reservation_notes TEXT,
   status_id INTEGER NOT NULL,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -97,7 +99,6 @@ CREATE TABLE special_offers (
 CREATE TABLE invoices (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   reservation_id INTEGER NOT NULL,
-  discount_amount REAL NOT NULL DEFAULT 0,
   amount_paid REAL NOT NULL DEFAULT 0,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
