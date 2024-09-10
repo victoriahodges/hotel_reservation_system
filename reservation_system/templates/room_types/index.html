@@ -41,7 +41,7 @@
               <th>
                 {{ room_type['type_name'] }}
               </th>
-              <td>{{ room_type['base_price_per_night'] }}</td>
+              <td>&pound;{{ '%.2f' % room_type['base_price_per_night'] }}</td>
               <td>{{ room_type['amenities'] }}</td>
               <td>{{ room_type['max_occupants'] }}</td>
               <td>{{ room_type['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ room_type['username'] }}</td>

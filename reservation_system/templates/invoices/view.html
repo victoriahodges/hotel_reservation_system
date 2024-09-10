@@ -146,13 +146,13 @@
                       <th>Total:</th>
                       <td class="text-right">&pound;{{ '%.2f' % invoice['items_total'] }}</td>
                     </tr>
-                    {% if invoice['discount_amount'] %}<tr>
-                      <th>Discounts</th>
-                      <td class="text-right">{{ '%.2f' % invoice['discount_amount'] }}</td>
+                    {% if invoice['special_offer_discount'] %}<tr>
+                      <th>Discounts / Offers:</th>
+                      <td class="text-right">- &pound;  {{ '%.2f' % invoice['special_offer_discount'] }}</td>
                     </tr>{% endif %}
                     {% if invoice['amount_paid'] %}<tr>
                       <th>Paid to date</th>
-                      <td class="text-right">&pound;  {{ '%.2f' % invoice['amount_paid'] }}</td>
+                      <td class="text-right">- &pound;  {{ '%.2f' % invoice['amount_paid'] }}</td>
                     </tr>{% endif %}
                     <tr>
                       <th>Balance Due:</th>

@@ -1,0 +1,131 @@
+{% extends 'admin_base.html' %}
+
+{% block css %}
+  <!-- Tempusdominus Bootstrap 4 -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
+{% endblock %}
+
+{% block header %}
+  <h1 class="m-0">{% block page_title %}Add New Special Offer{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-6">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Special Offer Details</h3>
+      </div>
+      <!-- /.card-header -->      
+      <div class="card-body">
+        <form method="post" id="form" >
+          <div class="form-group">
+            <label for="title">Offer Title</label>
+            <input class="form-control" name="title" id="title" value="{{ request.form['title'] }}" required>
+          </div>
+          
+          <div class="form-group">
+          <label for="room_type">Room Type</label>
+            <select class="custom-select" name="room_type" id="room_type" required>
+              {% for type in room_types %}
+              <option value="{{ type['id'] }}">{{ type['type_name'] }} (Base price: &pound;{{ '%.2f' % type['base_price_per_night'] }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="price_per_night">Price Per Night</label>
+            <input class="form-control" name="price_per_night" id="price_per_night" value="{{ request.form['price_per_night'] }}" required>
+          </div>
+
+          <div class="row">
+            <!-- Date and time -->
+            <div class="form-group col-6">
+              <label for="start_date">Start Date</label>
+                <div class="input-group date" id="start_date" data-target-input="nearest">
+                    <input type="text" class="form-control datetimepicker-input" name="start_date" required
+                    data-target="#start_date"/>
+                    <div class="input-group-append" data-target="#start_date" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.form group -->
+            <!-- Date and time -->
+            <div class="form-group col-6">
+              <label for="end_date">End Date</label>
+                <div class="input-group date" id="end_date" data-target-input="nearest">
+                    <input type="text" class="form-control datetimepicker-input" name="end_date" required
+                    data-target="#end_date"/>
+                    <div class="input-group-append" data-target="#end_date" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.form group -->
+          </div>
+          
+          <div class="form-group">
+            <label for="is_enabled">Enabled</label>
+            <div>
+              <input id="is_enabled" type="checkbox" name="is_enabled" data-bootstrap-switch data-off-color="danger" data-on-color="success" value="1">
+            </div>
+          </div>
+          
+        </form>
+
+      </div>
+      <!-- /.card-body -->   
+      <div class="card-footer">
+        <button type="submit" form="form" value="Save" class="btn btn-primary"><i class="fas fa-save mr-1"></i> Save</button>
+      
+        <a href="{{ url_for('special_offers.index') }}" class="btn btn-default ml-2">Go back</a>
+      </div>
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
+{% endblock %}
+
+{% block datepicker_js%}
+<!-- Moment -->
+<script src="{{ url_for('static', filename='admin/plugins/moment/moment.min.js') }}"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script src="{{ url_for('static', filename='admin/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
+<!-- Bootstrap Switch -->
+<script src="{{ url_for('static', filename='admin/plugins/bootstrap-switch/js/bootstrap-switch.min.js') }}"></script>
+
+<script>
+  var start = {% if request.args.get('start_date') %}"{{ request.args.get('start_date') }}" {% else %}false{% endif -%};
+  var end = {% if request.args.get('end_date') %}"{{ request.args.get('end_date') }}" {% else %}false{% endif -%};
+
+  $(function () {
+        
+        $('#start_date').datetimepicker({
+          defaultDate: start,
+          useCurrent: false,
+          format: 'yyyy-MM-DD',
+          minDate: moment().startOf('day').toString(),
+          {% if request.args.get('end_date') %}maxDate: "{{ request.args.get('end_date') }}",{% endif -%}
+        });
+        $('#end_date').datetimepicker({
+          defaultDate: end,
+          useCurrent: false,
+          format: 'yyyy-MM-DD',
+          {% if request.args.get('start_date') %}minDate: "{{ request.args.get('start_date') }}",{% endif -%}
+        });
+        
+        $("#start_date").on("change.datetimepicker", function (e) {
+            $('#end_date').datetimepicker('minDate', e.date);
+        });
+        $("#end_date").on("change.datetimepicker", function (e) {
+            $('#start_date').datetimepicker('maxDate', e.date);
+        });
+
+        $("input[data-bootstrap-switch]").each(function(){
+          $(this).bootstrapSwitch('state', $(this).prop('checked'));
+        });
+    });
+</script>
+
+{% endblock %}

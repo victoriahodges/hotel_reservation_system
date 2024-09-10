@@ -26,6 +26,9 @@ def get_table_fields():
         "number_of_guests",
         "start_date",
         "end_date",
+        "total_room_base_price",
+        "special_offer_applied",
+        "special_offer_discount",
         "reservation_notes",
         "status_id",
     ]
@@ -106,7 +109,6 @@ def index():
         + [
             "g.name",
             "r.room_number",
-            "rt.base_price_per_night",
             "rs.status",
             "rs.bg_color",
             f"{table}.modified",
@@ -132,19 +134,25 @@ def index():
 def get_other_table_rows():
     rooms = get_all_rows(
         "rooms",
-        "room_number, type_name, max_occupants",
+        "room_number, room_type, type_name, base_price_per_night, max_occupants",
         " JOIN room_types rt ON rooms.room_type = rt.id",
         order_by="room_number",
     )
     guests = get_all_rows("guests", "id, name, address_1", order_by="name")
     res_statuses = get_all_rows("reservation_status", "*")
-    return rooms, guests, res_statuses
+    special_offers = get_all_rows(
+        "special_offers",
+        "*",
+        " JOIN room_types rt ON special_offers.room_type = rt.id WHERE is_enabled = 1 ",
+        order_by="start_date",
+    )
+    return rooms, guests, res_statuses, special_offers
 
 
 @bp.route("/create", methods=("GET", "POST"))
 @login_required
 def create():
-    rooms, guests, res_statuses = get_other_table_rows()
+    rooms, guests, res_statuses, special_offers = get_other_table_rows()
 
     max_occupants = max([r["max_occupants"] for r in rooms])
 
@@ -202,6 +210,7 @@ def create():
         guests=guests,
         res_statuses=res_statuses,
         rooms=rooms,
+        special_offers=special_offers,
         number_of_guests=max_occupants,
     )
 
@@ -225,7 +234,7 @@ def update(id):
           JOIN join_rooms_reservations rr ON {table}.id = rr.reservation_id
         """,
     )
-    rooms, guests, res_statuses = get_other_table_rows()
+    rooms, guests, res_statuses, special_offers = get_other_table_rows()
 
     max_occupants = max([r["max_occupants"] for r in rooms])
 
@@ -290,6 +299,7 @@ def update(id):
         res_statuses=res_statuses,
         rooms=rooms,
         number_of_guests=max_occupants,
+        special_offers=special_offers,
     )
 
 
