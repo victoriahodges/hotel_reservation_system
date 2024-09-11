@@ -1,0 +1,347 @@
+{% extends 'admin_base.html' %}
+
+{% block css %}
+{% endblock %}
+
+{% block header %}
+  <h1 class="m-0">{% block title %}Overview{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <!-- Small boxes (Stat box) -->
+    <div class="row">
+      <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-warning">
+          <div class="inner text-white">
+            <h3>{{ arrivals }}</h3>
+            <p>Arrivals</p>
+          </div>
+          <div class="icon">
+            <i class="fas fa-concierge-bell"></i>
+          </div>
+        </div>
+      </div>
+      <!-- ./col -->
+      <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-danger">
+          <div class="inner">
+            <h3>{{ departures }}</h3>
+            <p>Departures</p>
+          </div>
+          <div class="icon">
+            <i class="fas fa-key"></i>
+          </div>
+        </div>
+      </div>
+      <!-- ./col -->
+      <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-info">
+          <div class="inner">
+            <h3>{{ stays }}</h3>
+            <p>Stay overs</p>
+          </div>
+          <div class="icon">
+            <i class="fas fa-bed"></i>
+          </div>
+        </div>
+      </div>
+      <!-- ./col -->
+      <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-success">
+          <div class="inner">
+            <h3>{{ bookings_today }}</h3>
+            <p>Bookings Today</p>
+          </div>
+          <div class="icon">
+            <i class="fas fa-user-plus"></i>
+          </div>
+        </div>
+      </div>
+      <!-- ./col -->
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Latest bookings</h3>
+      </div>
+      <!-- /.card-header -->      
+      <div class="card-body p-0">
+
+        <table class="table table-sm table-hover">
+          <thead>
+            <tr>
+              <th>Booking Ref</th>
+              <th>Status</th>
+              <th>Guest</th>
+              <th>Room No.</th>
+              <th>Check-in</th>
+              <th>Check-out</th>
+              <th>Room Price</th>
+              <th>Last modified</th>
+            </tr>
+            </thead>
+            <tbody>
+              {% for res in reservations %}
+              {% set year = res['start_date'].strftime('%Y') %}
+              {% set month = res['start_date'].strftime('%m') %}
+              <tr>
+                <th><a href="{{ url_for('calendar.calendar',year=year, month=month, reservation_id=res['id'] )}}">{{ '#%05d' % res['id'] }}</a></th>
+                <td style="background-color: {{ res['bg_color'] }}aa;">{{ res['status'] }}</td>
+                <td>{{ res['name'] }}</td>
+                <td>{{ res['room_number'] }}</td>
+                <td>{{ res['start_date'].strftime('%d %b %Y') }}</td>
+                <td>{{ res['end_date'].strftime('%d %b %Y') }}</td>
+                <td>&pound; {{ '%.2f' % (res['total_room_base_price'] - res['special_offer_discount']) }}</td>
+                <td>{{ res['modified'].strftime('%Y-%m-%d %H:%M') }} by {{ res['username'] }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+      </div>      
+    </div>
+    <!-- /.card -->
+
+    <!-- TODO replace with actual sales data -->
+    <div class="row">
+      <div class="col-6">
+        <!-- solid sales graph -->
+        <div class="card bg-gradient-navy">
+          <div class="card-header border-0">
+            <h3 class="card-title">
+              <i class="fas fa-chart-line mr-1"></i>
+              Sales Graph
+            </h3>
+          </div>
+          <div class="card-body">
+            <canvas class="chart" id="line-chart" style="min-height: 250px; height: 300px; max-height: 300px; max-width: 100%;"></canvas>
+          </div>
+          <!-- /.card-body -->
+          <div class="card-footer bg-transparent">
+            <div class="row">
+              <div class="col-4 text-center">
+                <input type="text" class="knob" data-readonly="true" value="35.9" data-width="60" data-height="60"
+                        data-fgColor="#ffc107">
+
+                <div class="text-white">Manual</div>
+              </div>
+              <!-- ./col -->
+              <div class="col-4 text-center">
+                <input type="text" class="knob" data-readonly="true" value="43.6" data-width="60" data-height="60"
+                        data-fgColor="#ff851b">
+
+                <div class="text-white">Online</div>
+              </div>
+              <!-- ./col -->
+              <div class="col-4 text-center">
+                <input type="text" class="knob" data-readonly="true" value="20.5" data-width="60" data-height="60"
+                        data-fgColor="#39cccc">
+
+                <div class="text-white">Channels</div>
+              </div>
+              <!-- ./col -->
+            </div>
+            <!-- /.row -->
+          </div>
+          <!-- /.card-footer -->
+        </div>
+        <!-- /.card -->
+      </div>
+
+      <div class="col-6">
+        <div class="card">
+          <div class="card-header bg-navy">
+            <h3 class="card-title">Monthly Sales Summary</h3>
+          </div>
+          <!-- /.card-header -->
+          <div class="card-body p-0 bg-light">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Month, Year</th>
+                  <th>Bookings</th>
+                  <th>Rooms</th>
+                  <th>Extras</th>
+                  <th style="width: 140px">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Jan 2024</td>
+                  <td>6</td>
+                  <td>&pound; 325.21</td>
+                  <td>&pound; 265.50</td>
+                  <td><strong>&pound; 590.71</strong></td>
+                </tr>
+                <tr>
+                  <td>Feb 2024</td>
+                  <td>18</td>
+                  <td>&pound; 4821.35</td>
+                  <td>&pound; 925.40</td>
+                  <td><strong>&pound; 5746.75</strong></td>
+                </tr>
+                <tr>
+                  <td>Mar 2024</td>
+                  <td>20</td>
+                  <td>&pound; 5412.50</td>
+                  <td>&pound; 1102.30</td>
+                  <td><strong>&pound; 6514.80</strong></td>
+                </tr>
+                <tr>
+                  <td>Apr 2024</td>
+                  <td>25</td>
+                  <td>&pound; 6890.75</td>
+                  <td>&pound; 1500.00</td>
+                  <td><strong>&pound; 8390.75</strong></td>
+                </tr>
+                <tr>
+                  <td>May 2024</td>
+                  <td>57</td>
+                  <td>&pound; 7321.90</td>
+                  <td>&pound; 1420.55</td>
+                  <td><strong>&pound; 8742.45</strong></td>
+                </tr>
+                <tr>
+                  <td>Jun 2024</td>
+                  <td>69</td>
+                  <td>&pound; 6325.21</td>
+                  <td>&pound; 1265.50</td>
+                  <td><strong>&pound; 7590.71</strong></td>
+                </tr>
+                <tr>
+                  <td>Jul 2024</td>
+                  <td>63</td>
+                  <td>&pound; 4821.35</td>
+                  <td>&pound; 925.40</td>
+                  <td><strong>&pound; 5746.75</strong></td>
+                </tr>
+                <tr>
+                  <td>Aug 2024</td>
+                  <td>56</td>
+                  <td>&pound; 5412.50</td>
+                  <td>&pound; 1102.30</td>
+                  <td><strong>&pound; 6514.80</strong></td>
+                </tr>
+                <tr>
+                  <td>Sep 2024</td>
+                  <td>78</td>
+                  <td>&pound; 6890.75</td>
+                  <td>&pound; 1500.00</td>
+                  <td><strong>&pound; 8390.75</strong></td>
+                </tr>
+                <tr>
+                  <td>Oct 2024</td>
+                  <td>45</td>
+                  <td>&pound; 7321.90</td>
+                  <td>&pound; 1420.55</td>
+                  <td><strong>&pound; 8742.45</strong></td>
+                </tr>
+                <tr>
+                  <td>Nov 2024</td>
+                  <td>28</td>
+                  <td>&pound; 7321.90</td>
+                  <td>&pound; 1420.55</td>
+                  <td><strong>&pound; 8742.45</strong></td>
+                </tr>
+                <tr>
+                  <td>Dec 2024</td>
+                  <td>0</td>
+                  <td>&pound; 0</td>
+                  <td>&pound; 0</td>
+                  <td><strong>&pound; 0</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- /.card-body -->
+        </div>        
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block data_table_js %}
+<script src="{{ url_for('static', filename='admin/plugins/jquery-knob/jquery.knob.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin/plugins/chart.js/Chart.min.js') }}"></script>
+
+<!-- Page specific script -->
+<script>
+  $(function () {
+    /* jQueryKnob */
+    $('.knob').knob()
+  });
+
+  // Sales graph chart
+  var salesGraphChartCanvas = $('#line-chart').get(0).getContext('2d')
+  // $('#revenue-chart').get(0).getContext('2d');
+
+  var salesGraphChartData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    datasets: [
+      {
+        label: 'Total',
+        fill: false,
+        borderWidth: 2,
+        lineTension: 0,
+        spanGaps: true,
+        borderColor: '#efefef',
+        pointRadius: 3,
+        pointHoverRadius: 7,
+        pointColor: '#efefef',
+        pointBackgroundColor: '#efefef',
+        data: [2666, 2778, 4912, 7767, 8810, 15670, 14820, 15073, 18687, 8432, 4452, 2465, 1002]
+      }
+    ]
+  }
+
+
+  var salesGraphChartOptions = {
+    maintainAspectRatio: false,
+    responsive: true,
+    legend: {
+      display: false
+    },
+    scales: {
+      xAxes: [{
+        ticks: {
+          fontColor: '#efefef'
+        },
+        gridLines: {
+          display: false,
+          color: '#efefef',
+          drawBorder: false
+        }
+      }],
+      yAxes: [{
+        ticks: {
+          stepSize: 5000,
+          fontColor: '#efefef'
+        },
+        gridLines: {
+          display: true,
+          color: '#efefef',
+          drawBorder: false
+        }
+      }]
+    }
+  }
+
+  // This will get the first returned node in the jQuery collection.
+  // eslint-disable-next-line no-unused-vars
+  var salesGraphChart = new Chart(salesGraphChartCanvas, { // lgtm[js/unused-local-variable]
+    type: 'line',
+    data: salesGraphChartData,
+    options: salesGraphChartOptions
+  })
+
+
+</script>
+{% endblock %}

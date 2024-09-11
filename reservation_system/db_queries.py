@@ -56,6 +56,11 @@ def get_row_by_where_id(where_column, where_id, table, columns="*", joins=None):
     return row
 
 
+def count_rows(table, where):
+    count = get_db().execute(f"SELECT COUNT(id) FROM {table} {where}").fetchone()[0]
+    return count
+
+
 def delete_by_id(id, table, param="id", commit=True):
     db = get_db()
     deleted_row = db.execute(f"DELETE FROM {table} WHERE {param} = ?", (id,))
