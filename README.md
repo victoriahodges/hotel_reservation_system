@@ -94,8 +94,8 @@ $ coverage xml
 
 ### Booking overview (homepage)
 
-- [ ] Arrivals / Departures
-- [ ] Recent bookings
+- [x] Arrivals / Departures
+- [x] Recent bookings
 - [ ] Revenue summary
 
 ### Calendar
