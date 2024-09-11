@@ -4,6 +4,8 @@ Part of Open University TM470 Final IT Project
 
 Python application using Flask framework.
 
+![image](docs/images/overview.png)
+
 ## Setup environment
 
 #### Check dependencies:
