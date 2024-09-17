@@ -8,8 +8,8 @@ def test_config():
 
 def test_index(client, auth):
     response = client.get("/")
-    assert b"Homepage" not in response.data
+    assert b"Overview" not in response.data
 
     auth.login()
     response = client.get("/")
-    assert b"Homepage" in response.data
+    assert b"Overview" in response.data

@@ -8,7 +8,10 @@ Python application using Flask framework.
 
 ## Setup environment
 
-#### Check dependencies:
+#### Dependencies:
+- Python 3.11
+- pip
+- pipenv
 
 ```
 $ python --version
@@ -44,34 +47,37 @@ Install packages
 pipenv install [OPTIONS] [PACKAGES]...
 ```
 
-## Creating Flask application
+## Steps for creating the initial Flask application
 
 ### Install Flask
-
 ```
 $ pipenv install Flask
 ```
-
-### Developing a hotel reservation application
+#### Developing a hotel reservation application
 
 The application builds upon steps from tutorial https://flask.palletsprojects.com/en/3.0.x/tutorial/
 
-#### Initialise database
+
+## Run the application
+
+### Initialise database
 ```
 $ flask --app reservation_system init-db
 $ flask --app reservation_system dummy-data
 ```
-
-#### Run app with debugger
+### Run app with debugger
 ```
 $ flask --app reservation_system run --debug
 ```
 ###
+If flask runs successfully, you should be able to click the link in terminal:
+
+```
+* Running on http://127.0.0.1:5000
+```
+
 Log in to the system as username 'admin' with password 'dev'.
 
-#### Styles
-
-Admin views are styled with AdminLTE (https://adminlte.io/)
 
 ### Run the tests
 
@@ -89,6 +95,10 @@ This then works with Coverage Gutters VS Code extension to view coverage in modu
 ```
 $ coverage xml
 ```
+
+## Styles
+
+Admin dashboard views are styled with AdminLTE (https://adminlte.io/)
 
 ## TODO / Features
 
